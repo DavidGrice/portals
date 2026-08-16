@@ -232,8 +232,6 @@ export class PortalController {
         continue;
       }
 
-      this._showPortals([portal]);
-
       color.setMask(false);
       color.setLocked(true);
       depth.setMask(false);
@@ -243,7 +241,7 @@ export class PortalController {
       stencil.setFunc(gl.NOTEQUAL, level, 0xff);
       stencil.setOp(gl.INCR, gl.KEEP, gl.KEEP);
       stencil.setLocked(true);
-      renderer.render(this._stencilScene, camera);
+      this._drawPortalStencil([portal]);
       stencil.setLocked(false);
       color.setLocked(false);
       depth.setLocked(false);
@@ -272,8 +270,7 @@ export class PortalController {
       camera.projectionMatrix.copy(saved.projection);
       camera.projectionMatrixInverse.copy(saved.projectionInverse);
 
-      this._showPortals([portal]);
-      renderer.render(this._stencilScene, camera);
+      this._drawPortalStencil([portal]);
       stencil.setLocked(false);
       color.setLocked(false);
       depth.setLocked(false);
@@ -289,14 +286,13 @@ export class PortalController {
 
     renderer.clear(false, true, false);
 
-    this._showPortals(portals);
     color.setMask(false);
     color.setLocked(true);
     depth.setMask(true);
     stencil.setFunc(gl.LEQUAL, level, 0xff);
     stencil.setOp(gl.KEEP, gl.KEEP, gl.KEEP);
     stencil.setLocked(true);
-    renderer.render(this._stencilScene, camera);
+    this._drawPortalStencil(portals);
     color.setLocked(false);
     color.setMask(true);
     this._renderRoom(scene, level > 0);
@@ -384,6 +380,29 @@ export class PortalController {
     if (color) {
       this.renderer.setClearColor(color, 1);
     }
+  }
+
+  _drawPortalStencil(portals) {
+    const saved = portals.map((portal) => portal.volumeFacesVisible);
+
+    for (const portal of portals) {
+      if (!this._needsVolume(portal)) {
+        portal.toggleVolumeFaces(false);
+      }
+    }
+
+    this._showPortals(portals);
+    this.renderer.render(this._stencilScene, this.camera);
+
+    portals.forEach((portal, index) => {
+      portal.toggleVolumeFaces(saved[index]);
+    });
+  }
+
+  _needsVolume(portal) {
+    localCamera.setFromMatrixPosition(this.camera.matrixWorld);
+    portal.worldToLocal(localCamera);
+    return localCamera.z < CROSS_Z;
   }
 
   _showPortals(portals) {
