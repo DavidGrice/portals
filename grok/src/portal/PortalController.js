@@ -47,6 +47,7 @@ export class PortalController {
 
     this._stencilScene = new Scene();
     this._rooms = new Map();
+    this._portalsById = new Map();
     this._allPortals = [];
     this._currentRoom = null;
     this._currentScene = null;
@@ -77,14 +78,22 @@ export class PortalController {
     return room;
   }
 
-  createPortal(width, height, sceneName) {
-    const portal = new Portal(width, height);
+  createPortal(width, height, sceneName, { id = null } = {}) {
+    const portal = new Portal(width, height, { id });
+
+    if (id) {
+      this._portalsById.set(id, portal);
+    }
 
     if (sceneName) {
       this.addPortalToScene(sceneName, portal);
     }
 
     return portal;
+  }
+
+  getPortal(id) {
+    return this._portalsById.get(id) ?? null;
   }
 
   addPortalToScene(sceneOrName, portal) {
