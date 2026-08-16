@@ -21,6 +21,12 @@ const teleportQuat = new Quaternion();
 const teleportScale = new Vector3();
 const cameraWorldPos = new Vector3();
 const localCamera = new Vector3();
+const matrixStack = Array.from({ length: 8 }, () => ({
+  world: new Matrix4(),
+  worldInverse: new Matrix4(),
+  projection: new Matrix4(),
+  projectionInverse: new Matrix4(),
+}));
 
 const CROSS_Z = 0.08;
 const FACING_DOT = -0.2;
@@ -198,10 +204,11 @@ export class PortalController {
     const { renderer, camera } = this;
     const gl = renderer.getContext();
     const { color, depth, stencil } = renderer.state.buffers;
-    const savedWorld = camera.matrixWorld.clone();
-    const savedWorldInverse = camera.matrixWorldInverse.clone();
-    const savedProjection = camera.projectionMatrix.clone();
-    const savedProjectionInverse = camera.projectionMatrixInverse.clone();
+    const saved = matrixStack[level];
+    saved.world.copy(camera.matrixWorld);
+    saved.worldInverse.copy(camera.matrixWorldInverse);
+    saved.projection.copy(camera.projectionMatrix);
+    saved.projectionInverse.copy(camera.projectionMatrixInverse);
 
     stencil.setTest(true);
     stencil.setMask(0xff);
@@ -260,10 +267,10 @@ export class PortalController {
       stencil.setOp(gl.DECR, gl.KEEP, gl.KEEP);
       stencil.setLocked(true);
 
-      camera.matrixWorld.copy(savedWorld);
-      camera.matrixWorldInverse.copy(savedWorldInverse);
-      camera.projectionMatrix.copy(savedProjection);
-      camera.projectionMatrixInverse.copy(savedProjectionInverse);
+      camera.matrixWorld.copy(saved.world);
+      camera.matrixWorldInverse.copy(saved.worldInverse);
+      camera.projectionMatrix.copy(saved.projection);
+      camera.projectionMatrixInverse.copy(saved.projectionInverse);
 
       this._showPortals([portal]);
       renderer.render(this._stencilScene, camera);
@@ -274,10 +281,10 @@ export class PortalController {
       camera.matrixAutoUpdate = true;
     }
 
-    camera.matrixWorld.copy(savedWorld);
-    camera.matrixWorldInverse.copy(savedWorldInverse);
-    camera.projectionMatrix.copy(savedProjection);
-    camera.projectionMatrixInverse.copy(savedProjectionInverse);
+    camera.matrixWorld.copy(saved.world);
+    camera.matrixWorldInverse.copy(saved.worldInverse);
+    camera.projectionMatrix.copy(saved.projection);
+    camera.projectionMatrixInverse.copy(saved.projectionInverse);
     camera.matrixAutoUpdate = true;
 
     renderer.clear(false, true, false);
