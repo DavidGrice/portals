@@ -62,6 +62,7 @@ function addBox(scene, position, size, color) {
 
 function addPortalFrame(scene, position, rotationY, color) {
   const frame = new THREE.Group();
+  frame.userData.portalFrame = true;
   frame.position.set(...position);
   frame.rotation.y = rotationY;
 

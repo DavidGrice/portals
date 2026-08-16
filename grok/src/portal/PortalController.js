@@ -220,7 +220,7 @@ export class PortalController {
       stencil.setFunc(gl.EQUAL, level, 0xff);
       stencil.setOp(gl.KEEP, gl.KEEP, gl.KEEP);
       stencil.setLocked(true);
-      renderer.render(scene, camera);
+      this._renderRoom(scene, level > 0);
       stencil.setLocked(false);
       return;
     }
@@ -299,7 +299,7 @@ export class PortalController {
     renderer.render(this._stencilScene, camera);
     color.setLocked(false);
     color.setMask(true);
-    renderer.render(scene, camera);
+    this._renderRoom(scene, level > 0);
     stencil.setLocked(false);
 
     if (level === 0) {
@@ -345,6 +345,26 @@ export class PortalController {
     obliqueProjection.elements[14] = clipVector.w;
 
     return obliqueProjection;
+  }
+
+  _renderRoom(scene, hideFrames) {
+    if (hideFrames) {
+      this._setPortalFramesVisible(scene, false);
+    }
+
+    this.renderer.render(scene, this.camera);
+
+    if (hideFrames) {
+      this._setPortalFramesVisible(scene, true);
+    }
+  }
+
+  _setPortalFramesVisible(scene, visible) {
+    scene.traverse((object) => {
+      if (object.userData.portalFrame) {
+        object.visible = visible;
+      }
+    });
   }
 
   _isPortalFacingCamera(portal) {
