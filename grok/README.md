@@ -23,4 +23,4 @@ npm install
 npm run dev
 ```
 
-Then open http://127.0.0.1:5173. Click to lock the pointer. There is one doorway; walk through it to change rooms.
+Then open http://127.0.0.1:5173. The welcome screen uses Metalheart chrome with Aero glass and purple bloom. Enter starts play. Portal stencil stays on WebGL; WebGPU is probed and shown on the card.

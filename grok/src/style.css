@@ -1,8 +1,21 @@
+:root {
+  --kk-bg: #161826;
+  --kk-text: #e9e9ed;
+  --kk-text-dim: #9397ab;
+  --kk-n-300: #cfd3e5;
+  --kk-n-800: #3f424d;
+  --kk-a-400: #b5abfc;
+  --kk-a-500: #968ae0;
+  --kk-a-800: #423a6a;
+  --kk-font: Inter, system-ui, sans-serif;
+}
+
 html,
 body {
   margin: 0;
   overflow: hidden;
-  background: #111;
+  background: var(--kk-bg);
+  font-family: var(--kk-font);
 }
 
 canvas {
@@ -11,27 +24,185 @@ canvas {
   height: 100%;
 }
 
-#blocker {
+.welcome {
   position: absolute;
   inset: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.55);
-  color: #eee;
-  font: 16px/1.5 system-ui, sans-serif;
-  text-align: center;
-  cursor: pointer;
+  gap: 28px;
+  color: var(--kk-text);
+  background: linear-gradient(160deg, rgba(22, 24, 38, 0.42), rgba(12, 10, 24, 0.62));
 }
 
-#blocker[hidden] {
+.welcome[hidden] {
   display: none;
 }
 
-#instructions strong {
-  display: block;
-  margin-bottom: 0.6rem;
-  font-size: 1.6rem;
+.welcome-aurora {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(50% 40% at 50% 18%, rgba(181, 171, 252, 0.34), transparent 70%),
+    radial-gradient(30% 28% at 18% 78%, rgba(150, 138, 224, 0.22), transparent 72%),
+    radial-gradient(26% 24% at 84% 70%, rgba(181, 171, 252, 0.16), transparent 70%);
+  filter: blur(8px);
+}
+
+.welcome-motes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 22% 30%, rgba(255, 255, 255, 0.55) 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 22%, rgba(181, 171, 252, 0.7) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 48% 68%, rgba(255, 255, 255, 0.35) 0 1px, transparent 2px),
+    radial-gradient(circle at 80% 62%, rgba(150, 138, 224, 0.55) 0 2px, transparent 4px);
+  animation: mote-drift 18s linear infinite;
+}
+
+@keyframes mote-drift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-18px);
+  }
+}
+
+.welcome-plaque {
+  position: relative;
+  z-index: 1;
+  padding: 22px 56px 20px;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+  background: linear-gradient(
+    104deg,
+    rgba(30, 33, 43, 0.92),
+    rgba(15, 17, 23, 0.94) 42%,
+    rgba(38, 42, 56, 0.9) 64%,
+    rgba(13, 15, 20, 0.95)
+  );
+  box-shadow: 0 0 40px rgba(150, 138, 224, 0.28);
+}
+
+.welcome-plaque::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(104deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 3px);
+}
+
+.welcome-plaque::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--kk-a-400), transparent);
+  box-shadow: 0 0 16px var(--kk-a-500);
+}
+
+.welcome-plaque h1 {
+  position: relative;
+  margin: 0;
+  font: 700 52px/1 var(--kk-font);
+  letter-spacing: -0.03em;
+  text-shadow: 0 0 24px rgba(181, 171, 252, 0.45);
+}
+
+.welcome-rule {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.welcome-rule span {
+  width: 44px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--kk-a-400), transparent);
+}
+
+.welcome-rule em {
+  font: 500 11px/1 var(--kk-font);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--kk-a-400);
+}
+
+.welcome-card {
+  position: relative;
+  z-index: 1;
+  width: min(360px, calc(100% - 40px));
+  padding: 20px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(rgba(24, 20, 42, 0.62), rgba(10, 10, 20, 0.78));
+  backdrop-filter: blur(20px) saturate(1.25);
+  border: 1px solid rgba(181, 171, 252, 0.28);
+  border-top-color: rgba(255, 255, 255, 0.42);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 0 28px rgba(150, 138, 224, 0.32),
+    0 26px 60px rgba(0, 0, 0, 0.55);
+}
+
+.welcome-card::before {
+  content: '';
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  top: 1px;
+  height: 72px;
+  background: linear-gradient(rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+.welcome-enter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 46px;
+  border: 1px solid var(--kk-a-400);
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  background: linear-gradient(104deg, #3a3160, #1a172c);
+  color: var(--kk-text);
+  font: 700 14px/1 var(--kk-font);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 0 22px rgba(181, 171, 252, 0.45);
+}
+
+.welcome-enter:hover,
+.welcome-enter:focus-visible {
+  background: linear-gradient(104deg, #4a3d78, #221c38);
+  outline: none;
+}
+
+.welcome-hint,
+.welcome-gpu {
+  position: relative;
+  margin: 12px 0 0;
+  text-align: center;
+}
+
+.welcome-hint {
+  font: 500 12.5px/1.4 var(--kk-font);
+  color: var(--kk-n-300);
+}
+
+.welcome-gpu {
+  font: 400 11px/1.45 var(--kk-font);
+  color: var(--kk-text-dim);
 }
 
 #crosshair {
@@ -68,6 +239,12 @@ canvas {
   transform: translateY(-50%);
 }
 
-#blocker:not([hidden]) ~ #crosshair {
+.welcome:not([hidden]) ~ #crosshair {
   display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-motes {
+    animation: none;
+  }
 }
