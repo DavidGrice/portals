@@ -16,28 +16,51 @@ const controller = createDemo(camera, renderer);
 controller.setSize(window.innerWidth, window.innerHeight);
 
 const controls = new PointerLockControls(camera, document.body);
-const blocker = document.getElementById('blocker');
-if (new URLSearchParams(window.location.search).has('nohud')) {
-  blocker.hidden = true;
+const welcome = document.getElementById('welcome');
+const enterButton = document.getElementById('welcome-enter');
+const gpuLine = document.getElementById('welcome-gpu');
+const skipHud = new URLSearchParams(window.location.search).has('nohud');
+
+if (gpuLine) {
+  const adapter = capabilities.adapterLabel ? ` · ${capabilities.adapterLabel}` : '';
+  gpuLine.textContent = `${capabilities.reason}${adapter}`;
 }
+
+if (skipHud && welcome) {
+  welcome.hidden = true;
+}
+
 const move = { forward: false, back: false, left: false, right: false };
 const clock = new THREE.Clock();
 const eyeHeight = 1;
 const moveSpeed = 4;
 
-blocker.addEventListener('click', () => {
+function enterWorld() {
+  if (welcome) {
+    welcome.hidden = true;
+  }
   controls.lock();
-});
+}
+
+enterButton?.addEventListener('click', enterWorld);
 
 controls.addEventListener('lock', () => {
-  blocker.hidden = true;
+  if (welcome) {
+    welcome.hidden = true;
+  }
 });
 
 controls.addEventListener('unlock', () => {
-  blocker.hidden = false;
+  if (welcome && !skipHud) {
+    welcome.hidden = false;
+  }
 });
 
 window.addEventListener('keydown', (event) => {
+  if (event.code === 'Enter' && welcome && !welcome.hidden) {
+    enterWorld();
+    return;
+  }
   setMove(event.code, true);
 });
 
