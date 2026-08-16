@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://portals-grok.local/schema/world.json",
+  "title": "World",
+  "type": "object",
+  "required": ["id", "startRoom", "rooms"],
+  "properties": {
+    "id": { "type": "string" },
+    "title": { "type": "string" },
+    "startRoom": { "type": "string" },
+    "startSpawn": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "lookAt": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "rooms": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/room" }
+    }
+  },
+  "$defs": {
+    "vec3": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "entity": {
+      "type": "object",
+      "required": ["id", "kind"],
+      "properties": {
+        "id": { "type": "string" },
+        "kind": { "type": "string" },
+        "position": { "$ref": "#/$defs/vec3" },
+        "rotation": { "$ref": "#/$defs/vec3" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "props": { "type": "object" }
+      }
+    },
+    "portal": {
+      "type": "object",
+      "required": ["id", "destinationId"],
+      "properties": {
+        "id": { "type": "string" },
+        "position": { "$ref": "#/$defs/vec3" },
+        "yaw": { "type": "number" },
+        "size": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+        "destinationId": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "room": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "clearColor": { "type": ["string", "number"] },
+        "entities": { "type": "array", "items": { "$ref": "#/$defs/entity" } },
+        "portals": { "type": "array", "items": { "$ref": "#/$defs/portal" } }
+      }
+    }
+  }
+}
