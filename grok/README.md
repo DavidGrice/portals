@@ -22,4 +22,4 @@ npm install
 npm run dev
 ```
 
-Then open http://127.0.0.1:5173. This step renders room B through the portal in room A (stencil + oblique clip). No walk-through or recursion yet.
+Then open http://127.0.0.1:5173. Click to lock the pointer, then look with the mouse and move with WASD. Walking through the portal does not teleport yet.
