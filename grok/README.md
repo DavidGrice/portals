@@ -12,3 +12,14 @@ This folder is the home for the modernized Three.js portal rewrite.
 | `public/` | Leftover globe-viz assets and unfinished r119 portal experiments. Not the product. |
 
 Vendor trees stay on disk as read-only source material. New portal code starts here.
+
+## Run
+
+From this folder:
+
+```
+npm install
+npm run dev
+```
+
+Then open http://127.0.0.1:5173. This step is the Vite shell only — Three.js is not installed yet.
