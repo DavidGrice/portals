@@ -23,4 +23,4 @@ npm install
 npm run dev
 ```
 
-Then open http://127.0.0.1:5173. Click to lock the pointer. Blue frames are room A, gold frames are room B. You should see nested frames through the near portal.
+Then open http://127.0.0.1:5173. Click to lock the pointer. There is one doorway; walk through it to change rooms.
