@@ -51,12 +51,19 @@ export const prefabs = {
     const group = new THREE.Group();
     group.userData.portalFrame = true;
     applyPose(group, entity);
+    group.translateZ(0.08);
 
     const thickness = 0.08;
     const width = 2.16;
     const height = 2.16;
     const depth = 0.1;
-    const material = new THREE.MeshBasicMaterial({ color });
+    const material = new THREE.MeshBasicMaterial({
+      color,
+      depthTest: true,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+      polygonOffsetUnits: -2,
+    });
     const pieces = [
       [0, height / 2, 0, width + thickness * 2, thickness, depth],
       [0, -height / 2, 0, width + thickness * 2, thickness, depth],

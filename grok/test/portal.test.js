@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { Scene, PerspectiveCamera } from 'three';
+import { Scene, PerspectiveCamera, Vector3 } from 'three';
 import { PortalController } from '../src/portal/PortalController.js';
 import { Room } from '../src/portal/Room.js';
 
@@ -79,5 +79,35 @@ describe('portal engine', () => {
     camera.position.set(0, 1, 0.05);
     controller.update();
     assert.deepEqual(log, ['leave:room-a', 'enter:room-b', 'cross:room-a:room-b:door-ab']);
+  });
+
+  it('emerges in front of an offset destination and does not bounce', () => {
+    const camera = new PerspectiveCamera(60, 1, 0.05, 100);
+    const controller = new PortalController({ camera, renderer: mockRenderer() });
+    controller.registerScene('room-b', new Scene(), { clearColor: 0x4a1c1c });
+    controller.registerScene('room-c', new Scene(), { clearColor: 0x1c3328 });
+    const bc = controller.createPortal(2, 2, 'room-b', { id: 'door-bc' });
+    bc.position.set(0, 1, -5);
+    const cb = controller.createPortal(2, 2, 'room-c', { id: 'door-cb' });
+    cb.position.set(0, 1, 0);
+    cb.rotateY(Math.PI);
+    bc.setDestinationPortal(cb);
+    cb.setDestinationPortal(bc);
+    controller.setCurrentScene('room-b');
+    camera.position.set(0, 1, -3);
+    camera.lookAt(0, 1, -5);
+    controller.update();
+    camera.position.set(0, 1, -4.95);
+    controller.update();
+    assert.equal(controller.currentRoom.id, 'room-c');
+    const local = camera.position.clone();
+    cb.updateMatrixWorld(true);
+    cb.worldToLocal(local);
+    assert.ok(local.z >= 0.3, `emerge local z ${local.z}`);
+    const before = camera.position.clone();
+    camera.position.add(new Vector3(0, 0, -0.2));
+    controller.update();
+    assert.equal(controller.currentRoom.id, 'room-c');
+    assert.ok(camera.position.distanceTo(before) > 0.01);
   });
 });
