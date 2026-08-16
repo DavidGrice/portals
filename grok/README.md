@@ -22,4 +22,4 @@ npm install
 npm run dev
 ```
 
-Then open http://127.0.0.1:5173. Click to lock the pointer, then walk through the portal to enter the other room. Recursion is not in yet.
+Then open http://127.0.0.1:5173. Click to lock the pointer. You should see a portal inside the portal (recursive stencil, depth 4). Walk through to change rooms.
