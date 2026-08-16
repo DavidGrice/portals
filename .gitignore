@@ -30,5 +30,12 @@ Desktop.ini
 .env.*
 !.env.example
 
-# do not commit the 2016 vendored engine
-Portals-master/three.r81-tweaked.js
+# leftover globe-viz dump (keep locally, do not commit)
+/app.js
+/package.json
+/package-lock.json
+/public/
+
+# vendor reference checkouts (keep locally, do not commit)
+/Portals-master/
+/three.portals-master/
