@@ -1,0 +1,26 @@
+{
+  "id": "core",
+  "title": "Core catalog",
+  "kinds": {
+    "env.sky": {
+      "category": "environment",
+      "prefab": "sky",
+      "tags": ["environment"]
+    },
+    "env.floor": {
+      "category": "environment",
+      "prefab": "floor",
+      "tags": ["environment"]
+    },
+    "prop.box": {
+      "category": "prop",
+      "prefab": "box",
+      "tags": ["prop"]
+    },
+    "arch.frame": {
+      "category": "architecture",
+      "prefab": "frame",
+      "tags": ["architecture", "portal-frame"]
+    }
+  }
+}
