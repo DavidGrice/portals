@@ -24,22 +24,11 @@ export function createDemo(camera, renderer) {
   portalB.position.set(0, 1, 0);
   portalB.rotateY(Math.PI);
 
-  const portalAFar = controller.createPortal(2, 2, 'room-a');
-  portalAFar.position.set(0, 1, -4);
-  portalAFar.rotateY(Math.PI);
-
-  const portalBFar = controller.createPortal(2, 2, 'room-b');
-  portalBFar.position.set(0, 1, -4);
-
   portalA.setDestinationPortal(portalB);
   portalB.setDestinationPortal(portalA);
-  portalAFar.setDestinationPortal(portalBFar);
-  portalBFar.setDestinationPortal(portalAFar);
 
   addPortalFrame(roomA, [0, 1, 0], 0, 0x7ec8ff);
-  addPortalFrame(roomA, [0, 1, -4], Math.PI, 0x7ec8ff);
   addPortalFrame(roomB, [0, 1, 0], Math.PI, 0xffb020);
-  addPortalFrame(roomB, [0, 1, -4], 0, 0xffb020);
 
   controller.setCurrentScene('room-a');
   controller.setCameraPosition(0, 1, 4);
