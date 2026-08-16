@@ -46,5 +46,9 @@ describe('world data', () => {
     assert.equal(a.destinationId, 'door-ba');
     assert.equal(b.destinationId, 'door-ab');
     assert.equal(a.destinationPortal, b);
+    const bc = controller.getPortal('door-bc');
+    const cb = controller.getPortal('door-cb');
+    assert.equal(bc.destinationId, 'door-cb');
+    assert.equal(cb.destinationPortal, bc);
   });
 });
