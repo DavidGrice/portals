@@ -5,26 +5,26 @@ import { createPortalRenderer, probeCapabilities } from './engine/capabilities.j
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.05, 100);
 const renderer = createPortalRenderer();
-document.body.appendChild(renderer.domElement);
-
-const capabilities = await probeCapabilities();
-document.documentElement.dataset.portalBackend = capabilities.portalBackend;
-document.documentElement.dataset.webgpu = capabilities.webgpu ? 'yes' : 'no';
-console.info('portals-grok capabilities', capabilities);
+document.body.insertBefore(renderer.domElement, document.body.firstChild);
 
 const controller = createDemo(camera, renderer);
 controller.setSize(window.innerWidth, window.innerHeight);
 
-const controls = new PointerLockControls(camera, document.body);
+const controls = new PointerLockControls(camera, renderer.domElement);
 const welcome = document.getElementById('welcome');
 const enterButton = document.getElementById('welcome-enter');
 const gpuLine = document.getElementById('welcome-gpu');
 const skipHud = new URLSearchParams(window.location.search).has('nohud');
 
-if (gpuLine) {
-  const adapter = capabilities.adapterLabel ? ` · ${capabilities.adapterLabel}` : '';
-  gpuLine.textContent = `${capabilities.reason}${adapter}`;
-}
+probeCapabilities().then((capabilities) => {
+  document.documentElement.dataset.portalBackend = capabilities.portalBackend;
+  document.documentElement.dataset.webgpu = capabilities.webgpu ? 'yes' : 'no';
+  if (gpuLine) {
+    const adapter = capabilities.adapterLabel ? ` · ${capabilities.adapterLabel}` : '';
+    gpuLine.textContent = `${capabilities.reason}${adapter}`;
+  }
+  console.info('portals-grok capabilities', capabilities);
+});
 
 if (skipHud && welcome) {
   welcome.hidden = true;
