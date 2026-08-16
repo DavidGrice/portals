@@ -158,11 +158,11 @@ export class PortalController {
   }
 
   _updateVolumeFaces(portal, worldPosition) {
-    const distance = worldPosition.distanceTo(portal.getWorldPosition(portalWorldPos));
     localCamera.copy(worldPosition);
     portal.worldToLocal(localCamera);
-    const near = Math.max(portal.geometry.width, portal.geometry.height) * 1.5;
-    portal.toggleVolumeFaces(distance < near || Math.abs(localCamera.z) < 1);
+    // Volume is wider than the door. Only use it when the near plane
+    // is about to eat the front quad, or the wide stencil shows behind the frame.
+    portal.toggleVolumeFaces(localCamera.z < CROSS_Z);
   }
 
   _crossedPortal(portal, currentPosition) {
