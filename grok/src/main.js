@@ -14,7 +14,24 @@ const controls = new PointerLockControls(camera, renderer.domElement);
 const welcome = document.getElementById('welcome');
 const enterButton = document.getElementById('welcome-enter');
 const gpuLine = document.getElementById('welcome-gpu');
-const skipHud = new URLSearchParams(window.location.search).has('nohud');
+const params = new URLSearchParams(window.location.search);
+const skipHud = params.has('nohud');
+const debugPanel = document.getElementById('debug');
+const showDebug = params.has('debug');
+const debugLocal = new THREE.Vector3();
+let lastCross = '—';
+
+if (showDebug && debugPanel) {
+  debugPanel.hidden = false;
+  controller.on('room:enter', ({ roomId }) => {
+    updateDebug(roomId);
+  });
+  controller.on('portal:cross', ({ portalId, from, to }) => {
+    lastCross = `${from} → ${to} via ${portalId ?? '?'}`;
+    updateDebug(to);
+  });
+  updateDebug(controller.currentRoom?.id);
+}
 
 probeCapabilities().then((capabilities) => {
   document.documentElement.dataset.portalBackend = capabilities.portalBackend;
@@ -85,7 +102,37 @@ function tick() {
 
   controller.update();
   controller.render();
+  if (showDebug) {
+    updateDebug(controller.currentRoom?.id);
+  }
   requestAnimationFrame(tick);
+}
+
+function updateDebug(roomId) {
+  if (!debugPanel || debugPanel.hidden) {
+    return;
+  }
+
+  let nearest = '—';
+  let nearestZ = '—';
+  let best = Infinity;
+
+  for (const portal of controller.allPortals) {
+    debugLocal.copy(camera.position);
+    portal.worldToLocal(debugLocal);
+    if (Math.abs(debugLocal.z) < best) {
+      best = Math.abs(debugLocal.z);
+      nearest = portal.portalId ?? '?';
+      nearestZ = debugLocal.z.toFixed(2);
+    }
+  }
+
+  debugPanel.textContent = [
+    `room  ${roomId ?? '—'}`,
+    `near  ${nearest} z=${nearestZ}`,
+    `cross ${lastCross}`,
+    `gpu   ${document.documentElement.dataset.webgpu ?? '?'} / ${document.documentElement.dataset.portalBackend ?? '?'}`,
+  ].join('\n');
 }
 
 tick();

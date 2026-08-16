@@ -245,6 +245,25 @@ canvas {
   display: none;
 }
 
+.debug {
+  position: absolute;
+  z-index: 15;
+  left: 16px;
+  bottom: 16px;
+  min-width: 220px;
+  padding: 10px 12px;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  background: linear-gradient(104deg, rgba(30, 33, 43, 0.88), rgba(15, 17, 23, 0.92));
+  color: var(--kk-n-300);
+  font: 500 11px/1.45 ui-monospace, Menlo, monospace;
+  box-shadow: 0 0 16px rgba(150, 138, 224, 0.25);
+  pointer-events: none;
+}
+
+.debug[hidden] {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .welcome-motes {
     animation: none;
