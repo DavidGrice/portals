@@ -50,6 +50,7 @@ export const prefabs = {
     const color = parseColor(entity.props?.color, 0xffffff);
     const group = new THREE.Group();
     group.userData.portalFrame = true;
+    group.userData.coversPortalId = entity.props?.coversPortalId ?? null;
     applyPose(group, entity);
     group.translateZ(0.08);
 

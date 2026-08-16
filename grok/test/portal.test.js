@@ -2,6 +2,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { Scene, PerspectiveCamera, Vector3 } from 'three';
 import { PortalController } from '../src/portal/PortalController.js';
+import { PortalGeometry } from '../src/portal/PortalGeometry.js';
 import { Room } from '../src/portal/Room.js';
 
 function mockRenderer() {
@@ -59,6 +60,32 @@ describe('portal engine', () => {
     assert.equal(controller.currentRoom.id, 'room-b');
   });
 
+  it('does not yank the camera on a same-place pair', () => {
+    const { camera, controller } = makePair();
+    camera.position.set(0, 1, 0.4);
+    camera.lookAt(0, 1, 0);
+    controller.update();
+    camera.position.set(0, 1, 0.05);
+    controller.update();
+    assert.equal(controller.currentRoom.id, 'room-b');
+    assert.ok(camera.position.z > 0, `camera z ${camera.position.z}`);
+  });
+
+  it('uses two triangles that both face +Z', () => {
+    const geometry = new PortalGeometry(2, 2);
+    const p = geometry.attributes.position.array;
+    const idx = geometry.index.array;
+    const n = (a, b, c) => {
+      const ax = p[c * 3] - p[a * 3];
+      const ay = p[c * 3 + 1] - p[a * 3 + 1];
+      const bx = p[b * 3] - p[a * 3];
+      const by = p[b * 3 + 1] - p[a * 3 + 1];
+      return bx * ay - by * ax;
+    };
+    assert.ok(n(idx[0], idx[1], idx[2]) > 0);
+    assert.ok(n(idx[3], idx[4], idx[5]) > 0);
+  });
+
   it('does not teleport on a sidestep', () => {
     const { camera, controller } = makePair();
     camera.position.set(3, 1, 2);
@@ -103,7 +130,7 @@ describe('portal engine', () => {
     const local = camera.position.clone();
     cb.updateMatrixWorld(true);
     cb.worldToLocal(local);
-    assert.ok(local.z >= 0.3, `emerge local z ${local.z}`);
+    assert.ok(Math.abs(local.z) >= 0.3, `emerge local z ${local.z}`);
     const before = camera.position.clone();
     camera.position.add(new Vector3(0, 0, -0.2));
     controller.update();

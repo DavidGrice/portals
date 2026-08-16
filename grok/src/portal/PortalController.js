@@ -221,10 +221,10 @@ export class PortalController {
     destination.updateMatrixWorld(true);
     localCurr.copy(this.camera.position);
     destination.worldToLocal(localCurr);
-    if (localCurr.z >= EMERGE_Z) {
+    if (Math.abs(localCurr.z) >= EMERGE_Z) {
       return;
     }
-    localCurr.z = EMERGE_Z;
+    localCurr.z = (localCurr.z < 0 ? -1 : 1) * EMERGE_Z;
     destination.localToWorld(localCurr);
     this.camera.position.copy(localCurr);
     this.camera.updateMatrixWorld();
@@ -256,10 +256,10 @@ export class PortalController {
   render() {
     this.camera.updateMatrixWorld();
     this.renderer.clear(true, true, true);
-    this._renderLevel(this._currentScene, this._currentScenePortals, 0, this.maxRecursion);
+    this._renderLevel(this._currentScene, this._currentScenePortals, 0, this.maxRecursion, null, null);
   }
 
-  _renderLevel(scene, portals, level, maxDepth) {
+  _renderLevel(scene, portals, level, maxDepth, hideFrameForPortalId, skipReturnId) {
     const { renderer, camera } = this;
     const gl = renderer.getContext();
     const { color, depth, stencil } = renderer.state.buffers;
@@ -279,7 +279,7 @@ export class PortalController {
       stencil.setFunc(gl.EQUAL, level, 0xff);
       stencil.setOp(gl.KEEP, gl.KEEP, gl.KEEP);
       stencil.setLocked(true);
-      this._renderRoom(scene, level > 0);
+      this._renderRoom(scene, hideFrameForPortalId);
       stencil.setLocked(false);
       return;
     }
@@ -287,7 +287,12 @@ export class PortalController {
     for (const portal of portals) {
       const destination = portal.destinationPortal;
 
-      if (!destination?.scene || !this._isPortalFacingCamera(portal) || this._tooCloseToDraw(portal)) {
+      if (
+        !destination?.scene ||
+        destination.portalId === skipReturnId ||
+        !this._isPortalFacingCamera(portal) ||
+        this._tooCloseToDraw(portal)
+      ) {
         continue;
       }
 
@@ -314,7 +319,14 @@ export class PortalController {
       camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
 
       const destPortals = this._getRoom(destination.scene.name)?.portals || [];
-      this._renderLevel(destination.scene, destPortals, level + 1, maxDepth);
+      this._renderLevel(
+        destination.scene,
+        destPortals,
+        level + 1,
+        maxDepth,
+        destination.portalId,
+        portal.portalId,
+      );
 
       color.setMask(false);
       color.setLocked(true);
@@ -357,7 +369,7 @@ export class PortalController {
     renderer.render(this._stencilScene, camera);
     color.setLocked(false);
     color.setMask(true);
-    this._renderRoom(scene, level > 0);
+    this._renderRoom(scene, hideFrameForPortalId);
     stencil.setLocked(false);
 
     if (level === 0) {
@@ -405,23 +417,27 @@ export class PortalController {
     return obliqueProjection;
   }
 
-  _renderRoom(scene, hideFrames) {
-    if (hideFrames) {
-      this._setPortalFramesVisible(scene, false);
+  _renderRoom(scene, hideFrameForPortalId) {
+    if (hideFrameForPortalId) {
+      this._setPortalFramesVisible(scene, false, hideFrameForPortalId);
     }
 
     this.renderer.render(scene, this.camera);
 
-    if (hideFrames) {
-      this._setPortalFramesVisible(scene, true);
+    if (hideFrameForPortalId) {
+      this._setPortalFramesVisible(scene, true, hideFrameForPortalId);
     }
   }
 
-  _setPortalFramesVisible(scene, visible) {
+  _setPortalFramesVisible(scene, visible, onlyPortalId = null) {
     scene.traverse((object) => {
-      if (object.userData.portalFrame) {
-        object.visible = visible;
+      if (!object.userData.portalFrame) {
+        return;
       }
+      if (onlyPortalId && object.userData.coversPortalId !== onlyPortalId) {
+        return;
+      }
+      object.visible = visible;
     });
   }
 

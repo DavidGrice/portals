@@ -1,6 +1,7 @@
 import { BufferAttribute, BufferGeometry } from 'three';
 
-const INDICES = [0, 1, 2, 1, 3, 2];
+// Two triangles, both CCW when looking from +Z (the walk-up side).
+const INDICES = [0, 1, 3, 0, 3, 2];
 
 export class PortalGeometry extends BufferGeometry {
   constructor(width, height) {
