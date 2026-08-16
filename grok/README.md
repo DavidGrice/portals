@@ -22,4 +22,4 @@ npm install
 npm run dev
 ```
 
-Then open http://127.0.0.1:5173. This step draws a `Portal` mesh (geometry + two materials, volume-from-camera). No stencil or controller yet.
+Then open http://127.0.0.1:5173. This step uses `PortalController` to register two rooms and link a portal pair. No stencil pass yet.
