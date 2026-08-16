@@ -1,11 +1,16 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { createDemo } from './demo.js';
+import { createPortalRenderer, probeCapabilities } from './engine/capabilities.js';
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.05, 100);
-const renderer = new THREE.WebGLRenderer({ antialias: true, stencil: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const renderer = createPortalRenderer();
 document.body.appendChild(renderer.domElement);
+
+const capabilities = await probeCapabilities();
+document.documentElement.dataset.portalBackend = capabilities.portalBackend;
+document.documentElement.dataset.webgpu = capabilities.webgpu ? 'yes' : 'no';
+console.info('portals-grok capabilities', capabilities);
 
 const controller = createDemo(camera, renderer);
 controller.setSize(window.innerWidth, window.innerHeight);
