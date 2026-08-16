@@ -1,4 +1,4 @@
-import { Matrix4, Plane, Scene, Vector3, Vector4 } from 'three';
+import { Matrix4, Plane, Quaternion, Scene, Vector3, Vector4 } from 'three';
 import { Portal } from './Portal.js';
 
 const rotationY180 = new Matrix4().makeRotationY(Math.PI);
@@ -15,6 +15,12 @@ const dstWorldPos = new Vector3();
 const planeNormal = new Vector3();
 const savedWorld = new Matrix4();
 const savedProjection = new Matrix4();
+const localPrev = new Vector3();
+const localCurr = new Vector3();
+const portalWorldPos = new Vector3();
+const teleportPos = new Vector3();
+const teleportQuat = new Quaternion();
+const teleportScale = new Vector3();
 
 function sign(value) {
   if (value > 0) return 1;
@@ -34,6 +40,8 @@ export class PortalController {
     this._allPortals = [];
     this._currentScene = null;
     this._currentScenePortals = [];
+    this._lastCameraPosition = new Vector3();
+    this._hasLastPosition = false;
   }
 
   get currentScene() {
@@ -90,6 +98,69 @@ export class PortalController {
 
   setCameraPosition(x = 0, y = 0, z = 0) {
     this.camera.position.set(x, y, z);
+    this._lastCameraPosition.copy(this.camera.position);
+    this._hasLastPosition = true;
+  }
+
+  update() {
+    const camera = this.camera;
+    camera.updateMatrixWorld();
+
+    for (const portal of this._allPortals) {
+      portal.updateMatrixWorld(true);
+    }
+
+    if (!this._hasLastPosition) {
+      this._lastCameraPosition.copy(camera.position);
+      this._hasLastPosition = true;
+      return;
+    }
+
+    let crossed = null;
+
+    for (const portal of this._currentScenePortals) {
+      const distance = camera.position.distanceTo(portal.getWorldPosition(portalWorldPos));
+      portal.toggleVolumeFaces(distance < Math.max(portal.geometry.width, portal.geometry.height) * 1.5);
+
+      if (!crossed && portal.destinationPortal?.scene && this._crossedPortal(portal, camera.position)) {
+        crossed = portal;
+      }
+    }
+
+    if (crossed) {
+      this.teleport(crossed);
+    } else {
+      this._lastCameraPosition.copy(camera.position);
+    }
+  }
+
+  teleport(portal) {
+    this.camera.updateMatrixWorld();
+    this.computePortalViewMatrix(portal).decompose(teleportPos, teleportQuat, teleportScale);
+    this.camera.position.copy(teleportPos);
+    this.camera.quaternion.copy(teleportQuat);
+    this.camera.updateMatrixWorld();
+    this.setCurrentScene(portal.destinationPortal.scene.name);
+    this._lastCameraPosition.copy(this.camera.position);
+    this._hasLastPosition = true;
+  }
+
+  _crossedPortal(portal, currentPosition) {
+    localPrev.copy(this._lastCameraPosition);
+    localCurr.copy(currentPosition);
+    portal.worldToLocal(localPrev);
+    portal.worldToLocal(localCurr);
+
+    if (localPrev.z <= 0 || localCurr.z > 0) {
+      return false;
+    }
+
+    const span = localPrev.z - localCurr.z;
+    const t = localPrev.z / span;
+    const x = localPrev.x + (localCurr.x - localPrev.x) * t;
+    const y = localPrev.y + (localCurr.y - localPrev.y) * t;
+
+    return Math.abs(x) <= portal.geometry.halfWidth && Math.abs(y) <= portal.geometry.halfHeight;
   }
 
   setSize(width, height) {

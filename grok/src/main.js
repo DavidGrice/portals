@@ -79,6 +79,7 @@ function tick() {
     camera.position.y = eyeHeight;
   }
 
+  controller.update();
   controller.render();
   requestAnimationFrame(tick);
 }
