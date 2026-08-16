@@ -22,4 +22,4 @@ npm install
 npm run dev
 ```
 
-Then open http://127.0.0.1:5173. This step uses `PortalController` to register two rooms and link a portal pair. No stencil pass yet.
+Then open http://127.0.0.1:5173. This step renders room B through the portal in room A (stencil + oblique clip). No walk-through or recursion yet.
