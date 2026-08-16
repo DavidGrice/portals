@@ -1,6 +1,7 @@
 import { Matrix4, Plane, Quaternion, Scene, Vector3, Vector4 } from 'three';
 import { Portal } from './Portal.js';
 import { Room } from './Room.js';
+import { Emitter } from '../engine/Emitter.js';
 
 const rotationY180 = new Matrix4().makeRotationY(Math.PI);
 const srcToCam = new Matrix4();
@@ -54,6 +55,15 @@ export class PortalController {
     this._currentScenePortals = [];
     this._lastCameraPosition = new Vector3();
     this._hasLastPosition = false;
+    this._events = new Emitter();
+  }
+
+  on(type, handler) {
+    return this._events.on(type, handler);
+  }
+
+  off(type, handler) {
+    this._events.off(type, handler);
   }
 
   get currentRoom() {
@@ -116,10 +126,20 @@ export class PortalController {
       throw new Error(`Unknown portal room: ${name}`);
     }
 
+    const previous = this._currentRoom;
+    if (previous?.id === room.id) {
+      return;
+    }
+
+    if (previous) {
+      this._events.emit('room:leave', { room: previous, roomId: previous.id });
+    }
+
     this._currentRoom = room;
     this._currentScene = room.scene;
     this._currentScenePortals = room.portals;
     this.renderer.setClearColor(room.clearColor, 1);
+    this._events.emit('room:enter', { room, roomId: room.id });
   }
 
   setCameraPosition(x = 0, y = 0, z = 0) {
@@ -163,9 +183,17 @@ export class PortalController {
     this.camera.position.copy(teleportPos);
     this.camera.quaternion.copy(teleportQuat);
     this.camera.updateMatrixWorld();
-    this.setCurrentScene(portal.destinationPortal.scene.name);
+    const fromId = this._currentRoom?.id ?? null;
+    const toId = this._getRoom(portal.destinationPortal.scene)?.id ?? portal.destinationPortal.scene.name;
+    this.setCurrentScene(toId);
     this._lastCameraPosition.copy(this.camera.position);
     this._hasLastPosition = true;
+    this._events.emit('portal:cross', {
+      portal,
+      portalId: portal.portalId,
+      from: fromId,
+      to: toId,
+    });
   }
 
   _crossedPortal(portal, currentPosition) {
