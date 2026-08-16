@@ -17,10 +17,10 @@ export function createDemo(camera, renderer) {
   controller.registerScene('room-a', roomA, { clearColor: 0x2a3344, tags: ['interior', 'start'] });
   controller.registerScene('room-b', roomB, { clearColor: 0x4a1c1c, tags: ['interior'] });
 
-  const portalA = controller.createPortal(2, 2, 'room-a');
+  const portalA = controller.createPortal(2, 2, 'room-a', { id: 'door-ab' });
   portalA.position.set(0, 1, 0);
 
-  const portalB = controller.createPortal(2, 2, 'room-b');
+  const portalB = controller.createPortal(2, 2, 'room-b', { id: 'door-ba' });
   portalB.position.set(0, 1, 0);
   portalB.rotateY(Math.PI);
 

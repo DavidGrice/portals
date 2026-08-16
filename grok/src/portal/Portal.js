@@ -2,10 +2,12 @@ import { Mesh, MeshBasicMaterial } from 'three';
 import { PortalGeometry } from './PortalGeometry.js';
 
 export class Portal extends Mesh {
-  constructor(width, height) {
+  constructor(width, height, { id = null } = {}) {
     super(new PortalGeometry(width, height), new MeshBasicMaterial({ colorWrite: false }));
 
     this.type = 'Portal';
+    this.id = id;
+    this.destinationId = null;
     // Logical room this portal belongs to, not Object3D.parent.
     this.scene = null;
     this.destinationPortal = null;
@@ -19,5 +21,6 @@ export class Portal extends Mesh {
 
   setDestinationPortal(portal) {
     this.destinationPortal = portal;
+    this.destinationId = portal?.id ?? null;
   }
 }
