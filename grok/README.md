@@ -22,4 +22,4 @@ npm install
 npm run dev
 ```
 
-Then open http://127.0.0.1:5173. This step is the Vite shell only — Three.js is not installed yet.
+Then open http://127.0.0.1:5173. This step is a fullscreen Three.js canvas with a test cube. Portal code is not in yet.
