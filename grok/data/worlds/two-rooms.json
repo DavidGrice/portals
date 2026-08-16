@@ -24,7 +24,7 @@
           "id": "frame-ab",
           "kind": "arch.frame",
           "position": [0, 1, 0],
-          "props": { "color": "#7ec8ff" }
+          "props": { "color": "#7ec8ff", "coversPortalId": "door-ab" }
         }
       ],
       "portals": [
@@ -57,13 +57,13 @@
           "kind": "arch.frame",
           "position": [0, 1, 0],
           "rotation": [0, 3.141592653589793, 0],
-          "props": { "color": "#ffb020" }
+          "props": { "color": "#ffb020", "coversPortalId": "door-ba" }
         },
         {
           "id": "frame-bc",
           "kind": "arch.frame",
           "position": [0, 1, -5],
-          "props": { "color": "#7ee0b0" }
+          "props": { "color": "#7ee0b0", "coversPortalId": "door-bc" }
         }
       ],
       "portals": [
@@ -103,7 +103,7 @@
           "kind": "arch.frame",
           "position": [0, 1, 0],
           "rotation": [0, 3.141592653589793, 0],
-          "props": { "color": "#7ee0b0" }
+          "props": { "color": "#7ee0b0", "coversPortalId": "door-cb" }
         }
       ],
       "portals": [
