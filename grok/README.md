@@ -22,4 +22,4 @@ npm install
 npm run dev
 ```
 
-Then open http://127.0.0.1:5173. This step is a fullscreen Three.js canvas with a test cube. Portal code is not in yet.
+Then open http://127.0.0.1:5173. This step draws `PortalGeometry` as a two-material wireframe (front quad + volume). No stencil or controller yet.
