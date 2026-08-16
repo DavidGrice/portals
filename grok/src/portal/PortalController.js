@@ -1,5 +1,6 @@
-import { BackSide, Matrix4, Plane, Quaternion, Scene, Vector3, Vector4 } from 'three';
+import { Matrix4, Plane, Quaternion, Scene, Vector3, Vector4 } from 'three';
 import { Portal } from './Portal.js';
+import { Room } from './Room.js';
 
 const rotationY180 = new Matrix4().makeRotationY(Math.PI);
 const srcToCam = new Matrix4();
@@ -45,13 +46,17 @@ export class PortalController {
     this.maxRecursion = maxRecursion;
 
     this._stencilScene = new Scene();
-    this._nameToSceneMap = {};
-    this._sceneNameToPortalsMap = {};
+    this._rooms = new Map();
     this._allPortals = [];
+    this._currentRoom = null;
     this._currentScene = null;
     this._currentScenePortals = [];
     this._lastCameraPosition = new Vector3();
     this._hasLastPosition = false;
+  }
+
+  get currentRoom() {
+    return this._currentRoom;
   }
 
   get currentScene() {
@@ -66,10 +71,10 @@ export class PortalController {
     return this._allPortals;
   }
 
-  registerScene(name, scene) {
-    scene.name = name;
-    this._nameToSceneMap[name] = scene;
-    this._sceneNameToPortalsMap[name] = [];
+  registerScene(name, scene, { clearColor = 0x000000, tags = [], spawn = null } = {}) {
+    const room = new Room({ id: name, scene, clearColor, tags, spawn });
+    this._rooms.set(name, room);
+    return room;
   }
 
   createPortal(width, height, sceneName) {
@@ -83,28 +88,29 @@ export class PortalController {
   }
 
   addPortalToScene(sceneOrName, portal) {
-    const scene = typeof sceneOrName === 'string' ? this._nameToSceneMap[sceneOrName] : sceneOrName;
+    const room = this._getRoom(sceneOrName);
 
-    if (!scene || !this._sceneNameToPortalsMap[scene.name]) {
-      throw new Error(`Unknown portal scene: ${sceneOrName}`);
+    if (!room) {
+      throw new Error(`Unknown portal room: ${sceneOrName}`);
     }
 
-    portal.setScene(scene);
+    portal.setScene(room.scene);
     this._stencilScene.add(portal);
-    this._sceneNameToPortalsMap[scene.name].push(portal);
+    room.portals.push(portal);
     this._allPortals.push(portal);
   }
 
   setCurrentScene(name) {
-    const scene = this._nameToSceneMap[name];
+    const room = this._rooms.get(name);
 
-    if (!scene) {
-      throw new Error(`Unknown portal scene: ${name}`);
+    if (!room) {
+      throw new Error(`Unknown portal room: ${name}`);
     }
 
-    this._currentScene = scene;
-    this._currentScenePortals = this._sceneNameToPortalsMap[name];
-    this._syncClearColor();
+    this._currentRoom = room;
+    this._currentScene = room.scene;
+    this._currentScenePortals = room.portals;
+    this.renderer.setClearColor(room.clearColor, 1);
   }
 
   setCameraPosition(x = 0, y = 0, z = 0) {
@@ -242,7 +248,7 @@ export class PortalController {
       camera.projectionMatrix.copy(this.computePortalProjectionMatrix(destination));
       camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
 
-      const destPortals = this._sceneNameToPortalsMap[destination.scene.name] || [];
+      const destPortals = this._getRoom(destination.scene.name)?.portals || [];
       this._renderLevel(destination.scene, destPortals, level + 1, maxDepth);
 
       color.setMask(false);
@@ -362,15 +368,18 @@ export class PortalController {
     return cameraWorldPos.sub(portalWorldPos).dot(planeNormal) > FACING_DOT;
   }
 
-  _syncClearColor() {
-    const sky = this._currentScene?.children.find(
-      (child) => child.geometry?.type === 'SphereGeometry' && child.material?.side === BackSide,
-    );
-    const color = sky?.material?.color;
-
-    if (color) {
-      this.renderer.setClearColor(color, 1);
+  _getRoom(sceneOrName) {
+    if (typeof sceneOrName === 'string') {
+      return this._rooms.get(sceneOrName) ?? null;
     }
+
+    for (const room of this._rooms.values()) {
+      if (room.scene === sceneOrName) {
+        return room;
+      }
+    }
+
+    return null;
   }
 
   _showPortals(portals) {
