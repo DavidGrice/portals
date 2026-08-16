@@ -30,7 +30,9 @@ const matrixStack = Array.from({ length: 8 }, () => ({
 }));
 
 const CROSS_Z = 0.12;
-const FACING_DOT = -0.2;
+const EMERGE_Z = 0.35;
+const STENCIL_CLEARANCE = 0.4;
+const FACING_DOT = 0.05;
 
 function sign(value) {
   if (value > 0) return 1;
@@ -183,6 +185,7 @@ export class PortalController {
     this.camera.position.copy(teleportPos);
     this.camera.quaternion.copy(teleportQuat);
     this.camera.updateMatrixWorld();
+    this._settleInFrontOf(portal.destinationPortal);
     const fromId = this._currentRoom?.id ?? null;
     const toId = this._getRoom(portal.destinationPortal.scene)?.id ?? portal.destinationPortal.scene.name;
     this.setCurrentScene(toId);
@@ -212,6 +215,31 @@ export class PortalController {
     const y = localPrev.y + (localCurr.y - localPrev.y) * t;
 
     return Math.abs(x) <= portal.geometry.halfWidth && Math.abs(y) <= portal.geometry.halfHeight;
+  }
+
+  _settleInFrontOf(destination) {
+    destination.updateMatrixWorld(true);
+    localCurr.copy(this.camera.position);
+    destination.worldToLocal(localCurr);
+    if (localCurr.z >= EMERGE_Z) {
+      return;
+    }
+    localCurr.z = EMERGE_Z;
+    destination.localToWorld(localCurr);
+    this.camera.position.copy(localCurr);
+    this.camera.updateMatrixWorld();
+  }
+
+  _tooCloseToDraw(portal) {
+    localCurr.setFromMatrixPosition(this.camera.matrixWorld);
+    portal.worldToLocal(localCurr);
+    if (Math.abs(localCurr.z) >= STENCIL_CLEARANCE) {
+      return false;
+    }
+    return (
+      Math.abs(localCurr.x) <= portal.geometry.halfWidth + 0.25 &&
+      Math.abs(localCurr.y) <= portal.geometry.halfHeight + 0.25
+    );
   }
 
   setSize(width, height) {
@@ -259,7 +287,7 @@ export class PortalController {
     for (const portal of portals) {
       const destination = portal.destinationPortal;
 
-      if (!destination?.scene || !this._isPortalFacingCamera(portal)) {
+      if (!destination?.scene || !this._isPortalFacingCamera(portal) || this._tooCloseToDraw(portal)) {
         continue;
       }
 
