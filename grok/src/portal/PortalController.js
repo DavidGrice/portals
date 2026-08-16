@@ -1,4 +1,4 @@
-import { Matrix4, Plane, Quaternion, Scene, Vector3, Vector4 } from 'three';
+import { BackSide, Matrix4, Plane, Quaternion, Scene, Vector3, Vector4 } from 'three';
 import { Portal } from './Portal.js';
 
 const rotationY180 = new Matrix4().makeRotationY(Math.PI);
@@ -20,6 +20,10 @@ const teleportPos = new Vector3();
 const teleportQuat = new Quaternion();
 const teleportScale = new Vector3();
 const cameraWorldPos = new Vector3();
+const localCamera = new Vector3();
+
+const CROSS_Z = 0.08;
+const FACING_DOT = -0.2;
 
 function sign(value) {
   if (value > 0) return 1;
@@ -32,6 +36,7 @@ export class PortalController {
     this.camera = camera;
     this.renderer = renderer;
     this.renderer.autoClear = false;
+    this.renderer.setClearColor(0x2a3344, 1);
     this.maxRecursion = maxRecursion;
 
     this._stencilScene = new Scene();
@@ -94,6 +99,7 @@ export class PortalController {
 
     this._currentScene = scene;
     this._currentScenePortals = this._sceneNameToPortalsMap[name];
+    this._syncClearColor();
   }
 
   setCameraPosition(x = 0, y = 0, z = 0) {
@@ -119,8 +125,7 @@ export class PortalController {
     let crossed = null;
 
     for (const portal of this._currentScenePortals) {
-      const distance = camera.position.distanceTo(portal.getWorldPosition(portalWorldPos));
-      portal.toggleVolumeFaces(distance < Math.max(portal.geometry.width, portal.geometry.height) * 1.5);
+      this._updateVolumeFaces(portal, camera.position);
 
       if (!crossed && portal.destinationPortal?.scene && this._crossedPortal(portal, camera.position)) {
         crossed = portal;
@@ -143,6 +148,15 @@ export class PortalController {
     this.setCurrentScene(portal.destinationPortal.scene.name);
     this._lastCameraPosition.copy(this.camera.position);
     this._hasLastPosition = true;
+    this._updateVolumeFaces(portal.destinationPortal, this.camera.position);
+  }
+
+  _updateVolumeFaces(portal, worldPosition) {
+    const distance = worldPosition.distanceTo(portal.getWorldPosition(portalWorldPos));
+    localCamera.copy(worldPosition);
+    portal.worldToLocal(localCamera);
+    const near = Math.max(portal.geometry.width, portal.geometry.height) * 1.5;
+    portal.toggleVolumeFaces(distance < near || Math.abs(localCamera.z) < 1);
   }
 
   _crossedPortal(portal, currentPosition) {
@@ -151,12 +165,12 @@ export class PortalController {
     portal.worldToLocal(localPrev);
     portal.worldToLocal(localCurr);
 
-    if (localPrev.z <= 0 || localCurr.z > 0) {
+    if (localPrev.z <= CROSS_Z || localCurr.z > CROSS_Z) {
       return false;
     }
 
     const span = localPrev.z - localCurr.z;
-    const t = localPrev.z / span;
+    const t = (localPrev.z - CROSS_Z) / span;
     const x = localPrev.x + (localCurr.x - localPrev.x) * t;
     const y = localPrev.y + (localCurr.y - localPrev.y) * t;
 
@@ -331,7 +345,18 @@ export class PortalController {
     cameraWorldPos.setFromMatrixPosition(this.camera.matrixWorld);
     portalWorldPos.setFromMatrixPosition(portal.matrixWorld);
     planeNormal.set(0, 0, 1).transformDirection(portal.matrixWorld);
-    return cameraWorldPos.sub(portalWorldPos).dot(planeNormal) > 0.05;
+    return cameraWorldPos.sub(portalWorldPos).dot(planeNormal) > FACING_DOT;
+  }
+
+  _syncClearColor() {
+    const sky = this._currentScene?.children.find(
+      (child) => child.geometry?.type === 'SphereGeometry' && child.material?.side === BackSide,
+    );
+    const color = sky?.material?.color;
+
+    if (color) {
+      this.renderer.setClearColor(color, 1);
+    }
   }
 
   _showPortals(portals) {
