@@ -33,3 +33,41 @@ canvas {
   margin-bottom: 0.6rem;
   font-size: 1.6rem;
 }
+
+#crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+#crosshair::before,
+#crosshair::after {
+  content: '';
+  position: absolute;
+  background: #f2f2f2;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.55);
+}
+
+#crosshair::before {
+  left: 50%;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  transform: translateX(-50%);
+}
+
+#crosshair::after {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  transform: translateY(-50%);
+}
+
+#blocker:not([hidden]) ~ #crosshair {
+  display: none;
+}
