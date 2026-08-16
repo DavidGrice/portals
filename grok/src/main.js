@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { PortalGeometry } from './portal/PortalGeometry.js';
+import { Portal } from './portal/Portal.js';
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
@@ -13,26 +13,27 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const geometry = new PortalGeometry(2, 2);
-geometry.setVolume(camera.fov, camera.aspect, camera.near);
-
-const mesh = new THREE.Mesh(geometry, [
-  new THREE.MeshBasicMaterial({ color: 0x4da3ff, wireframe: true }),
-  new THREE.MeshBasicMaterial({ color: 0xff5c7a, wireframe: true }),
-]);
-scene.add(mesh);
+const portal = new Portal(2, 2);
+portal.setScene(scene);
+portal.setVolumeFromCamera(camera);
+portal.material[0].color.set(0x4da3ff);
+portal.material[0].wireframe = true;
+portal.material[1].color.set(0xff5c7a);
+portal.material[1].wireframe = true;
+portal.toggleVolumeFaces(true);
+scene.add(portal);
 
 function resize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
-  geometry.setVolume(camera.fov, camera.aspect, camera.near);
+  portal.setVolumeFromCamera(camera);
 }
 
 window.addEventListener('resize', resize);
 
 function tick() {
-  mesh.rotation.y += 0.005;
+  portal.rotation.y += 0.005;
   renderer.render(scene, camera);
   requestAnimationFrame(tick);
 }

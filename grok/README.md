@@ -22,4 +22,4 @@ npm install
 npm run dev
 ```
 
-Then open http://127.0.0.1:5173. This step draws `PortalGeometry` as a two-material wireframe (front quad + volume). No stencil or controller yet.
+Then open http://127.0.0.1:5173. This step draws a `Portal` mesh (geometry + two materials, volume-from-camera). No stencil or controller yet.
