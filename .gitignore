@@ -1,0 +1,34 @@
+# archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+
+# dependencies / vendor installs
+node_modules/
+bower_components/
+
+# build / cache
+dist/
+.vite/
+.cache/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+*.swp
+*~
+
+# env
+.env
+.env.*
+!.env.example
+
+# do not commit the 2016 vendored engine
+Portals-master/three.r81-tweaked.js
