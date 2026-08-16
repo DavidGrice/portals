@@ -12,11 +12,11 @@ const roomB = new THREE.Scene();
 
 addSky(roomA, 0x202028);
 addFloor(roomA, 0x2a2a35);
-addBox(roomA, [-2.2, 0.35, 0.4], [0.7, 0.7, 0.7], 0x4da3ff);
+addBox(roomA, [-2.2, 0.35, 1.2], [0.7, 0.7, 0.7], 0x4da3ff);
 
 addSky(roomB, 0x3a1515);
 addFloor(roomB, 0x4a2020);
-addBox(roomB, [0, 1, -2], [1.2, 1.2, 1.2], 0xffcc33);
+addBox(roomB, [2.2, 0.35, -2], [0.7, 0.7, 0.7], 0xffcc33);
 
 const controller = new PortalController({ camera, renderer });
 controller.registerScene('room-a', roomA);
@@ -29,8 +29,17 @@ const portalB = controller.createPortal(2, 2, 'room-b');
 portalB.position.set(0, 1, 0);
 portalB.rotateY(Math.PI);
 
+const portalAFar = controller.createPortal(2, 2, 'room-a');
+portalAFar.position.set(0, 1, -4);
+portalAFar.rotateY(Math.PI);
+
+const portalBFar = controller.createPortal(2, 2, 'room-b');
+portalBFar.position.set(0, 1, -4);
+
 portalA.setDestinationPortal(portalB);
 portalB.setDestinationPortal(portalA);
+portalAFar.setDestinationPortal(portalBFar);
+portalBFar.setDestinationPortal(portalAFar);
 
 controller.setCurrentScene('room-a');
 controller.setCameraPosition(0, 1, 4);
@@ -39,6 +48,9 @@ controller.setSize(window.innerWidth, window.innerHeight);
 
 const controls = new PointerLockControls(camera, document.body);
 const blocker = document.getElementById('blocker');
+if (new URLSearchParams(window.location.search).has('nohud')) {
+  blocker.hidden = true;
+}
 const move = { forward: false, back: false, left: false, right: false };
 const clock = new THREE.Clock();
 const eyeHeight = 1;

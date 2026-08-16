@@ -13,14 +13,13 @@ const q = new Vector4();
 const obliqueProjection = new Matrix4();
 const dstWorldPos = new Vector3();
 const planeNormal = new Vector3();
-const savedWorld = new Matrix4();
-const savedProjection = new Matrix4();
 const localPrev = new Vector3();
 const localCurr = new Vector3();
 const portalWorldPos = new Vector3();
 const teleportPos = new Vector3();
 const teleportQuat = new Quaternion();
 const teleportScale = new Vector3();
+const cameraWorldPos = new Vector3();
 
 function sign(value) {
   if (value > 0) return 1;
@@ -29,10 +28,11 @@ function sign(value) {
 }
 
 export class PortalController {
-  constructor({ camera, renderer }) {
+  constructor({ camera, renderer, maxRecursion = 4 }) {
     this.camera = camera;
     this.renderer = renderer;
     this.renderer.autoClear = false;
+    this.maxRecursion = maxRecursion;
 
     this._stencilScene = new Scene();
     this._nameToSceneMap = {};
@@ -175,23 +175,39 @@ export class PortalController {
   }
 
   render() {
+    this.camera.updateMatrixWorld();
+    this.renderer.clear(true, true, true);
+    this._renderLevel(this._currentScene, this._currentScenePortals, 0, this.maxRecursion);
+  }
+
+  _renderLevel(scene, portals, level, maxDepth) {
     const { renderer, camera } = this;
     const gl = renderer.getContext();
     const { color, depth, stencil } = renderer.state.buffers;
-
-    camera.updateMatrixWorld();
-    savedWorld.copy(camera.matrixWorld);
-    savedProjection.copy(camera.projectionMatrix);
-
-    renderer.clear(true, true, true);
+    const savedWorld = camera.matrixWorld.clone();
+    const savedWorldInverse = camera.matrixWorldInverse.clone();
+    const savedProjection = camera.projectionMatrix.clone();
+    const savedProjectionInverse = camera.projectionMatrixInverse.clone();
 
     stencil.setTest(true);
     stencil.setMask(0xff);
 
-    for (const portal of this._currentScenePortals) {
+    if (level >= maxDepth) {
+      color.setMask(true);
+      depth.setMask(true);
+      depth.setTest(true);
+      stencil.setFunc(gl.EQUAL, level, 0xff);
+      stencil.setOp(gl.KEEP, gl.KEEP, gl.KEEP);
+      stencil.setLocked(true);
+      renderer.render(scene, camera);
+      stencil.setLocked(false);
+      return;
+    }
+
+    for (const portal of portals) {
       const destination = portal.destinationPortal;
 
-      if (!destination?.scene) {
+      if (!destination?.scene || !this._isPortalFacingCamera(portal)) {
         continue;
       }
 
@@ -201,48 +217,73 @@ export class PortalController {
       color.setLocked(true);
       depth.setMask(false);
       depth.setLocked(true);
-      stencil.setFunc(gl.NEVER, 1, 0xff);
-      stencil.setOp(gl.REPLACE, gl.KEEP, gl.KEEP);
+      depth.setTest(false);
+      // Fail where stencil == level, then increment (Tartu recursive stencil).
+      stencil.setFunc(gl.NOTEQUAL, level, 0xff);
+      stencil.setOp(gl.INCR, gl.KEEP, gl.KEEP);
       stencil.setLocked(true);
       renderer.render(this._stencilScene, camera);
       stencil.setLocked(false);
       color.setLocked(false);
       depth.setLocked(false);
-
-      color.setMask(true);
-      depth.setMask(true);
-      stencil.setFunc(gl.EQUAL, 1, 0xff);
-      stencil.setOp(gl.KEEP, gl.KEEP, gl.KEEP);
-      stencil.setLocked(true);
+      depth.setTest(true);
 
       camera.matrixAutoUpdate = false;
       camera.matrixWorld.copy(this.computePortalViewMatrix(portal));
       camera.matrixWorldInverse.copy(camera.matrixWorld).invert();
       camera.projectionMatrix.copy(this.computePortalProjectionMatrix(destination));
       camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
-      renderer.render(destination.scene, camera);
 
-      stencil.setLocked(false);
-      renderer.clear(false, false, true);
+      const destPortals = this._sceneNameToPortalsMap[destination.scene.name] || [];
+      this._renderLevel(destination.scene, destPortals, level + 1, maxDepth);
+
+      color.setMask(false);
+      color.setLocked(true);
+      depth.setMask(false);
+      depth.setLocked(true);
+      depth.setTest(false);
+      stencil.setFunc(gl.NOTEQUAL, level + 1, 0xff);
+      stencil.setOp(gl.DECR, gl.KEEP, gl.KEEP);
+      stencil.setLocked(true);
 
       camera.matrixWorld.copy(savedWorld);
-      camera.matrixWorldInverse.copy(savedWorld).invert();
+      camera.matrixWorldInverse.copy(savedWorldInverse);
       camera.projectionMatrix.copy(savedProjection);
-      camera.projectionMatrixInverse.copy(savedProjection).invert();
+      camera.projectionMatrixInverse.copy(savedProjectionInverse);
+
+      this._showPortals([portal]);
+      renderer.render(this._stencilScene, camera);
+      stencil.setLocked(false);
+      color.setLocked(false);
+      depth.setLocked(false);
+      depth.setTest(true);
       camera.matrixAutoUpdate = true;
     }
 
-    stencil.setTest(false);
+    camera.matrixWorld.copy(savedWorld);
+    camera.matrixWorldInverse.copy(savedWorldInverse);
+    camera.projectionMatrix.copy(savedProjection);
+    camera.projectionMatrixInverse.copy(savedProjectionInverse);
+    camera.matrixAutoUpdate = true;
+
     renderer.clear(false, true, false);
 
-    this._showPortals(this._currentScenePortals);
+    this._showPortals(portals);
     color.setMask(false);
     color.setLocked(true);
+    depth.setMask(true);
+    stencil.setFunc(gl.LEQUAL, level, 0xff);
+    stencil.setOp(gl.KEEP, gl.KEEP, gl.KEEP);
+    stencil.setLocked(true);
     renderer.render(this._stencilScene, camera);
     color.setLocked(false);
     color.setMask(true);
+    renderer.render(scene, camera);
+    stencil.setLocked(false);
 
-    renderer.render(this._currentScene, camera);
+    if (level === 0) {
+      stencil.setTest(false);
+    }
   }
 
   computePortalViewMatrix(portal) {
@@ -283,6 +324,14 @@ export class PortalController {
     obliqueProjection.elements[14] = clipVector.w;
 
     return obliqueProjection;
+  }
+
+  _isPortalFacingCamera(portal) {
+    portal.updateMatrixWorld(true);
+    cameraWorldPos.setFromMatrixPosition(this.camera.matrixWorld);
+    portalWorldPos.setFromMatrixPosition(portal.matrixWorld);
+    planeNormal.set(0, 0, 1).transformDirection(portal.matrixWorld);
+    return cameraWorldPos.sub(portalWorldPos).dot(planeNormal) > 0.05;
   }
 
   _showPortals(portals) {
