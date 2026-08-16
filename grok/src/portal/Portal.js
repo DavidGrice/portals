@@ -6,7 +6,7 @@ export class Portal extends Mesh {
     super(new PortalGeometry(width, height), new MeshBasicMaterial({ colorWrite: false }));
 
     this.type = 'Portal';
-    this.id = id;
+    this.portalId = id;
     this.destinationId = null;
     // Logical room this portal belongs to, not Object3D.parent.
     this.scene = null;
@@ -21,6 +21,6 @@ export class Portal extends Mesh {
 
   setDestinationPortal(portal) {
     this.destinationPortal = portal;
-    this.destinationId = portal?.id ?? null;
+    this.destinationId = portal?.portalId ?? null;
   }
 }
