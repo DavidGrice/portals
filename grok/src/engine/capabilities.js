@@ -14,7 +14,12 @@ export async function probeCapabilities() {
 
   if (webgpuApi) {
     try {
-      adapter = await navigator.gpu.requestAdapter();
+      adapter = await Promise.race([
+        navigator.gpu.requestAdapter(),
+        new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('WebGPU adapter timed out')), 1500);
+        }),
+      ]);
       if (adapter) {
         features = [...adapter.features].sort();
         const info = adapter.info ?? {};
