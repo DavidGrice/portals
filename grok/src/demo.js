@@ -14,8 +14,8 @@ export function createDemo(camera, renderer) {
   addBox(roomB, [1.5, 0.4, -1.6], [0.8, 0.8, 0.8], 0xffcc33);
 
   const controller = new PortalController({ camera, renderer });
-  controller.registerScene('room-a', roomA);
-  controller.registerScene('room-b', roomB);
+  controller.registerScene('room-a', roomA, { clearColor: 0x2a3344, tags: ['interior', 'start'] });
+  controller.registerScene('room-b', roomB, { clearColor: 0x4a1c1c, tags: ['interior'] });
 
   const portalA = controller.createPortal(2, 2, 'room-a');
   portalA.position.set(0, 1, 0);
