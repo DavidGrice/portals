@@ -20,7 +20,6 @@ const teleportPos = new Vector3();
 const teleportQuat = new Quaternion();
 const teleportScale = new Vector3();
 const cameraWorldPos = new Vector3();
-const localCamera = new Vector3();
 const matrixStack = Array.from({ length: 8 }, () => ({
   world: new Matrix4(),
   worldInverse: new Matrix4(),
@@ -28,7 +27,7 @@ const matrixStack = Array.from({ length: 8 }, () => ({
   projectionInverse: new Matrix4(),
 }));
 
-const CROSS_Z = 0.08;
+const CROSS_Z = 0.12;
 const FACING_DOT = -0.2;
 
 function sign(value) {
@@ -131,8 +130,6 @@ export class PortalController {
     let crossed = null;
 
     for (const portal of this._currentScenePortals) {
-      this._updateVolumeFaces(portal, camera.position);
-
       if (!crossed && portal.destinationPortal?.scene && this._crossedPortal(portal, camera.position)) {
         crossed = portal;
       }
@@ -154,15 +151,6 @@ export class PortalController {
     this.setCurrentScene(portal.destinationPortal.scene.name);
     this._lastCameraPosition.copy(this.camera.position);
     this._hasLastPosition = true;
-    this._updateVolumeFaces(portal.destinationPortal, this.camera.position);
-  }
-
-  _updateVolumeFaces(portal, worldPosition) {
-    localCamera.copy(worldPosition);
-    portal.worldToLocal(localCamera);
-    // Volume is wider than the door. Only use it when the near plane
-    // is about to eat the front quad, or the wide stencil shows behind the frame.
-    portal.toggleVolumeFaces(localCamera.z < CROSS_Z);
   }
 
   _crossedPortal(portal, currentPosition) {
@@ -241,7 +229,8 @@ export class PortalController {
       stencil.setFunc(gl.NOTEQUAL, level, 0xff);
       stencil.setOp(gl.INCR, gl.KEEP, gl.KEEP);
       stencil.setLocked(true);
-      this._drawPortalStencil([portal]);
+      this._showPortals([portal]);
+      renderer.render(this._stencilScene, camera);
       stencil.setLocked(false);
       color.setLocked(false);
       depth.setLocked(false);
@@ -270,7 +259,8 @@ export class PortalController {
       camera.projectionMatrix.copy(saved.projection);
       camera.projectionMatrixInverse.copy(saved.projectionInverse);
 
-      this._drawPortalStencil([portal]);
+      this._showPortals([portal]);
+      renderer.render(this._stencilScene, camera);
       stencil.setLocked(false);
       color.setLocked(false);
       depth.setLocked(false);
@@ -292,7 +282,8 @@ export class PortalController {
     stencil.setFunc(gl.LEQUAL, level, 0xff);
     stencil.setOp(gl.KEEP, gl.KEEP, gl.KEEP);
     stencil.setLocked(true);
-    this._drawPortalStencil(portals);
+    this._showPortals(portals);
+    renderer.render(this._stencilScene, camera);
     color.setLocked(false);
     color.setMask(true);
     this._renderRoom(scene, level > 0);
@@ -380,29 +371,6 @@ export class PortalController {
     if (color) {
       this.renderer.setClearColor(color, 1);
     }
-  }
-
-  _drawPortalStencil(portals) {
-    const saved = portals.map((portal) => portal.volumeFacesVisible);
-
-    for (const portal of portals) {
-      if (!this._needsVolume(portal)) {
-        portal.toggleVolumeFaces(false);
-      }
-    }
-
-    this._showPortals(portals);
-    this.renderer.render(this._stencilScene, this.camera);
-
-    portals.forEach((portal, index) => {
-      portal.toggleVolumeFaces(saved[index]);
-    });
-  }
-
-  _needsVolume(portal) {
-    localCamera.setFromMatrixPosition(this.camera.matrixWorld);
-    portal.worldToLocal(localCamera);
-    return localCamera.z < CROSS_Z;
   }
 
   _showPortals(portals) {
