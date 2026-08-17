@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { createDemo } from './demo.js';
-import { createPortalRenderer, probeCapabilities } from './engine/index.js';
+import { Player, createPortalRenderer, probeCapabilities } from './engine/index.js';
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.05, 100);
 const renderer = createPortalRenderer();
@@ -49,8 +49,7 @@ if (skipHud && welcome) {
 
 const move = { forward: false, back: false, left: false, right: false };
 const clock = new THREE.Clock();
-const eyeHeight = 1;
-const moveSpeed = 4;
+const player = new Player({ camera, eyeHeight: 1, moveSpeed: 4 });
 
 function enterWorld() {
   if (welcome) {
@@ -78,6 +77,9 @@ window.addEventListener('keydown', (event) => {
     enterWorld();
     return;
   }
+  if (event.code === 'Space') {
+    event.preventDefault();
+  }
   setMove(event.code, true);
 });
 
@@ -93,11 +95,7 @@ function tick() {
   const dt = clock.getDelta();
 
   if (controls.isLocked) {
-    const forward = Number(move.forward) - Number(move.back);
-    const right = Number(move.right) - Number(move.left);
-    controls.moveForward(forward * moveSpeed * dt);
-    controls.moveRight(right * moveSpeed * dt);
-    camera.position.y = eyeHeight;
+    player.step(dt, move, controls);
   }
 
   controller.update();
@@ -160,6 +158,11 @@ function setMove(code, down) {
     case 'KeyD':
     case 'ArrowRight':
       move.right = down;
+      break;
+    case 'Space':
+      if (down) {
+        player.jump();
+      }
       break;
     default:
       break;
