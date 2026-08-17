@@ -238,8 +238,23 @@ export const prefabs = {
     const length = zMax - zMin;
     const midZ = (zMin + zMax) * 0.5;
 
-    addBox(group, material, -(halfX + thickness * 0.5), height * 0.5, midZ, thickness, height, length);
-    addBox(group, material, halfX + thickness * 0.5, height * 0.5, midZ, thickness, height, length);
+    const sideOpenings = entity.props?.sideOpenings ?? [];
+    addSideWall(group, material, {
+      x: -(halfX + thickness * 0.5),
+      zMin,
+      zMax,
+      height,
+      thickness,
+      holes: sideOpenings.filter((hole) => Number(hole.side ?? -1) < 0),
+    });
+    addSideWall(group, material, {
+      x: halfX + thickness * 0.5,
+      zMin,
+      zMax,
+      height,
+      thickness,
+      holes: sideOpenings.filter((hole) => Number(hole.side ?? 1) > 0),
+    });
     addBox(group, material, 0, height + thickness * 0.5, midZ, halfX * 2 + thickness * 2, thickness, length, false);
 
     const wallZs = new Set([zMin, zMax, ...openings]);
@@ -291,6 +306,32 @@ function addBox(group, material, x, y, z, sx, sy, sz, collide = true) {
     mesh.userData.collider = { type: 'aabb' };
   }
   group.add(mesh);
+}
+
+function addSideWall(group, material, { x, zMin, zMax, height, thickness, holes }) {
+  const holeWidth = 2.5;
+  const holeHeight = 2.35;
+  if (!holes.length) {
+    addBox(group, material, x, height * 0.5, (zMin + zMax) * 0.5, thickness, height, zMax - zMin);
+    return;
+  }
+  const cuts = holes
+    .map((hole) => Number(hole.z))
+    .sort((a, b) => a - b);
+  let cursor = zMin;
+  for (const z of cuts) {
+    const start = z - holeWidth * 0.5;
+    const end = z + holeWidth * 0.5;
+    if (start - cursor > 0.08) {
+      addBox(group, material, x, height * 0.5, (cursor + start) * 0.5, thickness, height, start - cursor);
+    }
+    const lintel = Math.max(height - holeHeight, 0.08);
+    addBox(group, material, x, holeHeight + lintel * 0.5, z, thickness, lintel, holeWidth);
+    cursor = end;
+  }
+  if (zMax - cursor > 0.08) {
+    addBox(group, material, x, height * 0.5, (cursor + zMax) * 0.5, thickness, height, zMax - cursor);
+  }
 }
 
 function addOpeningWall(group, material, { z, halfX, height, thickness, holeWidth, holeHeight }) {

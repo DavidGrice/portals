@@ -7,6 +7,7 @@ import {
 } from '../engine/GraphicsSettings.js';
 import { AA_MODES, aaModeInfo } from '../engine/aaModes.js';
 import { applyFullscreen } from '../engine/gamepad.js';
+import { gameAudio } from '../engine/audio.js';
 
 const ANISOTROPY_LEVELS = [
   { value: 1, label: 'Off' },
@@ -154,6 +155,7 @@ export function bindOptions({
       refreshHud(settings);
       applyFullscreen(settings.fullscreen);
     }
+    gameAudio.applyVolumes(settings);
   }
 
   function read() {

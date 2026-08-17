@@ -1,0 +1,298 @@
+{
+  "id": "haunted-house",
+  "title": "The Hollow House",
+  "theme": "haunt",
+  "startRoom": "foyer",
+  "startSpawn": [0, 1, 4],
+  "lookAt": [0, 1, 0],
+  "rooms": [
+    {
+      "id": "foyer",
+      "title": "Foyer",
+      "tags": ["interior", "start", "haunt"],
+      "origin": [0, 0, 0],
+      "clearColor": "#1a1410",
+      "entities": [
+        { "id": "sky-foyer", "kind": "env.sky", "props": { "color": "#1a1410" } },
+        { "id": "light-foyer", "kind": "env.light", "props": { "ambient": "#2a2018", "sun": "#c4a070", "sunIntensity": 0.45 } },
+        { "id": "floor-foyer", "kind": "env.floor", "props": { "color": "#2a2218" } },
+        {
+          "id": "shell-foyer",
+          "kind": "arch.corridor",
+          "props": { "color": "#3a2e22", "halfX": 8, "zMin": 0, "zMax": 6.2, "openings": [0] }
+        },
+        {
+          "id": "plaque-foyer",
+          "kind": "prop.plaque",
+          "position": [-2.2, 1.6, 5.9],
+          "props": { "color": "#c4a070", "text": "Foyer" }
+        },
+        {
+          "id": "cube-foyer",
+          "kind": "prop.box",
+          "position": [7, 0.4, 3.2],
+          "tags": ["landmark"],
+          "props": { "size": [0.8, 0.8, 0.8], "color": "#8a6a3a" }
+        },
+        {
+          "id": "frame-fh",
+          "kind": "arch.frame",
+          "position": [0, 1, 0],
+          "props": { "color": "#6a5840", "coversPortalId": "door-fh" }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-fh",
+          "position": [0, 1, 0],
+          "yaw": 0,
+          "size": [2, 2],
+          "destinationId": "door-hf"
+        }
+      ]
+    },
+    {
+      "id": "hall",
+      "title": "Upper hall",
+      "tags": ["interior", "haunt"],
+      "origin": [250, 0, 0],
+      "clearColor": "#121018",
+      "entities": [
+        { "id": "sky-hall", "kind": "env.sky", "props": { "color": "#121018" } },
+        { "id": "light-hall", "kind": "env.light", "props": { "ambient": "#1c1824", "sun": "#8870a0", "sunIntensity": 0.4 } },
+        { "id": "floor-hall", "kind": "env.floor", "props": { "color": "#1c1820" } },
+        {
+          "id": "shell-hall",
+          "kind": "arch.corridor",
+          "props": { "color": "#2a2430", "halfX": 8, "zMin": -6.2, "zMax": 5.2, "openings": [0, -5] }
+        },
+        {
+          "id": "plaque-hall",
+          "kind": "prop.plaque",
+          "position": [-2.2, 1.6, 4.9],
+          "props": { "color": "#8870a0", "text": "Upper hall" }
+        },
+        {
+          "id": "cube-hall",
+          "kind": "prop.box",
+          "position": [7, 0.4, 3.2],
+          "tags": ["landmark"],
+          "props": { "size": [0.8, 0.8, 0.8], "color": "#6a5080" }
+        },
+        {
+          "id": "frame-hf",
+          "kind": "arch.frame",
+          "position": [0, 1, 0],
+          "rotation": [0, 3.141592653589793, 0],
+          "props": { "color": "#6a5840", "coversPortalId": "door-hf" }
+        },
+        {
+          "id": "frame-hp",
+          "kind": "arch.frame",
+          "position": [0, 1, -5],
+          "props": { "color": "#704050", "coversPortalId": "door-hp" }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-hf",
+          "position": [0, 1, 0],
+          "yaw": 3.141592653589793,
+          "size": [2, 2],
+          "destinationId": "door-fh"
+        },
+        {
+          "id": "door-hp",
+          "position": [0, 1, -5],
+          "yaw": 0,
+          "size": [2, 2],
+          "destinationId": "door-ph"
+        }
+      ]
+    },
+    {
+      "id": "parlor",
+      "title": "Parlor",
+      "tags": ["interior", "haunt"],
+      "origin": [500, 0, 0],
+      "clearColor": "#1c1014",
+      "entities": [
+        { "id": "sky-parlor", "kind": "env.sky", "props": { "color": "#1c1014" } },
+        { "id": "light-parlor", "kind": "env.light", "props": { "ambient": "#2a181c", "sun": "#b07070", "sunIntensity": 0.38 } },
+        { "id": "floor-parlor", "kind": "env.floor", "props": { "color": "#241418" } },
+        {
+          "id": "shell-parlor",
+          "kind": "arch.corridor",
+          "props": {
+            "color": "#3a2428",
+            "halfX": 8,
+            "zMin": -6.2,
+            "zMax": 5.2,
+            "openings": [0, -5],
+            "sideOpenings": [{ "side": 1, "z": 1.2 }]
+          }
+        },
+        {
+          "id": "plaque-parlor",
+          "kind": "prop.plaque",
+          "position": [-2.2, 1.6, 4.9],
+          "props": { "color": "#b07070", "text": "Parlor" }
+        },
+        {
+          "id": "cube-parlor",
+          "kind": "prop.box",
+          "position": [7, 0.4, 3.2],
+          "tags": ["landmark"],
+          "props": { "size": [0.8, 0.8, 0.8], "color": "#8a4048" }
+        },
+        {
+          "id": "frame-ph",
+          "kind": "arch.frame",
+          "position": [0, 1, 0],
+          "rotation": [0, 3.141592653589793, 0],
+          "props": { "color": "#704050", "coversPortalId": "door-ph" }
+        },
+        {
+          "id": "frame-pc",
+          "kind": "arch.frame",
+          "position": [0, 1, -5],
+          "props": { "color": "#405848", "coversPortalId": "door-pc" }
+        },
+        {
+          "id": "frame-pa",
+          "kind": "arch.frame",
+          "position": [6.4, 1, 1.2],
+          "rotation": [0, -1.5707963267948966, 0],
+          "props": { "color": "#c4a070", "coversPortalId": "door-pa" }
+        },
+        {
+          "id": "pad-attic",
+          "kind": "interact.pad",
+          "position": [4.6, 0.04, 1.2],
+          "props": {
+            "color": "#c4a070",
+            "action": "unlock",
+            "portalId": "door-pa",
+            "text": "The attic stair unseals."
+          }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-ph",
+          "position": [0, 1, 0],
+          "yaw": 3.141592653589793,
+          "size": [2, 2],
+          "destinationId": "door-hp"
+        },
+        {
+          "id": "door-pc",
+          "position": [0, 1, -5],
+          "yaw": 0,
+          "size": [2, 2],
+          "destinationId": "door-cp"
+        },
+        {
+          "id": "door-pa",
+          "position": [6.4, 1, 1.2],
+          "yaw": -1.5707963267948966,
+          "size": [2, 2],
+          "destinationId": "door-ap",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "id": "cellar",
+      "title": "Cellar",
+      "tags": ["interior", "haunt"],
+      "origin": [750, 0, 0],
+      "clearColor": "#0c100e",
+      "entities": [
+        { "id": "sky-cellar", "kind": "env.sky", "props": { "color": "#0c100e" } },
+        { "id": "light-cellar", "kind": "env.light", "props": { "ambient": "#141c18", "sun": "#508070", "sunIntensity": 0.32 } },
+        { "id": "floor-cellar", "kind": "env.floor", "props": { "color": "#141a16" } },
+        {
+          "id": "shell-cellar",
+          "kind": "arch.corridor",
+          "props": { "color": "#1c2820", "halfX": 8, "zMin": -6.2, "zMax": 1, "openings": [0] }
+        },
+        {
+          "id": "plaque-cellar",
+          "kind": "prop.plaque",
+          "position": [2.2, 1.6, -5.9],
+          "props": { "color": "#508070", "text": "Cellar" }
+        },
+        {
+          "id": "cube-cellar",
+          "kind": "prop.box",
+          "position": [-3, 0.4, -3],
+          "tags": ["landmark"],
+          "props": { "size": [0.8, 0.8, 0.8], "color": "#2a5040" }
+        },
+        {
+          "id": "frame-cp",
+          "kind": "arch.frame",
+          "position": [0, 1, 0],
+          "rotation": [0, 3.141592653589793, 0],
+          "props": { "color": "#405848", "coversPortalId": "door-cp" }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-cp",
+          "position": [0, 1, 0],
+          "yaw": 3.141592653589793,
+          "size": [2, 2],
+          "destinationId": "door-pc"
+        }
+      ]
+    },
+    {
+      "id": "attic",
+      "title": "Attic",
+      "tags": ["interior", "haunt", "secret"],
+      "origin": [1000, 0, 0],
+      "clearColor": "#18120c",
+      "entities": [
+        { "id": "sky-attic", "kind": "env.sky", "props": { "color": "#18120c" } },
+        { "id": "light-attic", "kind": "env.light", "props": { "ambient": "#241c14", "sun": "#d4a060", "sunIntensity": 0.35 } },
+        { "id": "floor-attic", "kind": "env.floor", "props": { "color": "#22180e" } },
+        {
+          "id": "shell-attic",
+          "kind": "arch.corridor",
+          "props": { "color": "#2e2418", "halfX": 8, "zMin": -6.2, "zMax": 1, "openings": [0] }
+        },
+        {
+          "id": "plaque-attic",
+          "kind": "prop.plaque",
+          "position": [2.2, 1.6, -5.9],
+          "props": { "color": "#d4a060", "text": "Attic" }
+        },
+        {
+          "id": "cube-attic",
+          "kind": "prop.box",
+          "position": [-3, 0.4, -3],
+          "tags": ["landmark"],
+          "props": { "size": [0.8, 0.8, 0.8], "color": "#c48830" }
+        },
+        {
+          "id": "frame-ap",
+          "kind": "arch.frame",
+          "position": [0, 1, 0],
+          "rotation": [0, 3.141592653589793, 0],
+          "props": { "color": "#c4a070", "coversPortalId": "door-ap" }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-ap",
+          "position": [0, 1, 0],
+          "yaw": 3.141592653589793,
+          "size": [2, 2],
+          "destinationId": "door-pa"
+        }
+      ]
+    }
+  ]
+}

@@ -6,6 +6,7 @@ import { applyLook } from './engine/look.js';
 import { emptyPadButtons, firstGamepad, readGamepad } from './engine/gamepad.js';
 import { findInteract, runInteract } from './engine/interact.js';
 import { spawnCrossBurst, tickAtmosphere } from './engine/atmosphere.js';
+import { gameAudio } from './engine/audio.js';
 import { createSession } from './game/session.js';
 import { loadSave, poseFromSession, writeSave } from './content/save.js';
 import { bindOptions, refreshHud } from './ui/options.js';
@@ -78,7 +79,7 @@ export function createApp({
     state: touch,
     onJump: () => {
       if (state === APP_STATES.playing) {
-        session?.player.jump();
+        doJump();
       }
     },
     onPause: pause,
@@ -267,6 +268,8 @@ export function createApp({
     }
 
     setLoading('Creating GPU context…');
+    await gameAudio.resume();
+    gameAudio.applyVolumes(settings);
     await frame();
     try {
       setLoading('Loading halls…');
@@ -283,6 +286,7 @@ export function createApp({
         height: window.innerHeight,
       });
       bindLiveSession(session);
+      gameAudio.startBed(session.controller.currentRoom);
       showRoomTitle(session.controller.currentRoom?.title);
       state = APP_STATES.playing;
       setMenuVisible(false);
@@ -306,6 +310,7 @@ export function createApp({
       return state;
     }
     state = APP_STATES.paused;
+    gameAudio.mute();
     clearInput();
     setHudVisible(false);
     try {
@@ -325,6 +330,10 @@ export function createApp({
       return state;
     }
     state = APP_STATES.playing;
+    gameAudio.resume().then(() => {
+      gameAudio.applyVolumes(settings);
+      gameAudio.startBed(session.controller.currentRoom);
+    });
     setMenuVisible(false);
     showMenuCard('home');
     setHudVisible(true);
@@ -338,6 +347,7 @@ export function createApp({
     if (session) {
       writeSave(poseFromSession(session, selectedWorldId));
     }
+    gameAudio.mute();
     cancelAnimationFrame(raf);
     raf = 0;
     unbindSession();
@@ -373,6 +383,12 @@ export function createApp({
     return true;
   }
 
+  function doJump() {
+    if (session?.player.jump()) {
+      gameAudio.jump();
+    }
+  }
+
   function debugEnabled() {
     return debugFromUrl || settings.showDebug;
   }
@@ -405,6 +421,7 @@ export function createApp({
   function bindLiveSession(next) {
     unbindSession();
     const offEnter = next.controller.on('room:enter', ({ room, roomId }) => {
+      gameAudio.startBed(room ?? roomId);
       showRoomTitle(room?.title || roomId);
       if (debugEnabled()) {
         updateDebug(roomId);
@@ -412,6 +429,7 @@ export function createApp({
     });
     const offCross = next.controller.on('portal:cross', ({ portalId, from, to }) => {
       lastCross = `${from} → ${to} via ${portalId ?? '?'}`;
+      gameAudio.whoosh();
       const dest = next.controller.rooms.find((entry) => entry.id === to);
       if (dest) {
         spawnCrossBurst(dest, next.camera.position, dest.clearColor);
@@ -467,7 +485,7 @@ export function createApp({
       applyTouchMove(move, { active: true, moveX: pad.moveX, moveY: pad.moveY });
       applyLook(session.camera, pad.lookDX, pad.lookDY, settings);
       if (consumeTouchJump(touch) || pad.jump) {
-        session.player.jump();
+        doJump();
       }
       if (consumeTouchInteract(touch) || pad.interact) {
         tryInteract();
@@ -476,6 +494,8 @@ export function createApp({
         pause();
       }
       session.player.step(dt, move, session.controls, session.controller.currentRoom);
+      const moving = Boolean(move.forward || move.back || move.left || move.right);
+      gameAudio.tick(dt, { moving, onGround: session.player.onGround });
       nearbyInteract = findInteract(session.controller.currentRoom, session.camera.position);
       updateInteractHud();
       session.controller.update();
@@ -556,7 +576,7 @@ export function createApp({
       keys.right = down ? 1 : 0;
     } else if (code === bindCode('jump')) {
       if (down) {
-        session?.player.jump();
+        doJump();
       }
     } else if (code === bindCode('interact')) {
       if (down) {

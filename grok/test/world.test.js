@@ -128,9 +128,11 @@ describe('world data', () => {
 
   it('lists worlds with a preview image for the picker', () => {
     const index = readJson('data/worlds/index.json');
-    assert.ok(index.worlds.length >= 1);
+    assert.ok(index.worlds.length >= 2);
     assert.equal(index.worlds[0].id, 'two-rooms');
+    assert.equal(index.worlds[1].id, 'haunted-house');
     assert.ok(index.worlds[0].preview.startsWith('/worlds/'));
+    assert.ok(index.worlds[1].preview.startsWith('/worlds/'));
   });
 
   it('validates the shipped world against the catalog', () => {

@@ -65,12 +65,20 @@ export function validateWorld(world, catalog) {
 
 const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
 if (isMain) {
-  const world = readJson('data/worlds/two-rooms.json');
   const catalog = readJson('data/catalog.json');
-  const errors = validateWorld(world, catalog);
-  if (errors.length) {
-    console.error(errors.join('\n'));
+  const index = readJson('data/worlds/index.json');
+  let failed = false;
+  for (const entry of index.worlds ?? []) {
+    const world = readJson(`data/worlds/${entry.file}`);
+    const errors = validateWorld(world, catalog);
+    if (errors.length) {
+      console.error(`${entry.id}:\n${errors.join('\n')}`);
+      failed = true;
+      continue;
+    }
+    console.log(`ok ${entry.id} ${world.rooms.length} rooms, ${Object.keys(catalog.kinds).length} kinds`);
+  }
+  if (failed) {
     process.exit(1);
   }
-  console.log(`ok ${world.rooms.length} rooms, ${Object.keys(catalog.kinds).length} kinds`);
 }

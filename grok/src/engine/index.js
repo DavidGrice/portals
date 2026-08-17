@@ -14,6 +14,7 @@ export { detectTouch, suggestGraphicsQuality } from './deviceProfile.js';
 export { applyLook } from './look.js';
 export { applyDeadzone, applyFullscreen, firstGamepad, readGamepad } from './gamepad.js';
 export { PostAA } from './PostAA.js';
+export { GameAudio, gameAudio, mixGain } from './audio.js';
 export { attachMotes, profileMoteDensity, setMoteDensity, spawnCrossBurst } from './atmosphere.js';
 export { findInteract, runInteract } from './interact.js';
 export { Player } from './Player.js';

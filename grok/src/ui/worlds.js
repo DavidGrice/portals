@@ -1,8 +1,10 @@
 import worldIndex from '../../data/worlds/index.json';
 import fourHalls from '../../data/worlds/two-rooms.json';
+import hauntedHouse from '../../data/worlds/haunted-house.json';
 
 const WORLD_DATA = {
   'two-rooms': fourHalls,
+  'haunted-house': hauntedHouse,
 };
 
 export function listWorlds() {

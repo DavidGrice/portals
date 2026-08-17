@@ -24,7 +24,7 @@ Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/). The start menu is HTML on
 | Touch | Left stick move, drag to look, Jump, Pause |
 | Gamepad | Left stick move, right stick look, A jump, Start pause / Play |
 
-The shipped world is five halls: **blue → red → green → violet**, plus a sealed **rose** hall you unseal with **E** on the glowing pad. Each hall is a walled corridor with a dest-colored door glow, drifting motes, and a brief room title. Quit to menu writes a Continue save.
+Play opens a world gallery. **Four halls** and **The Hollow House** (foyer, hall, parlor, cellar, locked attic). Haunt rooms play a darker original drone. Quit to menu writes a Continue save.
 
 Query flags: `?debug` for a live overlay, `?nohud` to skip the welcome card.
 
