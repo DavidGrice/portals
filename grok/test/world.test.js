@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PerspectiveCamera } from 'three';
+import { Emitter, Portal, PortalController, Room } from '../src/engine/index.js';
 import { loadWorld, kindsByCategory } from '../src/content/loadWorld.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -27,6 +28,14 @@ function mockRenderer() {
 }
 
 describe('world data', () => {
+  it('exports the engine barrel', () => {
+    assert.equal(typeof Portal, 'function');
+    assert.equal(typeof PortalController, 'function');
+    assert.equal(typeof Room, 'function');
+    assert.equal(typeof Emitter, 'function');
+    assert.equal(typeof PortalController.prototype.render, 'function');
+  });
+
   it('classifies catalog kinds by category', () => {
     const catalog = readJson('data/catalog.json');
     const groups = kindsByCategory(catalog);
