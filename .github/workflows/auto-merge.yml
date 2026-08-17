@@ -1,0 +1,42 @@
+name: auto-merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+  check_suite:
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+jobs:
+  merge:
+    if: github.event.pull_request != null || github.event.check_suite != null
+    runs-on: ubuntu-latest
+    steps:
+      - name: Squash-merge labeled PRs after green CI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            NUM="${{ github.event.pull_request.number }}"
+          else
+            NUM=$(gh pr list --repo "${{ github.repository }}" --state open --json number,labels,baseRefName --jq '.[] | select(.baseRefName=="portals-grok" or .baseRefName=="main") | select([.labels[].name] | index("automerge")) | .number' | head -n1)
+          fi
+          if [ -z "$NUM" ]; then
+            echo "No PR to consider."
+            exit 0
+          fi
+          BASE=$(gh pr view "$NUM" --repo "${{ github.repository }}" --json baseRefName --jq .baseRefName)
+          LABELS=$(gh pr view "$NUM" --repo "${{ github.repository }}" --json labels --jq '[.labels[].name] | join(",")')
+          echo "PR #$NUM base=$BASE labels=$LABELS"
+          case "$BASE" in
+            portals-grok|main) ;;
+            *) echo "Skip: base $BASE"; exit 0 ;;
+          esac
+          echo "$LABELS" | grep -q automerge || { echo "Skip: no automerge label"; exit 0; }
+          gh pr checks "$NUM" --repo "${{ github.repository }}" --fail-fast
+          gh pr merge "$NUM" --repo "${{ github.repository }}" --squash --delete-branch
