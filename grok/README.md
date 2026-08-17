@@ -53,7 +53,7 @@ Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/).
 | Touch | Left stick move, right-side drag look, Jump button |
 | **Options** | Graphics, controls, interface, sound, keybinds |
 
-The shipped world is four halls: **blue → red → green → violet**. Each door is a two-way pair except where `enabled` / `oneWay` say otherwise.
+The shipped world is four halls: **blue → red → green → violet**. Each hall has its own `origin` (250 units apart on X) so a door shows that destination’s color and architecture, not another hall’s props stacked on the same coordinates. Landmark cubes sit in the walk-up pocket beside each entry, not in the doorway view. The sky is a smooth dome well inside the camera far plane.
 
 Query flags:
 
@@ -127,7 +127,7 @@ Package `exports` maps `"."` to that file.
 
 `data/catalog.json` maps a **kind** (`env.sky`, `env.floor`, `env.light`, `prop.box`, `arch.frame`) to a prefab.
 
-`data/worlds/*.json` lists rooms. Each room has `clearColor`, `entities`, and `portals`.
+`data/worlds/*.json` lists rooms. Each room has `clearColor`, optional `origin`, `entities`, and `portals`. The loader adds `origin` to every entity and door.
 
 Portal fields:
 

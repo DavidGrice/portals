@@ -3,7 +3,7 @@ import { AA_MODE_IDS } from './aaModes.js';
 import { suggestGraphicsQuality } from './deviceProfile.js';
 
 const STORAGE_KEY = 'portals-grok-graphics';
-const BASE_FAR = 80;
+const BASE_FAR = 280;
 
 export const GRAPHICS_PROFILES = {
   performance: {

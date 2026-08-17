@@ -7,7 +7,7 @@ import { bindOptions, refreshHud } from './ui/options.js';
 import { applyTouchMove, bindTouchControls, consumeTouchJump, consumeTouchLook, createTouchState, detectTouch } from './ui/touch.js';
 
 const settings = GraphicsSettings.load();
-const camera = new THREE.PerspectiveCamera(settings.fov, window.innerWidth / window.innerHeight, 0.05, 80);
+const camera = new THREE.PerspectiveCamera(settings.fov, window.innerWidth / window.innerHeight, 0.05, 280);
 const renderer = createPortalRenderer({
   antialias: settings.hardwareAa,
   pixelRatio: settings.pixelRatio === 'device' ? undefined : Number(settings.pixelRatio),

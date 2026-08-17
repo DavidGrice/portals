@@ -40,10 +40,11 @@ export const prefabs = {
   sky(entity) {
     const color = parseColor(entity.props?.color, 0x111111);
     const mesh = new THREE.Mesh(
-      new THREE.SphereGeometry(80, 16, 12),
-      new THREE.MeshBasicMaterial({ color, side: THREE.BackSide }),
+      new THREE.SphereGeometry(90, 48, 32),
+      new THREE.MeshBasicMaterial({ color, side: THREE.BackSide, depthWrite: false }),
     );
     mesh.frustumCulled = false;
+    mesh.renderOrder = -1000;
     applyPose(mesh, entity);
     return mesh;
   },

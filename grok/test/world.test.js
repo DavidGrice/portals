@@ -117,6 +117,9 @@ describe('world data', () => {
     assert.equal(cd.destinationPortal, dc);
     assert.equal(controller.getPortal('door-dc').destinationId, 'door-cd');
     assert.equal(world.rooms.length, 4);
+    assert.ok(Math.abs(a.position.x - b.position.x) > 200, 'A and B halls must not share an origin');
+    assert.ok(Math.abs(bc.position.x - cb.position.x) > 200, 'B and C halls must not share an origin');
+    assert.ok(Math.abs(cd.position.x - dc.position.x) > 200, 'C and D halls must not share an origin');
   });
 
   it('validates the shipped world against the catalog', () => {

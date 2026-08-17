@@ -9,6 +9,7 @@
       "id": "room-a",
       "title": "Blue hall",
       "tags": ["interior", "start"],
+      "origin": [0, 0, 0],
       "clearColor": "#2a3344",
       "entities": [
         { "id": "sky-a", "kind": "env.sky", "props": { "color": "#2a3344" } },
@@ -17,7 +18,7 @@
         {
           "id": "cube-blue",
           "kind": "prop.box",
-          "position": [-1.6, 0.4, 2.1],
+          "position": [7, 0.4, 3.2],
           "tags": ["landmark"],
           "props": { "size": [0.8, 0.8, 0.8], "color": "#4da3ff" }
         },
@@ -42,6 +43,7 @@
       "id": "room-b",
       "title": "Red hall",
       "tags": ["interior"],
+      "origin": [250, 0, 0],
       "clearColor": "#4a1c1c",
       "entities": [
         { "id": "sky-b", "kind": "env.sky", "props": { "color": "#4a1c1c" } },
@@ -50,7 +52,7 @@
         {
           "id": "cube-gold",
           "kind": "prop.box",
-          "position": [1.5, 0.4, -1.6],
+          "position": [7, 0.4, 3.2],
           "tags": ["landmark"],
           "props": { "size": [0.8, 0.8, 0.8], "color": "#ffcc33" }
         },
@@ -89,6 +91,7 @@
       "id": "room-c",
       "title": "Green hall",
       "tags": ["interior"],
+      "origin": [500, 0, 0],
       "clearColor": "#1c3328",
       "entities": [
         { "id": "sky-c", "kind": "env.sky", "props": { "color": "#1c3328" } },
@@ -97,7 +100,7 @@
         {
           "id": "cube-green",
           "kind": "prop.box",
-          "position": [-1.4, 0.4, -2],
+          "position": [7, 0.4, 3.2],
           "tags": ["landmark"],
           "props": { "size": [0.8, 0.8, 0.8], "color": "#5dff9a" }
         },
@@ -136,6 +139,7 @@
       "id": "room-d",
       "title": "Violet hall",
       "tags": ["interior"],
+      "origin": [750, 0, 0],
       "clearColor": "#2a2040",
       "entities": [
         { "id": "sky-d", "kind": "env.sky", "props": { "color": "#2a2040" } },
@@ -144,7 +148,7 @@
         {
           "id": "cube-violet",
           "kind": "prop.box",
-          "position": [1.3, 0.4, -2],
+          "position": [7, 0.4, 3.2],
           "tags": ["landmark"],
           "props": { "size": [0.8, 0.8, 0.8], "color": "#b5abfc" }
         },

@@ -66,6 +66,7 @@
         "title": { "type": "string" },
         "tags": { "type": "array", "items": { "type": "string" } },
         "clearColor": { "type": ["string", "number"] },
+        "origin": { "$ref": "#/$defs/vec3" },
         "entities": { "type": "array", "items": { "$ref": "#/$defs/entity" } },
         "portals": { "type": "array", "items": { "$ref": "#/$defs/portal" } }
       }
