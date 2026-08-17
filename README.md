@@ -22,6 +22,7 @@ Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/). The start menu is HTML on
 | **Space** | Jump (rebindable) |
 | **Esc** / **O** / Pause | Options and resume |
 | Touch | Left stick move, drag to look, Jump, Pause |
+| Gamepad | Left stick move, right stick look, A jump, Start pause / Play |
 
 The shipped world is four halls: **blue → red → green → violet**. Each hall sits in its own space 250 units apart so a door shows only that destination’s color and architecture, not another hall’s props stacked on the same origin.
 

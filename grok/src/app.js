@@ -3,6 +3,7 @@ import world from '../data/worlds/two-rooms.json';
 import catalog from '../data/catalog.json';
 import { GraphicsSettings, probeCapabilities } from './engine/index.js';
 import { applyLook } from './engine/look.js';
+import { emptyPadButtons, firstGamepad, readGamepad } from './engine/gamepad.js';
 import { createSession } from './game/session.js';
 import { bindOptions, refreshHud } from './ui/options.js';
 import { applyTouchMove, bindTouchControls, consumeTouchJump, consumeTouchLook, createTouchState, detectTouch } from './ui/touch.js';
@@ -28,6 +29,7 @@ export function createApp({
   const lookHeld = { left: false, right: false, up: false, down: false };
   const keys = { forward: 0, back: 0, left: 0, right: 0 };
   const move = { forward: 0, back: 0, left: 0, right: 0 };
+  let padButtons = emptyPadButtons();
   const clock = new THREE.Clock();
   const debugLocal = new THREE.Vector3();
 
@@ -151,6 +153,27 @@ export function createApp({
       pause();
     }
   });
+
+  document.addEventListener('fullscreenchange', () => {
+    settings.fullscreen = Boolean(document.fullscreenElement);
+    settings.save();
+    const select = document.getElementById('opt-fullscreen');
+    if (select) {
+      select.value = settings.fullscreen ? 'on' : 'off';
+    }
+  });
+
+  const menuPadTimer = globalThis.setInterval(() => {
+    if (state === APP_STATES.playing) {
+      return;
+    }
+    const pad = pollPad();
+    if (state === APP_STATES.menu && pad.start) {
+      play();
+    } else if (state === APP_STATES.paused && pad.start) {
+      resume();
+    }
+  }, 50);
 
   window.addEventListener('resize', () => {
     if (!session) {
@@ -341,8 +364,14 @@ export function createApp({
       applyLook(session.camera, look.dx * 2.2, look.dy * 2.2, settings);
       applyLookKeys(dt);
       applyTouchMove(move, touch);
-      if (consumeTouchJump(touch)) {
+      const pad = pollPad();
+      applyTouchMove(move, { active: true, moveX: pad.moveX, moveY: pad.moveY });
+      applyLook(session.camera, pad.lookDX, pad.lookDY, settings);
+      if (consumeTouchJump(touch) || pad.jump) {
         session.player.jump();
+      }
+      if (pad.start) {
+        pause();
       }
       session.player.step(dt, move, session.controls, session.controller.currentRoom);
       session.controller.update();
@@ -435,10 +464,17 @@ export function createApp({
     }
   }
 
+  function pollPad() {
+    const next = readGamepad(firstGamepad(), padButtons, settings);
+    padButtons = next.pressed;
+    return next;
+  }
+
   function clearInput() {
     keys.forward = keys.back = keys.left = keys.right = 0;
     move.forward = move.back = move.left = move.right = 0;
     lookHeld.left = lookHeld.right = lookHeld.up = lookHeld.down = false;
+    padButtons = emptyPadButtons();
   }
 
   function frame() {

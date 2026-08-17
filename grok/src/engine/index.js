@@ -12,6 +12,7 @@ export {
 export { AA_MODES, aaModeInfo } from './aaModes.js';
 export { detectTouch, suggestGraphicsQuality } from './deviceProfile.js';
 export { applyLook } from './look.js';
+export { applyDeadzone, applyFullscreen, firstGamepad, readGamepad } from './gamepad.js';
 export { PostAA } from './PostAA.js';
 export { Player } from './Player.js';
 export { createPortalRenderer, probeCapabilities } from './capabilities.js';

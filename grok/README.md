@@ -51,6 +51,7 @@ Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/). The start menu is HTML on
 | **Mouse** / drag | Look |
 | **Space** | Jump (rebindable) |
 | Touch | Left stick move, right-side drag look, Jump button |
+| Gamepad | Left stick move, right stick look, A jump, Start pause / Play |
 | **Options** | Graphics, controls, interface, sound, keybinds |
 
 The shipped world is four halls: **blue → red → green → violet**. Each hall has its own `origin` (250 units apart on X) so a door shows that destination’s color and architecture, not another hall’s props stacked on the same coordinates. Landmark cubes sit in the walk-up pocket beside each entry, not in the doorway view. The sky is a smooth dome well inside the camera far plane.
@@ -83,7 +84,7 @@ The portal pass never goes through EffectComposer — stencil increment/decremen
 | Balanced | on | 2 | 1 | on | 100% |
 | Ultra | on | 4 | device (cap 2) | on + fill light | 115% |
 
-After a preset you can still change FOV, recursion, scale, anisotropy, view distance, shadows, fill light, look sensitivity, invert Y, walk/jump, keybinds, HUD, theme, and stored volume sliders.
+After a preset you can still change FOV, recursion, scale, anisotropy, view distance, shadows, fill light, look sensitivity, invert Y, walk/jump, gamepad look, fullscreen, keybinds, HUD, theme, and stored volume sliders.
 
 `prefers-reduced-motion` disables the welcome mote animation. On a phone or tablet the welcome card is scrollable, look does not require pointer lock, and a virtual stick + Jump + Pause sit over the world.
 

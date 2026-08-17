@@ -6,6 +6,7 @@ import {
   UI_THEMES,
 } from '../engine/GraphicsSettings.js';
 import { AA_MODES, aaModeInfo } from '../engine/aaModes.js';
+import { applyFullscreen } from '../engine/gamepad.js';
 
 const ANISOTROPY_LEVELS = [
   { value: 1, label: 'Off' },
@@ -84,6 +85,9 @@ export function bindOptions({
     if (event.target.id === 'opt-mouse') {
       setText('opt-mouse-value', Number(event.target.value).toFixed(2));
     }
+    if (event.target.id === 'opt-gamepad') {
+      setText('opt-gamepad-value', Number(event.target.value).toFixed(2));
+    }
     if (event.target.id === 'opt-move') {
       setText('opt-move-value', Number(event.target.value).toFixed(1));
     }
@@ -148,6 +152,7 @@ export function bindOptions({
       next.apply(session);
     } else {
       refreshHud(settings);
+      applyFullscreen(settings.fullscreen);
     }
   }
 
@@ -164,7 +169,9 @@ export function bindOptions({
       anisotropy: Number(field('opt-anisotropy')?.value),
       viewDistance: Number(field('opt-view')?.value),
       mouseSensitivity: Number(field('opt-mouse')?.value),
+      gamepadSensitivity: Number(field('opt-gamepad')?.value),
       invertY: isOn('opt-invert'),
+      fullscreen: isOn('opt-fullscreen'),
       moveSpeed: Number(field('opt-move')?.value),
       jumpSpeed: Number(field('opt-jump')?.value),
       lookKeySpeed: Number(field('opt-look-keys')?.value),
@@ -189,6 +196,7 @@ export function bindOptions({
     setRange('opt-recursion', next.recursion, String(next.recursion));
     setRange('opt-view', next.viewDistance, `${Math.round(next.viewDistance * 100)}%`);
     setRange('opt-mouse', next.mouseSensitivity, next.mouseSensitivity.toFixed(2));
+    setRange('opt-gamepad', next.gamepadSensitivity, next.gamepadSensitivity.toFixed(2));
     setRange('opt-move', next.moveSpeed, next.moveSpeed.toFixed(1));
     setRange('opt-jump', next.jumpSpeed, next.jumpSpeed.toFixed(1));
     setRange('opt-look-keys', next.lookKeySpeed, next.lookKeySpeed.toFixed(1));
@@ -202,6 +210,7 @@ export function bindOptions({
     setSelect('opt-fps', next.showFps ? 'on' : 'off');
     setSelect('opt-crosshair', next.showCrosshair ? 'on' : 'off');
     setSelect('opt-colorblind', next.colorblindMode ? 'on' : 'off');
+    setSelect('opt-fullscreen', next.fullscreen ? 'on' : 'off');
     setText('opt-aa-blurb', aaModeInfo(next.aaMode).blurb);
     setText('opt-profile-blurb', GRAPHICS_PROFILES[next.profile]?.blurb ?? '');
     setText('opt-theme-blurb', UI_THEMES.find((theme) => theme.id === next.uiTheme)?.blurb ?? '');

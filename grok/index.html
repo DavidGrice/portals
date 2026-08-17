@@ -49,6 +49,7 @@
           <li>You can land on the colored cubes and stay on them.</li>
           <li>Esc or the pause button freezes the world. O opens Options.</li>
           <li>On a phone: left stick, drag to look, Jump, Pause.</li>
+          <li>Gamepad: left stick move, right stick look, A jump, Start pause / Play.</li>
         </ul>
         <button type="button" id="welcome-help-back" class="welcome-enter">Back</button>
       </div>
@@ -137,6 +138,10 @@
               <input id="opt-mouse" type="range" min="0.1" max="1.5" step="0.05" />
               <span id="opt-mouse-value"></span>
             </label>
+            <label>Gamepad look
+              <input id="opt-gamepad" type="range" min="0.1" max="1.5" step="0.05" />
+              <span id="opt-gamepad-value"></span>
+            </label>
             <label>Walk speed
               <input id="opt-move" type="range" min="2" max="8" step="0.1" />
               <span id="opt-move-value"></span>
@@ -181,6 +186,12 @@
             </label>
             <label>High-contrast HUD
               <select id="opt-colorblind">
+                <option value="off">Off</option>
+                <option value="on">On</option>
+              </select>
+            </label>
+            <label>Fullscreen
+              <select id="opt-fullscreen">
                 <option value="off">Off</option>
                 <option value="on">On</option>
               </select>

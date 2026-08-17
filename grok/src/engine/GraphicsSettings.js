@@ -1,6 +1,7 @@
 import { DirectionalLight } from 'three';
 import { AA_MODE_IDS } from './aaModes.js';
 import { suggestGraphicsQuality } from './deviceProfile.js';
+import { applyFullscreen } from './gamepad.js';
 
 const STORAGE_KEY = 'portals-grok-graphics';
 const BASE_FAR = 280;
@@ -176,7 +177,9 @@ export class GraphicsSettings {
     this.viewDistance = clamp(number(migrated.viewDistance, profile.viewDistance), 0.7, 1.3);
     this.fov = clamp(number(migrated.fov, 70), 50, 100);
     this.mouseSensitivity = clamp(number(migrated.mouseSensitivity, 0.5), 0.1, 1.5);
+    this.gamepadSensitivity = clamp(number(migrated.gamepadSensitivity, 0.5), 0.1, 1.5);
     this.invertY = Boolean(migrated.invertY);
+    this.fullscreen = Boolean(migrated.fullscreen);
     this.moveSpeed = clamp(number(migrated.moveSpeed, 4), 2, 8);
     this.jumpSpeed = clamp(number(migrated.jumpSpeed, 6.5), 4, 10);
     this.lookKeySpeed = clamp(number(migrated.lookKeySpeed, 1.4), 0.4, 3);
@@ -238,7 +241,9 @@ export class GraphicsSettings {
       viewDistance: this.viewDistance,
       fov: this.fov,
       mouseSensitivity: this.mouseSensitivity,
+      gamepadSensitivity: this.gamepadSensitivity,
       invertY: this.invertY,
+      fullscreen: this.fullscreen,
       moveSpeed: this.moveSpeed,
       jumpSpeed: this.jumpSpeed,
       lookKeySpeed: this.lookKeySpeed,
@@ -257,6 +262,7 @@ export class GraphicsSettings {
     if (typeof document !== 'undefined') {
       document.documentElement.dataset.theme = this.uiTheme;
       document.documentElement.dataset.colorblind = this.colorblindMode ? 'on' : 'off';
+      applyFullscreenSetting(this.fullscreen);
     }
 
     if (camera) {
@@ -326,6 +332,10 @@ export class GraphicsSettings {
       }
     }
   }
+}
+
+function applyFullscreenSetting(wanted) {
+  applyFullscreen(wanted);
 }
 
 function applyAnisotropy(object, level) {
