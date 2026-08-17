@@ -10,6 +10,9 @@ export const BEDS = {
   haunt: { freqs: [24.5, 32.7, 41.2, 61.7], filter: 95, lfo: 0.028, gain: 0.125, whisper: 580, sub: 18.35 },
   hauntDeep: { freqs: [18.35, 24.5, 30.87, 36.7], filter: 68, lfo: 0.02, gain: 0.14, whisper: 410, sub: 14.5 },
   hauntWind: { freqs: [27.5, 41.2, 82.4], filter: 210, lfo: 0.055, gain: 0.1, whisper: 980, sub: 22, wind: true },
+  cyber: { freqs: [40, 80, 160, 320], filter: 420, lfo: 0.11, gain: 0.08, whisper: 1280, sub: 40 },
+  agesPast: { freqs: [38, 57, 76], filter: 180, lfo: 0.035, gain: 0.1, sub: 22 },
+  agesFuture: { freqs: [48, 96, 192], filter: 360, lfo: 0.08, gain: 0.09, whisper: 880, sub: 24 },
 };
 
 const ROOM_BED = {
@@ -32,7 +35,17 @@ export function bedForRoom(room) {
   if (ROOM_BED[id]) {
     return ROOM_BED[id];
   }
-  return room?.tags?.includes('haunt') ? 'haunt' : 'halls';
+  const tags = room?.tags ?? [];
+  if (tags.includes('cyber')) {
+    return 'cyber';
+  }
+  if (tags.includes('future')) {
+    return 'agesFuture';
+  }
+  if (tags.includes('ages') || tags.includes('prehistoric')) {
+    return 'agesPast';
+  }
+  return tags.includes('haunt') ? 'haunt' : 'halls';
 }
 
 export class GameAudio {

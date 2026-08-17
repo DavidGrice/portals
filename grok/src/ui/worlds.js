@@ -1,14 +1,18 @@
-import worldIndex from '../../data/worlds/index.json';
-import fourHalls from '../../data/worlds/two-rooms.json';
-import hauntedHouse from '../../data/worlds/haunted-house.json';
+import worldIndex from '../../data/worlds/index.json' with { type: 'json' };
+import fourHalls from '../../data/worlds/two-rooms.json' with { type: 'json' };
+import hauntedHouse from '../../data/worlds/haunted-house.json' with { type: 'json' };
+import circuitGrid from '../../data/worlds/circuit-grid.json' with { type: 'json' };
+import ages from '../../data/worlds/ages.json' with { type: 'json' };
 
 const WORLD_DATA = {
   'two-rooms': fourHalls,
   'haunted-house': hauntedHouse,
+  'circuit-grid': circuitGrid,
+  ages,
 };
 
 export function listWorlds() {
-  return worldIndex.worlds ?? [];
+  return (worldIndex.worlds ?? []).filter((world) => world.status !== 'draft');
 }
 
 export function getWorldData(id) {

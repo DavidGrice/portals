@@ -13,6 +13,21 @@
       "blurb": "Fires, a dining room, a crypt. The attic stays shut until you find the pad.",
       "preview": "/worlds/haunted-house.jpg",
       "file": "haunted-house.json"
+    },
+    {
+      "id": "circuit-grid",
+      "title": "Circuit Grid",
+      "blurb": "White core to cyan, red, and blue lanes. Run the light.",
+      "preview": "/worlds/circuit-grid.jpg",
+      "file": "circuit-grid.json"
+    },
+    {
+      "id": "ages",
+      "title": "The Ages",
+      "blurb": "Prehistory to orbit. Seed rooms only — still being built.",
+      "preview": "/worlds/ages.jpg",
+      "file": "ages.json",
+      "status": "draft"
     }
   ]
 }

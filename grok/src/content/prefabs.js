@@ -1,14 +1,9 @@
 import * as THREE from 'three';
-import { makeTileTexture } from './tiles.js';
+import { buildMaterial, parseColor as parseMaterialColor } from './materials.js';
+import { makeRecipeTexture } from './tiles.js';
 
 export function parseColor(value, fallback = 0xffffff) {
-  if (typeof value === 'number') {
-    return value;
-  }
-  if (typeof value === 'string') {
-    return Number.parseInt(value.replace('#', ''), 16);
-  }
-  return fallback;
+  return parseMaterialColor(value, fallback);
 }
 
 function applyPose(object, entity) {
@@ -35,6 +30,23 @@ function standardMaterial(color, extras = {}) {
     map: extras.map ?? null,
     roughness: extras.roughness ?? 0.82,
     metalness: extras.metalness ?? 0.08,
+    emissive: extras.emissive ?? 0x000000,
+    emissiveIntensity: extras.emissiveIntensity ?? 0,
+  });
+}
+
+function surfaceMaterial(entity, fallbackColor, extras = {}) {
+  if (entity.props?.material) {
+    return buildMaterial(entity.props.material, { color: fallbackColor, ...extras });
+  }
+  const color = parseColor(entity.props?.color, fallbackColor);
+  return standardMaterial(color, {
+    ...extras,
+    map: extras.map ?? makeRecipeTexture('tile', {
+      color: `#${color.toString(16).padStart(6, '0')}`,
+      line: extras.line ?? '#2a2e38',
+      cells: extras.cells ?? 8,
+    }),
   });
 }
 
@@ -56,11 +68,7 @@ export const prefabs = {
     const size = entity.props?.size ?? 20;
     const mesh = new THREE.Mesh(
       new THREE.PlaneGeometry(size, size),
-      standardMaterial(color, {
-        roughness: 0.94,
-        metalness: 0,
-        map: makeTileTexture({ color: `#${color.toString(16).padStart(6, '0')}`, line: '#1a1d24', cells: 8 }),
-      }),
+      surfaceMaterial(entity, color, { roughness: 0.94, metalness: 0, line: '#1a1d24', cells: 8 }),
     );
     mesh.rotation.x = -Math.PI / 2;
     mesh.receiveShadow = true;
@@ -72,7 +80,12 @@ export const prefabs = {
   box(entity) {
     const color = parseColor(entity.props?.color, 0xffffff);
     const size = entity.props?.size ?? [1, 1, 1];
-    const mesh = new THREE.Mesh(new THREE.BoxGeometry(...size), standardMaterial(color, { roughness: 0.45, metalness: 0.12 }));
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(...size),
+      entity.props?.material
+        ? buildMaterial(entity.props.material, { color })
+        : standardMaterial(color, { roughness: 0.45, metalness: 0.12 }),
+    );
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     applyPose(mesh, entity);
@@ -187,11 +200,7 @@ export const prefabs = {
     const color = parseColor(entity.props?.color, 0x4a5160);
     const mesh = new THREE.Mesh(
       new THREE.BoxGeometry(...size),
-      standardMaterial(color, {
-        roughness: 0.9,
-        metalness: 0.04,
-        map: makeTileTexture({ color: `#${color.toString(16).padStart(6, '0')}`, line: '#2a2e38', cells: 4 }),
-      }),
+      surfaceMaterial(entity, color, { roughness: 0.9, metalness: 0.04, cells: 4 }),
     );
     mesh.castShadow = true;
     mesh.receiveShadow = true;
@@ -222,11 +231,7 @@ export const prefabs = {
     const group = new THREE.Group();
     applyPose(group, entity);
     const color = parseColor(entity.props?.color, 0x4a5160);
-    const material = standardMaterial(color, {
-      roughness: 0.9,
-      metalness: 0.04,
-      map: makeTileTexture({ color: `#${color.toString(16).padStart(6, '0')}`, line: '#2a2e38', cells: 4 }),
-    });
+    const material = surfaceMaterial(entity, color, { roughness: 0.9, metalness: 0.04, cells: 4 });
     const halfX = entity.props?.halfX ?? 8;
     const zMin = entity.props?.zMin ?? -7;
     const zMax = entity.props?.zMax ?? 6;

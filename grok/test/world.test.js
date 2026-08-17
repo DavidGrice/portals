@@ -6,7 +6,10 @@ import { fileURLToPath } from 'node:url';
 import { PerspectiveCamera } from 'three';
 import { applyLook, Emitter, GraphicsSettings, Portal, PortalController, Room } from '../src/engine/index.js';
 import { loadWorld, kindsByCategory } from '../src/content/loadWorld.js';
+import { listMaterials, resolveMaterial } from '../src/content/materials.js';
+import { listWorlds } from '../src/ui/worlds.js';
 import { validateWorld } from '../scripts/validate-world.js';
+import { bedForRoom } from '../src/engine/audio.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -143,13 +146,39 @@ describe('world data', () => {
     assert.equal(index.worlds[1].id, 'haunted-house');
     assert.ok(index.worlds[0].preview.startsWith('/worlds/'));
     assert.ok(index.worlds[1].preview.startsWith('/worlds/'));
+    assert.equal(index.worlds.find((entry) => entry.id === 'ages')?.status, 'draft');
+    assert.ok(listWorlds().every((entry) => entry.status !== 'draft'));
+    assert.ok(listWorlds().some((entry) => entry.id === 'circuit-grid'));
+    assert.ok(!listWorlds().some((entry) => entry.id === 'ages'));
   });
 
-  it('validates the shipped world against the catalog', () => {
-    const world = readJson('data/worlds/two-rooms.json');
+  it('resolves named materials and validates every listed world', () => {
     const catalog = readJson('data/catalog.json');
-    assert.deepEqual(validateWorld(world, catalog), []);
+    const materials = readJson('data/materials.json');
+    const index = readJson('data/worlds/index.json');
+    assert.ok(listMaterials(materials).includes('cyber.grid.cyan'));
+    const cyan = resolveMaterial('cyber.grid.cyan', { library: materials });
+    assert.equal(cyan.recipe, 'circuit');
+    assert.ok(cyan.emissiveIntensity > 0);
+    for (const entry of index.worlds) {
+      const world = readJson(`data/worlds/${entry.file}`);
+      assert.deepEqual(validateWorld(world, catalog, materials), [], entry.id);
+    }
     assert.ok(groupsHasLight(catalog));
+  });
+
+  it('loads circuit-grid and picks cyber / ages beds from tags', () => {
+    const world = readJson('data/worlds/circuit-grid.json');
+    const catalog = readJson('data/catalog.json');
+    const camera = new PerspectiveCamera(60, 1, 0.05, 100);
+    const controller = loadWorld(world, catalog, camera, mockRenderer());
+    assert.equal(controller.currentRoom.id, 'white-core');
+    assert.equal(controller.getPortal('door-wc').destinationId, 'door-cw');
+    assert.equal(controller.getPortal('door-br').destinationId, 'door-rb');
+    assert.ok(Math.abs(controller.getPortal('door-wc').position.x - controller.getPortal('door-cw').position.x) > 200);
+    assert.equal(bedForRoom(controller.currentRoom), 'cyber');
+    assert.equal(bedForRoom({ id: 'mesozoic', tags: ['ages', 'prehistoric'] }), 'agesPast');
+    assert.equal(bedForRoom({ id: 'orbital', tags: ['ages', 'future'] }), 'agesFuture');
   });
 });
 

@@ -24,7 +24,7 @@ Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/). The start menu is HTML on
 | Touch | Left stick move, drag to look, Jump, Pause |
 | Gamepad | Left stick move, right stick look, A jump, Start pause / Play |
 
-Play opens a world gallery. **Four halls** and **The Hollow House** (foyer, hall, parlor, cellar, locked attic). Haunt rooms play a darker original drone. Quit to menu writes a Continue save.
+Play opens a world gallery. **Four halls**, **The Hollow House**, and **Circuit Grid** (neon lanes). Looks are JSON materials; new worlds follow `grok/docs/world-design.md`. Quit to menu writes a Continue save.
 
 Query flags: `?debug` for a live overlay, `?nohud` to skip the welcome card.
 

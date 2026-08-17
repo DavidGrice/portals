@@ -8,7 +8,7 @@ function readJson(relative) {
   return JSON.parse(readFileSync(join(root, relative), 'utf8'));
 }
 
-export function validateWorld(world, catalog) {
+export function validateWorld(world, catalog, materials = null) {
   const errors = [];
   if (!world?.id) {
     errors.push('world.id is required');
@@ -36,6 +36,10 @@ export function validateWorld(world, catalog) {
       }
       if (!catalog.kinds?.[entity.kind]) {
         errors.push(`unknown kind ${entity.kind} on ${entity.id}`);
+      }
+      const materialId = entity.props?.material;
+      if (materialId && materials?.materials && !materials.materials[materialId]) {
+        errors.push(`unknown material ${materialId} on ${entity.id}`);
       }
     }
     for (const portal of room.portals ?? []) {
@@ -66,11 +70,12 @@ export function validateWorld(world, catalog) {
 const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
 if (isMain) {
   const catalog = readJson('data/catalog.json');
+  const materials = readJson('data/materials.json');
   const index = readJson('data/worlds/index.json');
   let failed = false;
   for (const entry of index.worlds ?? []) {
     const world = readJson(`data/worlds/${entry.file}`);
-    const errors = validateWorld(world, catalog);
+    const errors = validateWorld(world, catalog, materials);
     if (errors.length) {
       console.error(`${entry.id}:\n${errors.join('\n')}`);
       failed = true;

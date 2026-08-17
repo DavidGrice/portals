@@ -54,7 +54,7 @@ Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/). The start menu is HTML on
 | Gamepad | Left stick move, right stick look, A jump, Start pause / Play |
 | **Options** | Graphics, controls, interface, sound, keybinds |
 
-Play opens a world gallery. **Four halls** is blue → rose; glass panes and hallway monitors are furniture in those rooms (the TV is a camera-to-texture of the hall you are in, not a portal). **The Hollow House** is a foyer, hall, dining room, parlor, cellar, crypt, and a sealed attic — stand on the parlor pad and press **E** to unseal it. Hearths flicker and crackle; haunt rooms use a low sub drone with creaks, whispers, and a windier attic bed. Quit to menu writes a **Continue** save.
+Play opens a world gallery. **Four halls** is blue → rose; glass panes and hallway monitors are furniture in those rooms (the TV is a camera-to-texture of the hall you are in, not a portal). **The Hollow House** is a foyer, hall, dining room, parlor, cellar, crypt, and a sealed attic — stand on the parlor pad and press **E** to unseal it. **Circuit Grid** is a neon run (white → cyan → red → blue). Worlds and looks are JSON: kinds in `data/catalog.json`, materials in `data/materials.json`. See `docs/world-design.md` for the ages chain and how to add a hall. Quit to menu writes a **Continue** save.
 
 Query flags:
 
@@ -95,14 +95,17 @@ grok/
   src/
     engine/          Player, colliders, graphics, post-AA, look, events, renderer factory
     portal/          Portal, PortalGeometry, PortalController, Room
-    content/         JSON loader and prefabs
+    content/         JSON loader, prefabs, materials
     ui/              Options panel, touch HUD
     main.js          Boot, pointer lock / touch, loop
     style.css        Welcome, options tabs, mobile HUD
   data/
     catalog.json     Kinds → prefabs
-    worlds/          Playable worlds
-    schema/          World JSON shape
+    materials.json   Named looks (recipe + optional map)
+    worlds/          Playable and draft worlds
+    schema/          World and material JSON shape
+  public/assets/     Textures, video, audio, models, HDR slots
+  docs/              World-design plan
   test/              Node tests
   scripts/           validate-world.js
 ```

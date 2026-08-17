@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://portals-grok.local/schema/material.json",
+  "title": "Material library",
+  "type": "object",
+  "required": ["id", "materials"],
+  "properties": {
+    "id": { "type": "string" },
+    "title": { "type": "string" },
+    "materials": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/material" }
+    }
+  },
+  "$defs": {
+    "material": {
+      "type": "object",
+      "properties": {
+        "recipe": { "enum": ["tile", "circuit", "stripe", "speckle"] },
+        "color": { "type": ["string", "number"] },
+        "line": { "type": ["string", "number"] },
+        "cells": { "type": "number" },
+        "repeat": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "roughness": { "type": "number" },
+        "metalness": { "type": "number" },
+        "emissive": { "type": ["string", "number"] },
+        "emissiveIntensity": { "type": "number" },
+        "map": { "type": "string" }
+      }
+    }
+  }
+}

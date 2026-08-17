@@ -1,0 +1,267 @@
+{
+  "id": "circuit-grid",
+  "title": "Circuit Grid",
+  "theme": "cyber",
+  "startRoom": "white-core",
+  "startSpawn": [0, 1, 4],
+  "lookAt": [0, 1, 0],
+  "rooms": [
+    {
+      "id": "white-core",
+      "title": "White core",
+      "tags": ["interior", "start", "cyber"],
+      "origin": [0, 0, 0],
+      "clearColor": "#0c1014",
+      "entities": [
+        { "id": "sky-white", "kind": "env.sky", "props": { "color": "#0c1014" } },
+        { "id": "light-white", "kind": "env.light", "props": { "ambient": "#1a2030", "sun": "#e8eef8", "sunIntensity": 0.35, "ambientIntensity": 0.28 } },
+        { "id": "floor-white", "kind": "env.floor", "props": { "material": "cyber.grid.white" } },
+        {
+          "id": "shell-white",
+          "kind": "arch.corridor",
+          "props": { "material": "cyber.grid.white", "color": "#0c1014", "halfX": 8, "zMin": 0, "zMax": 6.2, "openings": [0] }
+        },
+        {
+          "id": "strip-white-l",
+          "kind": "prop.box",
+          "position": [-7.7, 2.35, 3.1],
+          "props": { "size": [0.08, 0.05, 5.6], "material": "cyber.strip.white" }
+        },
+        {
+          "id": "strip-white-r",
+          "kind": "prop.box",
+          "position": [7.7, 2.35, 3.1],
+          "props": { "size": [0.08, 0.05, 5.6], "material": "cyber.strip.white" }
+        },
+        {
+          "id": "cube-white",
+          "kind": "prop.box",
+          "position": [7, 0.4, 3.2],
+          "tags": ["landmark"],
+          "props": { "size": [0.8, 0.8, 0.8], "color": "#e8eef8" }
+        },
+        {
+          "id": "plaque-white",
+          "kind": "prop.plaque",
+          "position": [-2.2, 1.6, 5.9],
+          "props": { "color": "#e8eef8", "text": "White core" }
+        },
+        {
+          "id": "frame-wc",
+          "kind": "arch.frame",
+          "position": [0, 1, 0],
+          "props": { "color": "#e8eef8", "coversPortalId": "door-wc" }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-wc",
+          "position": [0, 1, 0],
+          "yaw": 0,
+          "size": [2, 2],
+          "destinationId": "door-cw"
+        }
+      ]
+    },
+    {
+      "id": "cyan-lane",
+      "title": "Cyan lane",
+      "tags": ["interior", "cyber"],
+      "origin": [250, 0, 0],
+      "clearColor": "#041018",
+      "entities": [
+        { "id": "sky-cyan", "kind": "env.sky", "props": { "color": "#041018" } },
+        { "id": "light-cyan", "kind": "env.light", "props": { "ambient": "#082028", "sun": "#2ee6ff", "sunIntensity": 0.32, "ambientIntensity": 0.3 } },
+        { "id": "floor-cyan", "kind": "env.floor", "props": { "material": "cyber.grid.cyan" } },
+        {
+          "id": "shell-cyan",
+          "kind": "arch.corridor",
+          "props": { "material": "cyber.grid.cyan", "color": "#041018", "halfX": 8, "zMin": -6.2, "zMax": 5.2, "openings": [0, -5] }
+        },
+        {
+          "id": "strip-cyan-l",
+          "kind": "prop.box",
+          "position": [-7.7, 2.35, -0.5],
+          "props": { "size": [0.08, 0.05, 10.8], "material": "cyber.strip.cyan" }
+        },
+        {
+          "id": "strip-cyan-r",
+          "kind": "prop.box",
+          "position": [7.7, 2.35, -0.5],
+          "props": { "size": [0.08, 0.05, 10.8], "material": "cyber.strip.cyan" }
+        },
+        {
+          "id": "cube-cyan",
+          "kind": "prop.box",
+          "position": [7, 0.4, 3.2],
+          "tags": ["landmark"],
+          "props": { "size": [0.8, 0.8, 0.8], "color": "#2ee6ff" }
+        },
+        {
+          "id": "plaque-cyan",
+          "kind": "prop.plaque",
+          "position": [-2.2, 1.6, 4.9],
+          "props": { "color": "#2ee6ff", "text": "Cyan lane" }
+        },
+        {
+          "id": "frame-cw",
+          "kind": "arch.frame",
+          "position": [0, 1, 0],
+          "rotation": [0, 3.141592653589793, 0],
+          "props": { "color": "#e8eef8", "coversPortalId": "door-cw" }
+        },
+        {
+          "id": "frame-cr",
+          "kind": "arch.frame",
+          "position": [0, 1, -5],
+          "props": { "color": "#ff3b4a", "coversPortalId": "door-cr" }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-cw",
+          "position": [0, 1, 0],
+          "yaw": 3.141592653589793,
+          "size": [2, 2],
+          "destinationId": "door-wc"
+        },
+        {
+          "id": "door-cr",
+          "position": [0, 1, -5],
+          "yaw": 0,
+          "size": [2, 2],
+          "destinationId": "door-rc"
+        }
+      ]
+    },
+    {
+      "id": "red-lane",
+      "title": "Red lane",
+      "tags": ["interior", "cyber"],
+      "origin": [500, 0, 0],
+      "clearColor": "#140408",
+      "entities": [
+        { "id": "sky-red", "kind": "env.sky", "props": { "color": "#140408" } },
+        { "id": "light-red", "kind": "env.light", "props": { "ambient": "#281018", "sun": "#ff3b4a", "sunIntensity": 0.32, "ambientIntensity": 0.3 } },
+        { "id": "floor-red", "kind": "env.floor", "props": { "material": "cyber.grid.red" } },
+        {
+          "id": "shell-red",
+          "kind": "arch.corridor",
+          "props": { "material": "cyber.grid.red", "color": "#140408", "halfX": 8, "zMin": -6.2, "zMax": 5.2, "openings": [0, -5] }
+        },
+        {
+          "id": "strip-red-l",
+          "kind": "prop.box",
+          "position": [-7.7, 2.35, -0.5],
+          "props": { "size": [0.08, 0.05, 10.8], "material": "cyber.strip.red" }
+        },
+        {
+          "id": "strip-red-r",
+          "kind": "prop.box",
+          "position": [7.7, 2.35, -0.5],
+          "props": { "size": [0.08, 0.05, 10.8], "material": "cyber.strip.red" }
+        },
+        {
+          "id": "cube-red",
+          "kind": "prop.box",
+          "position": [7, 0.4, 3.2],
+          "tags": ["landmark"],
+          "props": { "size": [0.8, 0.8, 0.8], "color": "#ff3b4a" }
+        },
+        {
+          "id": "plaque-red",
+          "kind": "prop.plaque",
+          "position": [-2.2, 1.6, 4.9],
+          "props": { "color": "#ff3b4a", "text": "Red lane" }
+        },
+        {
+          "id": "frame-rc",
+          "kind": "arch.frame",
+          "position": [0, 1, 0],
+          "rotation": [0, 3.141592653589793, 0],
+          "props": { "color": "#2ee6ff", "coversPortalId": "door-rc" }
+        },
+        {
+          "id": "frame-rb",
+          "kind": "arch.frame",
+          "position": [0, 1, -5],
+          "props": { "color": "#3b7cff", "coversPortalId": "door-rb" }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-rc",
+          "position": [0, 1, 0],
+          "yaw": 3.141592653589793,
+          "size": [2, 2],
+          "destinationId": "door-cr"
+        },
+        {
+          "id": "door-rb",
+          "position": [0, 1, -5],
+          "yaw": 0,
+          "size": [2, 2],
+          "destinationId": "door-br"
+        }
+      ]
+    },
+    {
+      "id": "blue-lane",
+      "title": "Blue lane",
+      "tags": ["interior", "cyber"],
+      "origin": [750, 0, 0],
+      "clearColor": "#040814",
+      "entities": [
+        { "id": "sky-blue", "kind": "env.sky", "props": { "color": "#040814" } },
+        { "id": "light-blue", "kind": "env.light", "props": { "ambient": "#101828", "sun": "#3b7cff", "sunIntensity": 0.32, "ambientIntensity": 0.3 } },
+        { "id": "floor-blue", "kind": "env.floor", "props": { "material": "cyber.grid.blue" } },
+        {
+          "id": "shell-blue",
+          "kind": "arch.corridor",
+          "props": { "material": "cyber.grid.blue", "color": "#040814", "halfX": 8, "zMin": -6.2, "zMax": 1, "openings": [0] }
+        },
+        {
+          "id": "strip-blue-l",
+          "kind": "prop.box",
+          "position": [-7.7, 2.35, -2.6],
+          "props": { "size": [0.08, 0.05, 6.8], "material": "cyber.strip.blue" }
+        },
+        {
+          "id": "strip-blue-r",
+          "kind": "prop.box",
+          "position": [7.7, 2.35, -2.6],
+          "props": { "size": [0.08, 0.05, 6.8], "material": "cyber.strip.blue" }
+        },
+        {
+          "id": "cube-blue",
+          "kind": "prop.box",
+          "position": [-3, 0.4, -3],
+          "tags": ["landmark"],
+          "props": { "size": [0.8, 0.8, 0.8], "color": "#3b7cff" }
+        },
+        {
+          "id": "plaque-blue",
+          "kind": "prop.plaque",
+          "position": [2.2, 1.6, -5.9],
+          "props": { "color": "#3b7cff", "text": "Blue lane" }
+        },
+        {
+          "id": "frame-br",
+          "kind": "arch.frame",
+          "position": [0, 1, 0],
+          "rotation": [0, 3.141592653589793, 0],
+          "props": { "color": "#3b7cff", "coversPortalId": "door-br" }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-br",
+          "position": [0, 1, 0],
+          "yaw": 3.141592653589793,
+          "size": [2, 2],
+          "destinationId": "door-rb"
+        }
+      ]
+    }
+  ]
+}
