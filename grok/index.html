@@ -43,17 +43,47 @@
         <button type="button" id="pause-options" class="welcome-enter welcome-enter-ghost">Options</button>
         <button type="button" id="pause-quit" class="welcome-enter welcome-enter-ghost">Quit to menu</button>
       </div>
-      <div class="welcome-card" id="welcome-help" hidden>
+      <div class="welcome-card help" id="welcome-help" hidden>
         <h2>How to play</h2>
-        <p class="options-note">Walk the halls and step through a door. The opening is a live view of the next hall, not a picture.</p>
-        <ul class="help-list">
-          <li>WASD to move, mouse or arrows to look, Space to jump.</li>
-          <li>You can land on the colored cubes and stay on them.</li>
-          <li>Stand on the glowing pad in the last hall and press E to unseal the rose door.</li>
-          <li>Esc or the pause button freezes the world. O opens Options. Quit writes a Continue save.</li>
-          <li>On a phone: left stick, drag to look, Jump, Pause.</li>
-          <li>Gamepad: left stick move, right stick look, A jump, Start pause / Play.</li>
-        </ul>
+        <p class="help-lead">Walk the halls and step through a door. The opening is a live view of the next hall, not a picture.</p>
+        <div class="help-grid">
+          <article class="help-card">
+            <span class="help-card-shot" style="background-image:url(/help/doors.jpg)"></span>
+            <div class="help-card-copy">
+              <strong>Doors</strong>
+              <p>Walk into a glowing frame. You come out in the next hall.</p>
+            </div>
+          </article>
+          <article class="help-card">
+            <span class="help-card-shot" style="background-image:url(/help/cubes.jpg)"></span>
+            <div class="help-card-copy">
+              <strong>Cubes</strong>
+              <p>Jump onto a colored cube and you stay on it. Walk off to drop.</p>
+            </div>
+          </article>
+          <article class="help-card">
+            <span class="help-card-shot" style="background-image:url(/help/pad.jpg)"></span>
+            <div class="help-card-copy">
+              <strong>Unseal</strong>
+              <p>In the last hall, stand on the glowing pad and press E to open the rose door.</p>
+            </div>
+          </article>
+        </div>
+        <div class="help-controls">
+          <div>
+            <strong>Desktop</strong>
+            <p>WASD move · mouse or arrows look · Space jump · E interact · Esc pause · O options</p>
+          </div>
+          <div>
+            <strong>Phone</strong>
+            <p>Left stick move · drag to look · Jump · Use · Pause</p>
+          </div>
+          <div>
+            <strong>Gamepad</strong>
+            <p>Left stick move · right stick look · A jump · X interact · Start pause / Play</p>
+          </div>
+        </div>
+        <p class="help-lead help-lead-end">Quit to menu writes a Continue save.</p>
         <button type="button" id="welcome-help-back" class="welcome-enter">Back</button>
       </div>
       <form id="options" class="welcome-card options" hidden>
