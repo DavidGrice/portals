@@ -118,6 +118,8 @@ describe('portal engine', () => {
     b.updateMatrixWorld(true);
     b.worldToLocal(local);
     assert.ok(local.z > 0.1, `dest hall local z ${local.z}`);
+    const forward = new Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+    assert.ok(forward.z < -0.5, `look into dest hall ${forward.z}`);
   });
 
   it('uses a door-sized front and a volume only on -Z', () => {

@@ -53,6 +53,7 @@ export class PortalController {
     this._currentScene = null;
     this._currentScenePortals = [];
     this._lastCameraPosition = new Vector3();
+    this._lastCameraWorld = new Matrix4();
     this._hasLastPosition = false;
     this._events = new Emitter();
     this.lastDrawInfo = { drawn: [], skipped: [], destCam: null, clip: 'none' };
@@ -142,8 +143,8 @@ export class PortalController {
 
   setCameraPosition(x = 0, y = 0, z = 0) {
     this.camera.position.set(x, y, z);
-    this._lastCameraPosition.copy(this.camera.position);
-    this._hasLastPosition = true;
+    this.camera.updateMatrixWorld();
+    this._rememberCameraPose();
   }
 
   update() {
@@ -155,8 +156,7 @@ export class PortalController {
     }
 
     if (!this._hasLastPosition) {
-      this._lastCameraPosition.copy(camera.position);
-      this._hasLastPosition = true;
+      this._rememberCameraPose();
       return;
     }
 
@@ -171,20 +171,29 @@ export class PortalController {
     if (crossed) {
       this.teleport(crossed);
     } else {
-      this._lastCameraPosition.copy(camera.position);
+      this._rememberCameraPose();
     }
   }
 
-  teleport(portal) {
+  _rememberCameraPose() {
     this.camera.updateMatrixWorld();
+    this._lastCameraPosition.copy(this.camera.position);
+    this._lastCameraWorld.copy(this.camera.matrixWorld);
+    this._hasLastPosition = true;
+  }
+
+  teleport(portal) {
+    // Dest view from the last pose still on the approach side. After the
+    // plane crossing the current pose looks back at the dest door.
+    this.camera.matrixWorld.copy(this._lastCameraWorld);
+    this.camera.matrixWorldInverse.copy(this.camera.matrixWorld).invert();
     this.computePortalViewMatrix(portal, this.camera).decompose(teleportPos, teleportQuat, teleportScale);
     this._applyCameraPose(teleportPos, teleportQuat);
     this._settleInDestHall(portal.destinationPortal);
     const fromId = this._currentRoom?.id ?? null;
     const toId = this._getRoom(portal.destinationPortal.scene)?.id ?? portal.destinationPortal.scene.name;
     this.setCurrentScene(toId);
-    this._lastCameraPosition.copy(this.camera.position);
-    this._hasLastPosition = true;
+    this._rememberCameraPose();
     this._events.emit('portal:cross', {
       portal,
       portalId: portal.portalId,
