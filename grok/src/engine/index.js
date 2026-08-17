@@ -1,5 +1,6 @@
 export { collectColliders, resolveColliders } from './colliders.js';
 export { Emitter } from './Emitter.js';
+export { GRAPHICS_PROFILES, GraphicsSettings, resolvePixelRatio } from './GraphicsSettings.js';
 export { Player } from './Player.js';
 export { createPortalRenderer, probeCapabilities } from './capabilities.js';
 export { Portal } from '../portal/Portal.js';

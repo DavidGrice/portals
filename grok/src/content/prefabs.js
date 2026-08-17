@@ -19,6 +19,14 @@ function applyPose(object, entity) {
   }
 }
 
+function standardMaterial(color, extras = {}) {
+  return new THREE.MeshStandardMaterial({
+    color,
+    roughness: extras.roughness ?? 0.82,
+    metalness: extras.metalness ?? 0.08,
+  });
+}
+
 export const prefabs = {
   sky(entity) {
     const color = parseColor(entity.props?.color, 0x111111);
@@ -34,8 +42,9 @@ export const prefabs = {
   floor(entity) {
     const color = parseColor(entity.props?.color, 0x333333);
     const size = entity.props?.size ?? 20;
-    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(size, size), new THREE.MeshBasicMaterial({ color }));
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(size, size), standardMaterial(color, { roughness: 0.94, metalness: 0 }));
     mesh.rotation.x = -Math.PI / 2;
+    mesh.receiveShadow = true;
     applyPose(mesh, entity);
     mesh.userData.collider = { type: 'bounds', half: size * 0.5 };
     return mesh;
@@ -44,10 +53,29 @@ export const prefabs = {
   box(entity) {
     const color = parseColor(entity.props?.color, 0xffffff);
     const size = entity.props?.size ?? [1, 1, 1];
-    const mesh = new THREE.Mesh(new THREE.BoxGeometry(...size), new THREE.MeshBasicMaterial({ color }));
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(...size), standardMaterial(color, { roughness: 0.45, metalness: 0.12 }));
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
     applyPose(mesh, entity);
     mesh.userData.collider = { type: 'aabb' };
     return mesh;
+  },
+
+  light(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const ambient = parseColor(entity.props?.ambient, 0x3a3d4d);
+    const sun = parseColor(entity.props?.sun, 0xfff4e5);
+    group.add(new THREE.AmbientLight(ambient, entity.props?.ambientIntensity ?? 0.45));
+    const directional = new THREE.DirectionalLight(sun, entity.props?.sunIntensity ?? 0.85);
+    const aim = entity.props?.aim ?? [4, 8, 3];
+    directional.position.set(...aim);
+    directional.castShadow = true;
+    directional.shadow.mapSize.set(1024, 1024);
+    directional.shadow.camera.near = 0.5;
+    directional.shadow.camera.far = 40;
+    group.add(directional);
+    return group;
   },
 
   frame(entity) {
@@ -62,13 +90,10 @@ export const prefabs = {
     const width = 2.16;
     const height = 2.16;
     const depth = 0.1;
-    const material = new THREE.MeshBasicMaterial({
-      color,
-      depthTest: true,
-      polygonOffset: true,
-      polygonOffsetFactor: -2,
-      polygonOffsetUnits: -2,
-    });
+    const material = standardMaterial(color, { roughness: 0.55, metalness: 0.22 });
+    material.polygonOffset = true;
+    material.polygonOffsetFactor = -2;
+    material.polygonOffsetUnits = -2;
     const pieces = [
       [0, height / 2, 0, width + thickness * 2, thickness, depth],
       [0, -height / 2, 0, width + thickness * 2, thickness, depth],
@@ -79,6 +104,8 @@ export const prefabs = {
     for (const [x, y, z, sx, sy, sz] of pieces) {
       const mesh = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), material);
       mesh.position.set(x, y, z);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
       mesh.userData.collider = { type: 'aabb' };
       group.add(mesh);
     }

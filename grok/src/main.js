@@ -1,14 +1,22 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { createDemo } from './demo.js';
-import { Player, createPortalRenderer, probeCapabilities } from './engine/index.js';
+import { GraphicsSettings, Player, createPortalRenderer, probeCapabilities } from './engine/index.js';
+import { bindOptions } from './ui/options.js';
 
-const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.05, 100);
-const renderer = createPortalRenderer();
+const settings = GraphicsSettings.load();
+const camera = new THREE.PerspectiveCamera(settings.fov, window.innerWidth / window.innerHeight, 0.05, 100);
+const renderer = createPortalRenderer({
+  antialias: settings.aa,
+  pixelRatio: settings.pixelRatio === 'device' ? undefined : Number(settings.pixelRatio),
+  shadows: settings.shadows,
+});
 document.body.insertBefore(renderer.domElement, document.body.firstChild);
 
 const controller = createDemo(camera, renderer);
+settings.apply({ camera, renderer, controller });
 controller.setSize(window.innerWidth, window.innerHeight);
+bindOptions({ settings, camera, renderer, controller, bootAa: settings.aa });
 
 const controls = new PointerLockControls(camera, renderer.domElement);
 const welcome = document.getElementById('welcome');

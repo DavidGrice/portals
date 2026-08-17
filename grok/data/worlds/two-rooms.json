@@ -1,6 +1,6 @@
 {
   "id": "two-rooms",
-  "title": "Three halls",
+  "title": "Four halls",
   "startRoom": "room-a",
   "startSpawn": [0, 1, 4],
   "lookAt": [0, 1, 0],
@@ -12,6 +12,7 @@
       "clearColor": "#2a3344",
       "entities": [
         { "id": "sky-a", "kind": "env.sky", "props": { "color": "#2a3344" } },
+        { "id": "light-a", "kind": "env.light", "props": { "ambient": "#334055", "sun": "#e8f0ff" } },
         { "id": "floor-a", "kind": "env.floor", "props": { "color": "#3d4a5c" } },
         {
           "id": "cube-blue",
@@ -44,6 +45,7 @@
       "clearColor": "#4a1c1c",
       "entities": [
         { "id": "sky-b", "kind": "env.sky", "props": { "color": "#4a1c1c" } },
+        { "id": "light-b", "kind": "env.light", "props": { "ambient": "#4a2820", "sun": "#ffd9b0" } },
         { "id": "floor-b", "kind": "env.floor", "props": { "color": "#5a2a24" } },
         {
           "id": "cube-gold",
@@ -90,6 +92,7 @@
       "clearColor": "#1c3328",
       "entities": [
         { "id": "sky-c", "kind": "env.sky", "props": { "color": "#1c3328" } },
+        { "id": "light-c", "kind": "env.light", "props": { "ambient": "#1c3328", "sun": "#d8ffe8" } },
         { "id": "floor-c", "kind": "env.floor", "props": { "color": "#2a4a38" } },
         {
           "id": "cube-green",
@@ -104,6 +107,12 @@
           "position": [0, 1, 0],
           "rotation": [0, 3.141592653589793, 0],
           "props": { "color": "#7ee0b0", "coversPortalId": "door-cb" }
+        },
+        {
+          "id": "frame-cd",
+          "kind": "arch.frame",
+          "position": [0, 1, -5],
+          "props": { "color": "#c4b5fd", "coversPortalId": "door-cd" }
         }
       ],
       "portals": [
@@ -113,6 +122,47 @@
           "yaw": 3.141592653589793,
           "size": [2, 2],
           "destinationId": "door-bc"
+        },
+        {
+          "id": "door-cd",
+          "position": [0, 1, -5],
+          "yaw": 0,
+          "size": [2, 2],
+          "destinationId": "door-dc"
+        }
+      ]
+    },
+    {
+      "id": "room-d",
+      "title": "Violet hall",
+      "tags": ["interior"],
+      "clearColor": "#2a2040",
+      "entities": [
+        { "id": "sky-d", "kind": "env.sky", "props": { "color": "#2a2040" } },
+        { "id": "light-d", "kind": "env.light", "props": { "ambient": "#2a2040", "sun": "#efe8ff" } },
+        { "id": "floor-d", "kind": "env.floor", "props": { "color": "#3a2f55" } },
+        {
+          "id": "cube-violet",
+          "kind": "prop.box",
+          "position": [1.3, 0.4, -2],
+          "tags": ["landmark"],
+          "props": { "size": [0.8, 0.8, 0.8], "color": "#b5abfc" }
+        },
+        {
+          "id": "frame-dc",
+          "kind": "arch.frame",
+          "position": [0, 1, 0],
+          "rotation": [0, 3.141592653589793, 0],
+          "props": { "color": "#c4b5fd", "coversPortalId": "door-dc" }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-dc",
+          "position": [0, 1, 0],
+          "yaw": 3.141592653589793,
+          "size": [2, 2],
+          "destinationId": "door-cd"
         }
       ]
     }

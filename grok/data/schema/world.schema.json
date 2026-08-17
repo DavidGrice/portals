@@ -53,6 +53,8 @@
         "yaw": { "type": "number" },
         "size": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
         "destinationId": { "type": "string" },
+        "enabled": { "type": "boolean" },
+        "oneWay": { "type": "boolean" },
         "tags": { "type": "array", "items": { "type": "string" } }
       }
     },

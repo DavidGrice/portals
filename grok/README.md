@@ -29,4 +29,10 @@ Add `?debug` to show room id, nearest portal, and last cross.
 
 The two-room demo is loaded from `data/worlds/two-rooms.json` and `data/catalog.json`.
 
-Engine imports come from `src/engine/index.js` (`Portal`, `PortalController`, `Room`, `Player`, `Emitter`, capabilities). WASD moves; Space jumps.
+Engine imports come from `src/engine/index.js` (`Portal`, `PortalController`, `Room`, `Player`, `GraphicsSettings`, `Emitter`, capabilities). WASD moves; Space jumps. Esc / unlock opens the welcome card; Options stores graphics profiles in `localStorage`.
+
+```
+npm test
+npm run validate-data
+npm run build
+```
