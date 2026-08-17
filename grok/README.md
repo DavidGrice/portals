@@ -1,6 +1,6 @@
 # Portals
 
-A first-person WebGL portal engine: recursive stencil openings, JSON-authored rooms, a Metalheart / Aero Glass welcome screen, and a small playable demo of four halls.
+A first-person WebGL portal engine: recursive stencil openings, JSON-authored rooms, and a small playable demo of four halls.
 
 The product lives entirely in this `grok/` folder.
 
@@ -84,9 +84,9 @@ The portal pass never goes through EffectComposer — stencil increment/decremen
 | Balanced | on | 2 | 1 | on | 100% |
 | Ultra | on | 4 | device (cap 2) | on + fill light | 115% |
 
-After a preset you can still change FOV, recursion, scale, anisotropy, view distance, shadows, fill light, look sensitivity, invert Y, walk/jump, gamepad look, fullscreen, keybinds, HUD, theme, and stored volume sliders.
+After a preset you can still change FOV, recursion, scale, anisotropy, view distance, shadows, fill light, look sensitivity, invert Y, walk/jump, gamepad look, fullscreen, keybinds, HUD, and stored volume sliders.
 
-`prefers-reduced-motion` disables the welcome mote animation. On a phone or tablet the welcome card is scrollable, look does not require pointer lock, and a virtual stick + Jump + Pause sit over the world.
+On a phone or tablet the welcome card is scrollable, look does not require pointer lock, and a virtual stick + Jump + Pause sit over the world.
 
 ## Layout
 
@@ -98,7 +98,7 @@ grok/
     content/         JSON loader and prefabs
     ui/              Options panel, touch HUD
     main.js          Boot, pointer lock / touch, loop
-    style.css        Welcome, options tabs, themes, mobile HUD
+    style.css        Welcome, options tabs, mobile HUD
   data/
     catalog.json     Kinds → prefabs
     worlds/          Playable worlds

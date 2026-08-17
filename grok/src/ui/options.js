@@ -3,7 +3,6 @@ import {
   GRAPHICS_PROFILES,
   GraphicsSettings,
   KEYBIND_GROUPS,
-  UI_THEMES,
 } from '../engine/GraphicsSettings.js';
 import { AA_MODES, aaModeInfo } from '../engine/aaModes.js';
 import { applyFullscreen } from '../engine/gamepad.js';
@@ -63,11 +62,6 @@ export function bindOptions({
 
   field('opt-aa')?.addEventListener('change', () => {
     setText('opt-aa-blurb', aaModeInfo(field('opt-aa').value).blurb);
-  });
-
-  field('opt-theme')?.addEventListener('change', () => {
-    const theme = UI_THEMES.find((entry) => entry.id === field('opt-theme').value);
-    setText('opt-theme-blurb', theme?.blurb ?? '');
   });
 
   panel.addEventListener('input', (event) => {
@@ -184,7 +178,6 @@ export function bindOptions({
       showDebug: isOn('opt-debug'),
       showCrosshair: isOn('opt-crosshair'),
       colorblindMode: isOn('opt-colorblind'),
-      uiTheme: field('opt-theme')?.value,
       keybinds: { ...settings.keybinds },
     });
   }
@@ -194,7 +187,6 @@ export function bindOptions({
     setSelect('opt-aa', next.aaMode);
     setSelect('opt-scale', String(next.pixelRatio));
     setSelect('opt-anisotropy', String(next.anisotropy));
-    setSelect('opt-theme', next.uiTheme);
     setRange('opt-fov', next.fov, `${next.fov}°`);
     setRange('opt-recursion', next.recursion, String(next.recursion));
     setRange('opt-view', next.viewDistance, `${Math.round(next.viewDistance * 100)}%`);
@@ -217,7 +209,6 @@ export function bindOptions({
     setSelect('opt-fullscreen', next.fullscreen ? 'on' : 'off');
     setText('opt-aa-blurb', aaModeInfo(next.aaMode).blurb);
     setText('opt-profile-blurb', GRAPHICS_PROFILES[next.profile]?.blurb ?? '');
-    setText('opt-theme-blurb', UI_THEMES.find((theme) => theme.id === next.uiTheme)?.blurb ?? '');
     syncKeybindButtons(next.keybinds);
     refreshHud(next);
   }
@@ -318,7 +309,6 @@ export function refreshHud(settings) {
     destStrip.hidden = true;
   }
   if (typeof document !== 'undefined') {
-    document.documentElement.dataset.theme = settings.uiTheme;
     document.documentElement.dataset.colorblind = settings.colorblindMode ? 'on' : 'off';
   }
 }

@@ -58,12 +58,7 @@ export const GRAPHICS_QUALITY_LIST = [
   GRAPHICS_PROFILES.ultra,
 ];
 
-export const UI_THEMES = [
-  { id: 'glass', label: 'Aero Glass', blurb: 'Blurred slab, lit top edge — the default welcome look.' },
-  { id: 'metal', label: 'Metalheart', blurb: 'Clipped steel plate, zero radii, an accent hairline.' },
-  { id: 'chrome', label: 'Chrome', blurb: 'Translucent plastic, hard bevel, a gloss cap.' },
-  { id: 'leather', label: 'Leather', blurb: 'Tooled hide, saddle stitch, brass and parchment.' },
-];
+export const UI_THEMES = [];
 
 export const KEYBIND_GROUPS = [
   {
@@ -138,8 +133,8 @@ function resolveAaMode(value) {
   return AA_MODE_IDS.includes(value) ? value : 'off';
 }
 
-function resolveTheme(value) {
-  return UI_THEMES.some((theme) => theme.id === value) ? value : 'glass';
+function resolveTheme() {
+  return 'default';
 }
 
 function resolveAnisotropy(value) {
@@ -268,7 +263,6 @@ export class GraphicsSettings {
 
   apply({ camera, renderer, controller, player, postAA, controls } = {}) {
     if (typeof document !== 'undefined') {
-      document.documentElement.dataset.theme = this.uiTheme;
       document.documentElement.dataset.colorblind = this.colorblindMode ? 'on' : 'off';
       applyFullscreenSetting(this.fullscreen);
     }

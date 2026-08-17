@@ -57,13 +57,11 @@ describe('world data', () => {
       aaMode: 'smaa',
       mouseSensitivity: 0.9,
       invertY: true,
-      uiTheme: 'metal',
     });
     assert.equal(next.profile, 'ultra');
     assert.equal(next.aaMode, 'smaa');
     assert.equal(next.mouseSensitivity, 0.9);
     assert.equal(next.invertY, true);
-    assert.equal(next.uiTheme, 'metal');
     assert.equal(next.shadows, true);
     assert.equal(next.fillLight, true);
   });
