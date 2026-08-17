@@ -127,9 +127,13 @@ function updateDebug(roomId) {
     }
   }
 
+  const drawn = controller.lastDrawInfo.drawn.join(',') || '—';
+  const skipped = controller.lastDrawInfo.skipped.join(',') || '—';
   debugPanel.textContent = [
     `room  ${roomId ?? '—'}`,
     `near  ${nearest} z=${nearestZ}`,
+    `draw  ${drawn}`,
+    `skip  ${skipped}`,
     `cross ${lastCross}`,
     `gpu   ${document.documentElement.dataset.webgpu ?? '?'} / ${document.documentElement.dataset.portalBackend ?? '?'}`,
   ].join('\n');

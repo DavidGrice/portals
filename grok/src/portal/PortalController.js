@@ -8,7 +8,6 @@ const srcToCam = new Matrix4();
 const dstInverse = new Matrix4();
 const srcToDst = new Matrix4();
 const viewMatrix = new Matrix4();
-const dstRotation = new Matrix4();
 const clipPlane = new Plane();
 const clipVector = new Vector4();
 const q = new Vector4();
@@ -31,9 +30,9 @@ const matrixStack = Array.from({ length: 8 }, () => ({
 
 const CROSS_Z = 0.12;
 const EMERGE_Z = 0.35;
-// Must stay below CROSS_Z so dest keeps drawing until teleport.
-const STENCIL_CLEARANCE = 0.08;
 const FACING_DOT = 0.05;
+const CLIP_OFFSET = 0.04;
+const CLIP_SINGULAR = 1e-5;
 
 function sign(value) {
   if (value > 0) return 1;
@@ -50,6 +49,8 @@ export class PortalController {
     this.maxRecursion = maxRecursion;
 
     this._stencilScene = new Scene();
+    this._stencilSlot = [];
+    this._stencilScene.children = this._stencilSlot;
     this._rooms = new Map();
     this._portalsById = new Map();
     this._allPortals = [];
@@ -59,6 +60,7 @@ export class PortalController {
     this._lastCameraPosition = new Vector3();
     this._hasLastPosition = false;
     this._events = new Emitter();
+    this.lastDrawInfo = { drawn: [], skipped: [] };
   }
 
   on(type, handler) {
@@ -117,7 +119,6 @@ export class PortalController {
     }
 
     portal.setScene(room.scene);
-    this._stencilScene.add(portal);
     room.portals.push(portal);
     this._allPortals.push(portal);
   }
@@ -242,22 +243,7 @@ export class PortalController {
     if (!this._isPortalFacingCamera(portal)) {
       return false;
     }
-    if (this._tooCloseToDraw(portal)) {
-      return false;
-    }
     return true;
-  }
-
-  _tooCloseToDraw(portal) {
-    localCurr.setFromMatrixPosition(this.camera.matrixWorld);
-    portal.worldToLocal(localCurr);
-    if (Math.abs(localCurr.z) >= STENCIL_CLEARANCE) {
-      return false;
-    }
-    return (
-      Math.abs(localCurr.x) <= portal.geometry.halfWidth + 0.25 &&
-      Math.abs(localCurr.y) <= portal.geometry.halfHeight + 0.25
-    );
   }
 
   setSize(width, height) {
@@ -273,8 +259,11 @@ export class PortalController {
 
   render() {
     this.camera.updateMatrixWorld();
+    this.lastDrawInfo.drawn.length = 0;
+    this.lastDrawInfo.skipped.length = 0;
     this.renderer.clear(true, true, true);
     this._renderLevel(this._currentScene, this._currentScenePortals, 0, this.maxRecursion, null, null);
+    this._bindStencil([]);
   }
 
   _renderLevel(scene, portals, level, maxDepth, hideFrameForPortalId, skipReturnId) {
@@ -306,10 +295,16 @@ export class PortalController {
 
     for (const portal of portals) {
       if (!this._shouldDrawPortal(portal, skipReturnId)) {
+        if (level === 0) {
+          this.lastDrawInfo.skipped.push(portal.portalId ?? '?');
+        }
         continue;
       }
 
       drawn.push(portal);
+      if (level === 0) {
+        this.lastDrawInfo.drawn.push(portal.portalId ?? '?');
+      }
       const destination = portal.destinationPortal;
 
       color.setMask(false);
@@ -321,7 +316,7 @@ export class PortalController {
       stencil.setFunc(gl.NOTEQUAL, level, 0xff);
       stencil.setOp(gl.INCR, gl.KEEP, gl.KEEP);
       stencil.setLocked(true);
-      this._showPortals([portal]);
+      this._bindStencil([portal], { allowVolume: true });
       renderer.render(this._stencilScene, camera);
       stencil.setLocked(false);
       color.setLocked(false);
@@ -358,7 +353,7 @@ export class PortalController {
       camera.projectionMatrix.copy(saved.projection);
       camera.projectionMatrixInverse.copy(saved.projectionInverse);
 
-      this._showPortals([portal]);
+      this._bindStencil([portal], { allowVolume: true });
       renderer.render(this._stencilScene, camera);
       stencil.setLocked(false);
       color.setLocked(false);
@@ -381,9 +376,8 @@ export class PortalController {
     stencil.setFunc(gl.LEQUAL, level, 0xff);
     stencil.setOp(gl.KEEP, gl.KEEP, gl.KEEP);
     stencil.setLocked(true);
-    // Only depth-write openings we actually filled. Skipped return doors
-    // would otherwise punch holes that keep the framebuffer clear color.
-    this._showPortals(drawn);
+    // Front quads only. Volume must not write depth or it fills the view.
+    this._bindStencil(drawn, { allowVolume: false });
     renderer.render(this._stencilScene, camera);
     color.setLocked(false);
     color.setMask(true);
@@ -412,11 +406,16 @@ export class PortalController {
 
   computePortalProjectionMatrix(destination) {
     destination.updateMatrixWorld(true);
-    dstRotation.extractRotation(destination.matrixWorld);
-    planeNormal.set(0, 0, 1).applyMatrix4(dstRotation);
-    dstWorldPos.setFromMatrixPosition(destination.matrixWorld);
+    // Dest camera sits on dest -Z looking into dest +Z. Offset the plane
+    // into dest so Lengyel is not coincident with the dest camera.
+    planeNormal.set(0, 0, 1).transformDirection(destination.matrixWorld);
+    dstWorldPos.setFromMatrixPosition(destination.matrixWorld).addScaledVector(planeNormal, CLIP_OFFSET);
     clipPlane.setFromNormalAndCoplanarPoint(planeNormal, dstWorldPos);
     clipPlane.applyMatrix4(this.camera.matrixWorldInverse);
+    // View origin must be on the negative side (plane acts as a near clip).
+    if (clipPlane.constant > 0) {
+      clipPlane.negate();
+    }
 
     clipVector.set(clipPlane.normal.x, clipPlane.normal.y, clipPlane.normal.z, clipPlane.constant);
     obliqueProjection.copy(this.camera.projectionMatrix);
@@ -426,7 +425,12 @@ export class PortalController {
     q.z = -1;
     q.w = (1 + obliqueProjection.elements[10]) / this.camera.projectionMatrix.elements[14];
 
-    clipVector.multiplyScalar(2 / clipVector.dot(q));
+    const denom = clipVector.dot(q);
+    if (!Number.isFinite(denom) || Math.abs(denom) < CLIP_SINGULAR) {
+      return this.camera.projectionMatrix;
+    }
+
+    clipVector.multiplyScalar(2 / denom);
     obliqueProjection.elements[2] = clipVector.x;
     obliqueProjection.elements[6] = clipVector.y;
     obliqueProjection.elements[10] = clipVector.z + 1;
@@ -464,7 +468,7 @@ export class PortalController {
     cameraWorldPos.setFromMatrixPosition(this.camera.matrixWorld);
     portalWorldPos.setFromMatrixPosition(portal.matrixWorld);
     planeNormal.set(0, 0, 1).transformDirection(portal.matrixWorld);
-    return cameraWorldPos.sub(portalWorldPos).dot(planeNormal) > FACING_DOT;
+    return cameraWorldPos.sub(portalWorldPos).dot(planeNormal) >= FACING_DOT;
   }
 
   _getRoom(sceneOrName) {
@@ -481,11 +485,16 @@ export class PortalController {
     return null;
   }
 
-  _showPortals(portals) {
-    const visible = new Set(portals);
-
-    for (const child of this._stencilScene.children) {
-      child.visible = visible.has(child);
+  _bindStencil(portals, { allowVolume = false } = {}) {
+    this._stencilSlot.length = 0;
+    for (const portal of portals) {
+      if (allowVolume) {
+        portal.updateVolumeVisibility(this.camera);
+      } else {
+        portal.setVolumeVisible(false);
+      }
+      portal.parent = this._stencilScene;
+      this._stencilSlot.push(portal);
     }
   }
 }
