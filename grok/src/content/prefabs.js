@@ -26,6 +26,7 @@ export const prefabs = {
       new THREE.SphereGeometry(80, 16, 12),
       new THREE.MeshBasicMaterial({ color, side: THREE.BackSide }),
     );
+    mesh.frustumCulled = false;
     applyPose(mesh, entity);
     return mesh;
   },
