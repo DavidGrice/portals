@@ -36,3 +36,13 @@ export function spawnLookahead(controller, {
   dressRooms(controller);
   return spawned;
 }
+
+export function sealArrival(portal) {
+  const dest = portal?.destinationPortal;
+  if (!dest) {
+    return false;
+  }
+  dest.enabled = false;
+  dest.oneWay = true;
+  return true;
+}

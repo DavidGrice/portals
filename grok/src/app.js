@@ -8,6 +8,7 @@ import { findInteract, runInteract } from './engine/interact.js';
 import { nearestFireDistance, spawnCrossBurst, tickAtmosphere } from './engine/atmosphere.js';
 import { gameAudio } from './engine/audio.js';
 import { tickDestStrip, tickScreens } from './engine/index.js';
+import { sealArrival } from './content/drift.js';
 import { createSession } from './game/session.js';
 import { loadSave, poseFromSession, writeSave } from './content/save.js';
 import { bindOptions, refreshHud } from './ui/options.js';
@@ -436,8 +437,11 @@ export function createApp({
         updateDebug(roomId);
       }
     });
-    const offCross = next.controller.on('portal:cross', ({ portalId, from, to }) => {
+    const offCross = next.controller.on('portal:cross', ({ portal, portalId, from, to }) => {
       lastCross = `${from} → ${to} via ${portalId ?? '?'}`;
+      if (next.controller.currentRoom?.tags?.includes('generated')) {
+        sealArrival(portal ?? next.controller.getPortal(portalId));
+      }
       gameAudio.whoosh();
       const dest = next.controller.rooms.find((entry) => entry.id === to);
       if (dest) {

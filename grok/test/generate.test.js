@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { PerspectiveCamera } from 'three';
 import { createRng } from '../src/content/rng.js';
 import { allocateOrigin, generateRoom, linkRooms, worldFromRooms } from '../src/content/generateRoom.js';
-import { spawnLookahead } from '../src/content/drift.js';
+import { sealArrival, spawnLookahead } from '../src/content/drift.js';
 import { addRoom, relinkPortals } from '../src/content/loadWorld.js';
 import { PortalController } from '../src/engine/index.js';
 import { validateWorld } from '../scripts/validate-world.js';
@@ -118,5 +118,33 @@ describe('room compiler', () => {
     const exit = controller.currentScenePortals.find((portal) => portal.userData.role === 'exit');
     assert.ok(exit.destinationPortal);
     assert.ok(controller.rooms.length >= 2);
+  });
+
+  it('seals the arrival door so the player cannot walk back', () => {
+    const catalog = readJson('data/catalog.json');
+    const kit = readJson('data/kits/cyber-cyan.json');
+    const start = generateRoom({ kit, roomId: 'start', origin: [0, 0, 0], depth: 0, exitCount: 1 });
+    const camera = new PerspectiveCamera(60, 1, 0.05, 280);
+    const controller = new PortalController({
+      camera,
+      renderer: {
+        autoClear: true,
+        clippingPlanes: [],
+        setClearColor() {},
+        setSize() {},
+        getContext() { return {}; },
+        state: { buffers: {} },
+        clear() {},
+        render() {},
+      },
+    });
+    addRoom(controller, start, catalog);
+    relinkPortals(controller, { strict: false });
+    controller.setCurrentScene('start');
+    spawnLookahead(controller, { catalog, kits: [kit], seed: 'seal', depth: 0 });
+    const exit = controller.currentScenePortals.find((portal) => portal.userData.role === 'exit');
+    assert.equal(sealArrival(exit), true);
+    assert.equal(exit.destinationPortal.enabled, false);
+    assert.equal(exit.destinationPortal.oneWay, true);
   });
 });
