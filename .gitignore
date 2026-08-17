@@ -30,6 +30,9 @@ Desktop.ini
 .env.*
 !.env.example
 
+# local UI chrome — keep on disk, never commit
+/grok/src/style.css
+
 # leftover globe-viz dump (keep locally, do not commit)
 /app.js
 /package.json
