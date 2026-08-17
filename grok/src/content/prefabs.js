@@ -90,6 +90,9 @@ export const prefabs = {
     mesh.receiveShadow = true;
     applyPose(mesh, entity);
     mesh.userData.collider = { type: 'aabb' };
+    if (entity.props?.scroll) {
+      mesh.userData.scroll = entity.props.scroll;
+    }
     return mesh;
   },
 

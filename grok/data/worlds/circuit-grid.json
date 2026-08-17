@@ -41,6 +41,17 @@
           "props": { "size": [0.8, 0.8, 0.8], "color": "#e8eef8" }
         },
         {
+          "id": "pad-launch-white",
+          "kind": "interact.pad",
+          "position": [2.2, 0.04, 3.2],
+          "props": {
+            "color": "#e8eef8",
+            "action": "launch",
+            "impulse": [0, 8.5, 0],
+            "text": "Launch"
+          }
+        },
+        {
           "id": "plaque-white",
           "kind": "prop.plaque",
           "position": [-2.2, 1.6, 5.9],
@@ -90,13 +101,13 @@
           "id": "strip-cyan-l",
           "kind": "prop.box",
           "position": [-7.7, 2.35, -0.5],
-          "props": { "size": [0.08, 0.05, 10.8], "material": "cyber.strip.cyan" }
+          "props": { "size": [0.08, 0.05, 10.8], "material": "cyber.strip.cyan", "scroll": [0.15, 0] }
         },
         {
           "id": "strip-cyan-r",
           "kind": "prop.box",
           "position": [7.7, 2.35, -0.5],
-          "props": { "size": [0.08, 0.05, 10.8], "material": "cyber.strip.cyan" }
+          "props": { "size": [0.08, 0.05, 10.8], "material": "cyber.strip.cyan", "scroll": [0.15, 0] }
         },
         {
           "id": "cube-cyan",

@@ -59,6 +59,26 @@ export function parseColor(value, fallback = 0xffffff) {
   return fallback;
 }
 
+export function tickMaterials(rooms, dt = 0.016) {
+  if (!rooms?.length) {
+    return 0;
+  }
+  let count = 0;
+  for (const room of rooms) {
+    room.scene?.traverse((object) => {
+      const scroll = object.userData?.scroll;
+      const map = object.material?.map;
+      if (!scroll || !map) {
+        return;
+      }
+      map.offset.x = (map.offset.x + (scroll[0] ?? 0) * dt) % 1;
+      map.offset.y = (map.offset.y + (scroll[1] ?? 0) * dt) % 1;
+      count += 1;
+    });
+  }
+  return count;
+}
+
 function hex(value) {
   return `#${Number(value).toString(16).padStart(6, '0')}`;
 }

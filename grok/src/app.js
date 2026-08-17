@@ -9,6 +9,7 @@ import { nearestFireDistance, spawnCrossBurst, tickAtmosphere } from './engine/a
 import { gameAudio } from './engine/audio.js';
 import { tickDestStrip, tickScreens } from './engine/index.js';
 import { sealArrival } from './content/drift.js';
+import { tickMaterials } from './content/materials.js';
 import { createSession } from './game/session.js';
 import { loadSave, poseFromSession, writeSave } from './content/save.js';
 import { bindOptions, refreshHud } from './ui/options.js';
@@ -384,7 +385,10 @@ export function createApp({
     if (!target) {
       return false;
     }
-    runInteract(target, { controller: session.controller });
+    const result = runInteract(target, { controller: session.controller });
+    if (result?.type === 'launch') {
+      session.player.launch(result.impulse);
+    }
     nearbyInteract = findInteract(session.controller.currentRoom, session.camera.position);
     updateInteractHud();
     return true;
@@ -520,6 +524,7 @@ export function createApp({
       session.controller.update();
     }
     tickAtmosphere(session.controller.rooms, { elapsed: clock.elapsedTime, dt });
+    tickMaterials(session.controller.rooms, dt);
 
     session.postAA.begin();
     session.controller.render();
