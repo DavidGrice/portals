@@ -5,7 +5,10 @@ import {
   Color,
   Points,
   PointsMaterial,
+  Vector3,
 } from 'three';
+
+const fireWorld = new Vector3();
 
 export const MOTE_BUDGET = 128;
 const MOTE_BASE = 96;
@@ -61,7 +64,57 @@ export function tickAtmosphere(rooms, { elapsed = 0, dt = 0.016 } = {}) {
   for (const room of rooms) {
     tickMotes(room, elapsed);
     tickBursts(room, dt);
+    tickFires(room, elapsed, dt);
   }
+}
+
+export function nearestFireDistance(room, position) {
+  if (!room?.scene || !position) {
+    return Infinity;
+  }
+  let best = Infinity;
+  room.scene.traverse((object) => {
+    if (!object.userData?.fire || object.userData.fire.candle) {
+      return;
+    }
+    object.getWorldPosition(fireWorld);
+    best = Math.min(best, fireWorld.distanceTo(position));
+  });
+  return best;
+}
+
+export function tickFires(room, elapsed = 0, dt = 0.016) {
+  room?.scene?.traverse((object) => {
+    const spec = object.userData?.fire;
+    if (!spec) {
+      return;
+    }
+    const flicker = 0.78 + Math.sin(elapsed * (spec.candle ? 14 : 9) + spec.seed) * 0.14 + Math.random() * 0.08;
+    object.traverse((child) => {
+      if (child.userData?.fireLight) {
+        child.intensity = spec.base * flicker;
+      }
+      const flames = child.userData?.flames;
+      if (!flames) {
+        return;
+      }
+      const positions = child.geometry.attributes.position.array;
+      const { lives, rise } = flames;
+      for (let i = 0; i < lives.length; i += 1) {
+        lives[i] += dt * (0.7 + Math.random() * 0.8);
+        positions[i * 3 + 1] += rise * dt;
+        positions[i * 3] += Math.sin(elapsed * 6 + i) * 0.01;
+        if (lives[i] > 1) {
+          lives[i] = 0;
+          positions[i * 3] = (Math.random() - 0.5) * 0.52;
+          positions[i * 3 + 1] = 0.24 + Math.random() * 0.08;
+          positions[i * 3 + 2] = (Math.random() - 0.5) * 0.16;
+        }
+      }
+      child.geometry.attributes.position.needsUpdate = true;
+      child.material.opacity = 0.55 + flicker * 0.35;
+    });
+  });
 }
 
 export function spawnCrossBurst(room, position, color = 0xffffff) {

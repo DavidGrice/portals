@@ -5,9 +5,11 @@ export function mixGain(master, bus, muted = false) {
   return Math.max(0, Math.min(1, Number(master) || 0)) * Math.max(0, Math.min(1, Number(bus) || 0));
 }
 
-const BEDS = {
+export const BEDS = {
   halls: { freqs: [65.4, 98.0, 130.8], filter: 320, lfo: 0.07, gain: 0.09 },
-  haunt: { freqs: [36.7, 55.0, 73.4, 110], filter: 160, lfo: 0.045, gain: 0.11, whisper: 740 },
+  haunt: { freqs: [24.5, 32.7, 41.2, 61.7], filter: 95, lfo: 0.028, gain: 0.125, whisper: 580, sub: 18.35 },
+  hauntDeep: { freqs: [18.35, 24.5, 30.87, 36.7], filter: 68, lfo: 0.02, gain: 0.14, whisper: 410, sub: 14.5 },
+  hauntWind: { freqs: [27.5, 41.2, 82.4], filter: 210, lfo: 0.055, gain: 0.1, whisper: 980, sub: 22, wind: true },
 };
 
 const ROOM_BED = {
@@ -19,9 +21,19 @@ const ROOM_BED = {
   foyer: 'haunt',
   hall: 'haunt',
   parlor: 'haunt',
-  cellar: 'haunt',
-  attic: 'haunt',
+  dining: 'haunt',
+  cellar: 'hauntDeep',
+  crypt: 'hauntDeep',
+  attic: 'hauntWind',
 };
+
+export function bedForRoom(room) {
+  const id = room?.id ?? room;
+  if (ROOM_BED[id]) {
+    return ROOM_BED[id];
+  }
+  return room?.tags?.includes('haunt') ? 'haunt' : 'halls';
+}
 
 export class GameAudio {
   constructor() {
@@ -37,6 +49,9 @@ export class GameAudio {
     this._step = 0.2;
     this._grounded = true;
     this._bedId = null;
+    this._hauntWait = 3.5;
+    this._crackle = 0.1;
+    this._lastHaunt = null;
   }
 
   async resume() {
@@ -87,17 +102,17 @@ export class GameAudio {
     }
     this.stopBed();
     this._ensureGraph();
-    const spec = BEDS[ROOM_BED[id] ?? (room?.tags?.includes('haunt') ? 'haunt' : 'halls')];
+    const spec = BEDS[bedForRoom(room ?? id)];
     const now = this.ctx.currentTime;
     const filter = this.ctx.createBiquadFilter();
     filter.type = 'lowpass';
     filter.frequency.value = spec.filter;
-    filter.Q.value = 0.7;
+    filter.Q.value = 0.85;
     filter.connect(this.music);
     const lfo = this.ctx.createOscillator();
     const lfoGain = this.ctx.createGain();
     lfo.frequency.value = spec.lfo;
-    lfoGain.gain.value = spec.filter * 0.35;
+    lfoGain.gain.value = spec.filter * 0.4;
     lfo.connect(lfoGain);
     lfoGain.connect(filter.frequency);
     lfo.start();
@@ -114,16 +129,30 @@ export class GameAudio {
       osc.start();
       this.bedNodes.push(osc, gain);
     }
+    if (spec.sub) {
+      const sub = this.ctx.createOscillator();
+      const subGain = this.ctx.createGain();
+      sub.type = 'sine';
+      sub.frequency.value = spec.sub;
+      subGain.gain.value = spec.gain * 0.7;
+      sub.connect(subGain);
+      subGain.connect(filter);
+      sub.start();
+      this.bedNodes.push(sub, subGain);
+    }
     if (spec.whisper) {
       const whisper = this.ctx.createOscillator();
       const wGain = this.ctx.createGain();
       whisper.type = 'triangle';
       whisper.frequency.value = spec.whisper;
-      wGain.gain.value = 0.012;
+      wGain.gain.value = 0.014;
       whisper.connect(wGain);
       wGain.connect(filter);
       whisper.start();
       this.bedNodes.push(whisper, wGain);
+    }
+    if (spec.wind) {
+      this._startWind(filter);
     }
     this.music.gain.setValueAtTime(0, now);
     this.music.gain.linearRampToValueAtTime(this.musicVolume, now + 0.7);
@@ -165,7 +194,7 @@ export class GameAudio {
     this._noise(0.045, 220, 0.1);
   }
 
-  tick(dt, { moving = false, onGround = true } = {}) {
+  tick(dt, { moving = false, onGround = true, haunt = false, nearFire = false } = {}) {
     if (!this._grounded && onGround) {
       this.land();
     }
@@ -179,6 +208,63 @@ export class GameAudio {
     } else {
       this._step = 0.28;
     }
+    if (haunt) {
+      this._hauntWait -= dt;
+      if (this._hauntWait <= 0) {
+        this._hauntWait = 3.8 + Math.random() * 7.5;
+        this.hauntEvent();
+      }
+    }
+    if (nearFire) {
+      this._crackle -= dt;
+      if (this._crackle <= 0) {
+        this._crackle = 0.14 + Math.random() * 0.28;
+        this.crackle();
+      }
+    }
+  }
+
+  hauntEvent() {
+    const roll = Math.random();
+    if (roll < 0.34) {
+      this.creak();
+    } else if (roll < 0.62) {
+      this.whisper();
+    } else if (roll < 0.84) {
+      this.rumble();
+    } else {
+      this.knock();
+    }
+  }
+
+  creak() {
+    const from = 190 + Math.random() * 120;
+    this._tone(from, from * 0.45, 0.7, 0.075);
+    this._noise(0.45, 380, 0.07, 70);
+    this._lastHaunt = 'creak';
+  }
+
+  whisper() {
+    this._noise(1.05, 2100, 0.04, 320);
+    this._tone(620 + Math.random() * 80, 540, 0.85, 0.018);
+    this._lastHaunt = 'whisper';
+  }
+
+  rumble() {
+    this._tone(34, 18, 1.6, 0.11);
+    this._noise(1.2, 90, 0.13, 28);
+    this._lastHaunt = 'rumble';
+  }
+
+  knock() {
+    this._noise(0.08, 180, 0.14, 70);
+    this._tone(90, 50, 0.16, 0.1);
+    this._lastHaunt = 'knock';
+  }
+
+  crackle() {
+    this._noise(0.05, 2400, 0.055, 380);
+    this._lastHaunt = 'crackle';
   }
 
   _ensureGraph() {
@@ -237,6 +323,29 @@ export class GameAudio {
     filter.connect(gain);
     gain.connect(this.sfx);
     src.start(now);
+  }
+
+  _startWind(destination) {
+    const length = Math.max(1, Math.floor(this.ctx.sampleRate * 2.2));
+    const buffer = this.ctx.createBuffer(1, length, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < length; i += 1) {
+      data[i] = Math.random() * 2 - 1;
+    }
+    const src = this.ctx.createBufferSource();
+    src.buffer = buffer;
+    src.loop = true;
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 640;
+    filter.Q.value = 0.6;
+    const gain = this.ctx.createGain();
+    gain.gain.value = 0.03;
+    src.connect(filter);
+    filter.connect(gain);
+    gain.connect(destination);
+    src.start();
+    this.bedNodes.push(src, filter, gain);
   }
 }
 

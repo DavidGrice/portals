@@ -54,7 +54,7 @@ Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/). The start menu is HTML on
 | Gamepad | Left stick move, right stick look, A jump, Start pause / Play |
 | **Options** | Graphics, controls, interface, sound, keybinds |
 
-Play opens a world gallery. **Four halls** is blue → rose; glass panes and hallway monitors are furniture in those rooms (the TV is a camera-to-texture of the hall you are in, not a portal). **The Hollow House** is a foyer, hall, parlor, cellar, and a sealed attic — stand on the parlor pad and press **E** to unseal it. Music and effects are original procedural beds (a darker drone in haunt rooms), driven by the Sound sliders. Quit to menu writes a **Continue** save.
+Play opens a world gallery. **Four halls** is blue → rose; glass panes and hallway monitors are furniture in those rooms (the TV is a camera-to-texture of the hall you are in, not a portal). **The Hollow House** is a foyer, hall, dining room, parlor, cellar, crypt, and a sealed attic — stand on the parlor pad and press **E** to unseal it. Hearths flicker and crackle; haunt rooms use a low sub drone with creaks, whispers, and a windier attic bed. Quit to menu writes a **Continue** save.
 
 Query flags:
 

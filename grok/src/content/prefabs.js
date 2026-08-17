@@ -377,6 +377,98 @@ export const prefabs = {
     };
     return group;
   },
+
+  hearth(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const width = entity.props?.width ?? 1.85;
+    const height = entity.props?.height ?? 1.45;
+    const depth = entity.props?.depth ?? 0.58;
+    const stone = parseColor(entity.props?.color, 0x3a322c);
+    const ember = parseColor(entity.props?.ember, 0xff6a22);
+    const mat = standardMaterial(stone, { roughness: 0.92, metalness: 0.06 });
+    addBox(group, mat, 0, height * 0.5, -depth * 0.42, width, height, 0.16);
+    addBox(group, mat, -width * 0.5 + 0.08, height * 0.38, 0.02, 0.16, height * 0.76, depth);
+    addBox(group, mat, width * 0.5 - 0.08, height * 0.38, 0.02, 0.16, height * 0.76, depth);
+    addBox(group, mat, 0, 0.08, 0.04, width - 0.1, 0.16, depth);
+    addBox(group, mat, 0, height * 0.84, 0.06, width + 0.14, 0.12, depth + 0.08);
+
+    const wood = standardMaterial(parseColor(entity.props?.wood, 0x4a3020), { roughness: 0.9, metalness: 0 });
+    const log = (y, z, yaw) => {
+      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.065, 0.68, 8), wood);
+      mesh.rotation.z = Math.PI / 2;
+      mesh.rotation.y = yaw;
+      mesh.position.set(0, y, z);
+      mesh.castShadow = true;
+      group.add(mesh);
+    };
+    log(0.22, 0.08, 0.22);
+    log(0.28, 0, -0.32);
+
+    const count = entity.props?.flames ?? 56;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(count * 3);
+    const lives = new Float32Array(count);
+    for (let i = 0; i < count; i += 1) {
+      positions[i * 3] = (Math.random() - 0.5) * 0.52;
+      positions[i * 3 + 1] = 0.26 + Math.random() * 0.4;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 0.16;
+      lives[i] = Math.random();
+    }
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const flames = new THREE.Points(
+      geometry,
+      new THREE.PointsMaterial({
+        color: ember,
+        size: 0.09,
+        transparent: true,
+        opacity: 0.88,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        sizeAttenuation: true,
+      }),
+    );
+    flames.frustumCulled = false;
+    flames.userData.flames = { lives, rise: 0.95 };
+    group.add(flames);
+
+    const light = new THREE.PointLight(ember, entity.props?.intensity ?? 1.45, 9, 2);
+    light.position.set(0, 0.55, 0.14);
+    light.userData.fireLight = true;
+    group.add(light);
+    group.userData.fire = {
+      base: entity.props?.intensity ?? 1.45,
+      seed: Math.random() * Math.PI * 2,
+    };
+    return group;
+  },
+
+  candle(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const wax = standardMaterial(parseColor(entity.props?.color, 0xe8d8b8), { roughness: 0.72, metalness: 0 });
+    const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.034, 0.22, 8), wax);
+    stick.position.y = 0.11;
+    stick.castShadow = true;
+    group.add(stick);
+    const flame = new THREE.Mesh(
+      new THREE.SphereGeometry(0.026, 8, 8),
+      new THREE.MeshBasicMaterial({ color: 0xffcc66 }),
+    );
+    flame.position.y = 0.24;
+    flame.scale.set(0.65, 1.35, 0.65);
+    group.add(flame);
+    const light = new THREE.PointLight(0xffb060, entity.props?.intensity ?? 0.32, 3.6, 2);
+    light.position.y = 0.26;
+    light.userData.fireLight = true;
+    group.add(light);
+    group.userData.fire = {
+      base: entity.props?.intensity ?? 0.32,
+      seed: Math.random() * 10,
+      candle: true,
+    };
+    return group;
+  },
 };
 
 function addBox(group, material, x, y, z, sx, sy, sz, collide = true) {

@@ -1,11 +1,12 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { Scene } from 'three';
+import { Scene, Vector3 } from 'three';
 import { FRAME, prefabs } from '../src/content/prefabs.js';
 import { Room } from '../src/engine/index.js';
 import {
   attachMotes,
   MOTE_BUDGET,
+  nearestFireDistance,
   profileMoteDensity,
   setMoteDensity,
   spawnCrossBurst,
@@ -49,5 +50,22 @@ describe('atmosphere', () => {
     assert.equal(room.bursts.length, 1);
     tickAtmosphere([room], { elapsed: 1, dt: 1 });
     assert.equal(room.bursts.length, 0);
+  });
+
+  it('flickers a hearth and reports fire distance', () => {
+    const room = new Room({ id: 'parlor', scene: new Scene() });
+    const hearth = prefabs.hearth({ props: { intensity: 1.4 } });
+    room.scene.add(hearth);
+    let light = null;
+    hearth.traverse((object) => {
+      if (object.userData.fireLight) {
+        light = object;
+      }
+    });
+    assert.ok(hearth.userData.fire);
+    assert.ok(light);
+    tickAtmosphere([room], { elapsed: 0.5, dt: 0.016 });
+    assert.ok(light.intensity > 0.5);
+    assert.ok(nearestFireDistance(room, new Vector3(0, 1, 1)) < 3);
   });
 });

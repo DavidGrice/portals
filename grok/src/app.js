@@ -5,7 +5,7 @@ import { GraphicsSettings, probeCapabilities } from './engine/index.js';
 import { applyLook } from './engine/look.js';
 import { emptyPadButtons, firstGamepad, readGamepad } from './engine/gamepad.js';
 import { findInteract, runInteract } from './engine/interact.js';
-import { spawnCrossBurst, tickAtmosphere } from './engine/atmosphere.js';
+import { nearestFireDistance, spawnCrossBurst, tickAtmosphere } from './engine/atmosphere.js';
 import { gameAudio } from './engine/audio.js';
 import { tickDestStrip, tickScreens } from './engine/index.js';
 import { createSession } from './game/session.js';
@@ -504,7 +504,13 @@ export function createApp({
       }
       session.player.step(dt, move, session.controls, session.controller.currentRoom);
       const moving = Boolean(move.forward || move.back || move.left || move.right);
-      gameAudio.tick(dt, { moving, onGround: session.player.onGround });
+      const haunt = session.controller.currentRoom?.tags?.includes('haunt');
+      gameAudio.tick(dt, {
+        moving,
+        onGround: session.player.onGround,
+        haunt,
+        nearFire: haunt && nearestFireDistance(session.controller.currentRoom, session.camera.position) < 6.5,
+      });
       nearbyInteract = findInteract(session.controller.currentRoom, session.camera.position);
       updateInteractHud();
       session.controller.update();

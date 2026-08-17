@@ -57,6 +57,16 @@
       "prefab": "screen",
       "tags": ["prop", "screen"]
     },
+    "prop.hearth": {
+      "category": "prop",
+      "prefab": "hearth",
+      "tags": ["prop", "fire"]
+    },
+    "prop.candle": {
+      "category": "prop",
+      "prefab": "candle",
+      "tags": ["prop", "fire"]
+    },
     "env.light": {
       "category": "environment",
       "prefab": "light",

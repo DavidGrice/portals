@@ -35,6 +35,23 @@
           "props": { "size": [0.8, 0.8, 0.8], "color": "#8a6a3a" }
         },
         {
+          "id": "hearth-foyer",
+          "kind": "prop.hearth",
+          "position": [3.4, 0, 5.82],
+          "rotation": [0, 3.141592653589793, 0],
+          "props": { "color": "#3a2c22", "ember": "#ff6a22", "intensity": 1.5 }
+        },
+        {
+          "id": "candle-foyer-a",
+          "kind": "prop.candle",
+          "position": [-2.6, 0, 5.5]
+        },
+        {
+          "id": "candle-foyer-b",
+          "kind": "prop.candle",
+          "position": [5.4, 0, 3.4]
+        },
+        {
           "id": "frame-fh",
           "kind": "arch.frame",
           "position": [0, 1, 0],
@@ -64,7 +81,14 @@
         {
           "id": "shell-hall",
           "kind": "arch.corridor",
-          "props": { "color": "#2a2430", "halfX": 8, "zMin": -6.2, "zMax": 5.2, "openings": [0, -5] }
+          "props": {
+            "color": "#2a2430",
+            "halfX": 8,
+            "zMin": -6.2,
+            "zMax": 5.2,
+            "openings": [0, -5],
+            "sideOpenings": [{ "side": -1, "z": 1.2 }]
+          }
         },
         {
           "id": "plaque-hall",
@@ -91,6 +115,18 @@
           "kind": "arch.frame",
           "position": [0, 1, -5],
           "props": { "color": "#704050", "coversPortalId": "door-hp" }
+        },
+        {
+          "id": "frame-hd",
+          "kind": "arch.frame",
+          "position": [-6.4, 1, 1.2],
+          "rotation": [0, 1.5707963267948966, 0],
+          "props": { "color": "#6a5040", "coversPortalId": "door-hd" }
+        },
+        {
+          "id": "candle-hall",
+          "kind": "prop.candle",
+          "position": [3.2, 0, 2.4]
         }
       ],
       "portals": [
@@ -107,6 +143,13 @@
           "yaw": 0,
           "size": [2, 2],
           "destinationId": "door-ph"
+        },
+        {
+          "id": "door-hd",
+          "position": [-6.4, 1, 1.2],
+          "yaw": 1.5707963267948966,
+          "size": [2, 2],
+          "destinationId": "door-dh"
         }
       ]
     },
@@ -175,6 +218,23 @@
             "portalId": "door-pa",
             "text": "The attic stair unseals."
           }
+        },
+        {
+          "id": "hearth-parlor",
+          "kind": "prop.hearth",
+          "position": [-3.6, 0, 4.82],
+          "rotation": [0, 3.141592653589793, 0],
+          "props": { "color": "#3a2420", "ember": "#ff5520", "intensity": 1.65, "width": 2.05 }
+        },
+        {
+          "id": "candle-parlor-a",
+          "kind": "prop.candle",
+          "position": [-2.2, 0, 4.4]
+        },
+        {
+          "id": "candle-parlor-b",
+          "kind": "prop.candle",
+          "position": [2.8, 0, -2.2]
         }
       ],
       "portals": [
@@ -215,7 +275,7 @@
         {
           "id": "shell-cellar",
           "kind": "arch.corridor",
-          "props": { "color": "#1c2820", "halfX": 8, "zMin": -6.2, "zMax": 1, "openings": [0] }
+          "props": { "color": "#1c2820", "halfX": 8, "zMin": -6.2, "zMax": 1, "openings": [0, -5] }
         },
         {
           "id": "plaque-cellar",
@@ -236,6 +296,19 @@
           "position": [0, 1, 0],
           "rotation": [0, 3.141592653589793, 0],
           "props": { "color": "#405848", "coversPortalId": "door-cp" }
+        },
+        {
+          "id": "frame-ck",
+          "kind": "arch.frame",
+          "position": [0, 1, -5],
+          "props": { "color": "#2a3830", "coversPortalId": "door-ck" }
+        },
+        {
+          "id": "hearth-cellar",
+          "kind": "prop.hearth",
+          "position": [3.2, 0, -2.4],
+          "rotation": [0, -1.5707963267948966, 0],
+          "props": { "width": 1.15, "height": 1.15, "depth": 0.48, "intensity": 1.1, "ember": "#ff7030" }
         }
       ],
       "portals": [
@@ -245,6 +318,13 @@
           "yaw": 3.141592653589793,
           "size": [2, 2],
           "destinationId": "door-pc"
+        },
+        {
+          "id": "door-ck",
+          "position": [0, 1, -5],
+          "yaw": 0,
+          "size": [2, 2],
+          "destinationId": "door-kc"
         }
       ]
     },
@@ -282,6 +362,18 @@
           "position": [0, 1, 0],
           "rotation": [0, 3.141592653589793, 0],
           "props": { "color": "#c4a070", "coversPortalId": "door-ap" }
+        },
+        {
+          "id": "candle-attic-a",
+          "kind": "prop.candle",
+          "position": [2.4, 0, -3.2],
+          "props": { "intensity": 0.22 }
+        },
+        {
+          "id": "candle-attic-b",
+          "kind": "prop.candle",
+          "position": [-2.6, 0, -4.4],
+          "props": { "intensity": 0.18 }
         }
       ],
       "portals": [
@@ -291,6 +383,144 @@
           "yaw": 3.141592653589793,
           "size": [2, 2],
           "destinationId": "door-pa"
+        }
+      ]
+    },
+    {
+      "id": "dining",
+      "title": "Dining room",
+      "tags": ["interior", "haunt"],
+      "origin": [1250, 0, 0],
+      "clearColor": "#18120e",
+      "entities": [
+        { "id": "sky-dining", "kind": "env.sky", "props": { "color": "#18120e" } },
+        { "id": "light-dining", "kind": "env.light", "props": { "ambient": "#241810", "sun": "#c48850", "sunIntensity": 0.28 } },
+        { "id": "floor-dining", "kind": "env.floor", "props": { "color": "#221810" } },
+        {
+          "id": "shell-dining",
+          "kind": "arch.corridor",
+          "props": { "color": "#2c2016", "halfX": 8, "zMin": -6.2, "zMax": 1, "openings": [0] }
+        },
+        {
+          "id": "plaque-dining",
+          "kind": "prop.plaque",
+          "position": [2.2, 1.6, -5.9],
+          "props": { "color": "#c48850", "text": "Dining room" }
+        },
+        {
+          "id": "table-dining",
+          "kind": "prop.box",
+          "position": [0, 0.38, -3],
+          "props": { "size": [2.4, 0.76, 1.05], "color": "#3a2818" }
+        },
+        {
+          "id": "bench-a",
+          "kind": "prop.box",
+          "position": [0, 0.22, -2.15],
+          "props": { "size": [2.1, 0.44, 0.32], "color": "#2a1c12" }
+        },
+        {
+          "id": "bench-b",
+          "kind": "prop.box",
+          "position": [0, 0.22, -3.85],
+          "props": { "size": [2.1, 0.44, 0.32], "color": "#2a1c12" }
+        },
+        {
+          "id": "hearth-dining",
+          "kind": "prop.hearth",
+          "position": [0, 0, -5.82],
+          "props": { "color": "#3a2a20", "ember": "#ff7a28", "intensity": 1.55, "width": 1.95 }
+        },
+        {
+          "id": "candle-dining-a",
+          "kind": "prop.candle",
+          "position": [-0.55, 0.76, -3]
+        },
+        {
+          "id": "candle-dining-b",
+          "kind": "prop.candle",
+          "position": [0.55, 0.76, -3]
+        },
+        {
+          "id": "glass-dining",
+          "kind": "prop.glass",
+          "position": [4.2, 1.05, -3],
+          "rotation": [0, 1.5707963267948966, 0],
+          "props": { "color": "#c4b090", "frame": "#4a3828" }
+        },
+        {
+          "id": "frame-dh",
+          "kind": "arch.frame",
+          "position": [0, 1, 0],
+          "rotation": [0, 3.141592653589793, 0],
+          "props": { "color": "#6a5040", "coversPortalId": "door-dh" }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-dh",
+          "position": [0, 1, 0],
+          "yaw": 3.141592653589793,
+          "size": [2, 2],
+          "destinationId": "door-hd"
+        }
+      ]
+    },
+    {
+      "id": "crypt",
+      "title": "Crypt",
+      "tags": ["interior", "haunt"],
+      "origin": [1500, 0, 0],
+      "clearColor": "#0a0c0a",
+      "entities": [
+        { "id": "sky-crypt", "kind": "env.sky", "props": { "color": "#0a0c0a" } },
+        { "id": "light-crypt", "kind": "env.light", "props": { "ambient": "#101410", "sun": "#406050", "sunIntensity": 0.18 } },
+        { "id": "floor-crypt", "kind": "env.floor", "props": { "color": "#101410" } },
+        {
+          "id": "shell-crypt",
+          "kind": "arch.corridor",
+          "props": { "color": "#161c18", "halfX": 8, "zMin": -6.2, "zMax": 1, "openings": [0] }
+        },
+        {
+          "id": "plaque-crypt",
+          "kind": "prop.plaque",
+          "position": [2.2, 1.6, -5.9],
+          "props": { "color": "#508070", "text": "Crypt" }
+        },
+        {
+          "id": "sarcophagus",
+          "kind": "prop.box",
+          "position": [0, 0.32, -3.2],
+          "props": { "size": [1.1, 0.64, 2.2], "color": "#2a3230" }
+        },
+        {
+          "id": "hearth-crypt",
+          "kind": "prop.hearth",
+          "position": [-3.4, 0, -3.2],
+          "rotation": [0, 1.5707963267948966, 0],
+          "props": { "width": 1.05, "height": 1.05, "depth": 0.46, "intensity": 0.95, "ember": "#ff5020" }
+        },
+        {
+          "id": "candle-crypt",
+          "kind": "prop.candle",
+          "position": [1.1, 0.64, -3.2],
+          "props": { "intensity": 0.2 }
+        },
+        {
+          "id": "frame-kc",
+          "kind": "arch.frame",
+          "position": [0, 1, 0],
+          "rotation": [0, 3.141592653589793, 0],
+          "props": { "color": "#2a3830", "coversPortalId": "door-kc" }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-kc",
+          "position": [0, 1, 0],
+          "yaw": 3.141592653589793,
+          "size": [2, 2],
+          "destinationId": "door-ck"
         }
       ]
     }
