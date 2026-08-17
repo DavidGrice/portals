@@ -1,9 +1,12 @@
-import { Mesh, MeshBasicMaterial } from 'three';
+import { DoubleSide, Mesh, MeshBasicMaterial } from 'three';
 import { PortalGeometry } from './PortalGeometry.js';
 
 export class Portal extends Mesh {
   constructor(width, height, { id = null } = {}) {
-    super(new PortalGeometry(width, height), new MeshBasicMaterial({ colorWrite: false }));
+    super(
+      new PortalGeometry(width, height),
+      new MeshBasicMaterial({ colorWrite: false, side: DoubleSide }),
+    );
 
     this.type = 'Portal';
     this.portalId = id;
