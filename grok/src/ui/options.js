@@ -35,15 +35,10 @@ function codeLabel(code) {
 
 export function bindOptions({
   settings,
-  camera,
-  renderer,
-  controller,
-  player,
-  postAA,
-  controls,
-  bootHardwareAa,
+  getSession = () => null,
   onClose,
-}) {
+  onRebuild,
+} = {}) {
   const home = field('welcome-home');
   const panel = field('options');
   const openButton = field('welcome-options');
@@ -52,7 +47,6 @@ export function bindOptions({
     return settings;
   }
 
-  const context = { camera, renderer, controller, player, postAA, controls };
   let listening = null;
 
   buildKeybindRows();
@@ -110,10 +104,12 @@ export function bindOptions({
   panel.addEventListener('submit', (event) => {
     event.preventDefault();
     const next = read();
+    const previousAa = settings.hardwareAa;
     next.save();
     commit(next, { persist: false });
-    if (next.hardwareAa !== bootHardwareAa) {
-      globalThis.location.reload();
+    if (next.hardwareAa !== previousAa && getSession()) {
+      closeOptions();
+      onRebuild?.();
       return;
     }
     closeOptions();
@@ -147,8 +143,12 @@ export function bindOptions({
     if (persist) {
       next.save();
     }
-    next.apply(context);
-    refreshHud(settings);
+    const session = getSession?.();
+    if (session) {
+      next.apply(session);
+    } else {
+      refreshHud(settings);
+    }
   }
 
   function read() {

@@ -12,7 +12,7 @@ npm install
 npm run dev
 ```
 
-Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/). Click **Enter** (or tap it on a phone).
+Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/). The start menu is HTML only. Click **Play** to create the WebGL halls; **Quit to menu** destroys them.
 
 | Input | Action |
 | --- | --- |

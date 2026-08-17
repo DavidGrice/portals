@@ -30,7 +30,7 @@ npm install
 npm run dev
 ```
 
-Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/).
+Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/). The start menu is HTML only — the WebGL halls are created when you press **Play**, and destroyed on **Quit to menu**.
 
 | Script | Purpose |
 | --- | --- |
@@ -44,8 +44,8 @@ Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/).
 
 | Input | Action |
 | --- | --- |
-| **Enter** or tap **Enter** | Hide welcome and start (pointer lock on desktop) |
-| **Esc** / pause button / **O** | Pause, options, or close a panel |
+| **Play** or **Enter** | Create the WebGL session and enter the first hall |
+| **Esc** / pause / **O** | Pause, Options, or Quit to menu |
 | **WASD** | Move (rebindable) |
 | **Arrows** | Look (rebindable) |
 | **Mouse** / drag | Look |
