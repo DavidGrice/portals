@@ -3,6 +3,8 @@
     {
       "id": "two-rooms",
       "title": "Four halls",
+      "blurb": "Blue to rose. Walk the doors. Unseal the last hall.",
+      "preview": "/worlds/four-halls.jpg",
       "file": "two-rooms.json"
     }
   ]

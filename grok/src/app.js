@@ -9,6 +9,7 @@ import { spawnCrossBurst, tickAtmosphere } from './engine/atmosphere.js';
 import { createSession } from './game/session.js';
 import { loadSave, poseFromSession, writeSave } from './content/save.js';
 import { bindOptions, refreshHud } from './ui/options.js';
+import { bindWorldSelect, getWorldData } from './ui/worlds.js';
 import { applyTouchMove, bindTouchControls, consumeTouchInteract, consumeTouchJump, consumeTouchLook, createTouchState, detectTouch } from './ui/touch.js';
 
 export const APP_STATES = {
@@ -51,6 +52,7 @@ export function createApp({
   const loading = document.getElementById('welcome-loading');
   const pauseCard = document.getElementById('welcome-pause');
   const helpCard = document.getElementById('welcome-help');
+  const worldsCard = document.getElementById('welcome-worlds');
   const playButton = document.getElementById('welcome-enter');
   const gpuLine = document.getElementById('welcome-gpu');
   const hint = document.getElementById('welcome-hint');
@@ -104,12 +106,16 @@ export function createApp({
   });
 
   const continueButton = document.getElementById('welcome-continue');
-  const worldSelect = document.getElementById('opt-world');
   refreshContinue();
-  worldSelect?.addEventListener('change', () => {
-    selectedWorldId = worldSelect.value || selectedWorldId;
+  bindWorldSelect({
+    root: worldsCard,
+    onPick: (id) => {
+      selectedWorldId = id;
+      play({ worldId: id });
+    },
+    onBack: () => showMenuCard('home'),
   });
-  playButton?.addEventListener('click', () => play());
+  playButton?.addEventListener('click', () => showMenuCard('worlds'));
   continueButton?.addEventListener('click', () => play({ useSave: true }));
   document.getElementById('welcome-help-open')?.addEventListener('click', () => showMenuCard('help'));
   document.getElementById('welcome-help-back')?.addEventListener('click', () => showMenuCard('home'));
@@ -134,7 +140,15 @@ export function createApp({
       return;
     }
     if (event.code === 'Enter' && state === APP_STATES.menu && !options.isOpen?.()) {
-      play();
+      if (worldsCard && !worldsCard.hidden) {
+        play({ worldId: selectedWorldId });
+      } else {
+        showMenuCard('worlds');
+      }
+      return;
+    }
+    if (event.code === 'Escape' && state === APP_STATES.menu && worldsCard && !worldsCard.hidden) {
+      showMenuCard('home');
       return;
     }
     if (event.code === 'Escape' && state === APP_STATES.playing) {
@@ -182,7 +196,11 @@ export function createApp({
     }
     const pad = pollPad();
     if (state === APP_STATES.menu && pad.start) {
-      play();
+      if (worldsCard && !worldsCard.hidden) {
+        play({ worldId: selectedWorldId });
+      } else {
+        showMenuCard('worlds');
+      }
     } else if (state === APP_STATES.paused && pad.start) {
       resume();
     }
@@ -208,6 +226,9 @@ export function createApp({
     }
     if (helpCard) {
       helpCard.hidden = which !== 'help';
+    }
+    if (worldsCard) {
+      worldsCard.hidden = which !== 'worlds';
     }
   }
 
@@ -241,7 +262,7 @@ export function createApp({
     }
   }
 
-  async function play({ useSave = false } = {}) {
+  async function play({ useSave = false, worldId = selectedWorldId } = {}) {
     if (state === APP_STATES.loading || state === APP_STATES.playing) {
       return state;
     }
@@ -253,10 +274,13 @@ export function createApp({
     await frame();
     try {
       setLoading('Loading halls…');
+      selectedWorldId = worldId || selectedWorldId;
       const save = useSave ? loadSave() : null;
+      const chosen = save && useSave ? save.worldId : selectedWorldId;
+      selectedWorldId = chosen || selectedWorldId;
       session = createSessionFn({
         settings,
-        world: worldData,
+        world: getWorldData(selectedWorldId) ?? worldData,
         catalog: catalogData,
         pose: save && save.worldId === selectedWorldId ? save : null,
         width: window.innerWidth,

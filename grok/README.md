@@ -44,7 +44,7 @@ Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/). The start menu is HTML on
 
 | Input | Action |
 | --- | --- |
-| **Play** or **Enter** | Create the WebGL session and enter the first hall |
+| **Play** or **Enter** | Open world select (screenshot cards), then load that hall |
 | **Esc** / pause / **O** | Pause, Options, or Quit to menu |
 | **WASD** | Move (rebindable) |
 | **Arrows** | Look (rebindable) |

@@ -27,16 +27,12 @@
       <div class="welcome-card" id="welcome-home">
         <button type="button" id="welcome-enter" class="welcome-enter">Play</button>
         <button type="button" id="welcome-continue" class="welcome-enter welcome-enter-ghost" hidden>Continue</button>
-        <label class="menu-world">World
-          <select id="opt-world">
-            <option value="two-rooms">Four halls</option>
-          </select>
-        </label>
         <button type="button" id="welcome-options" class="welcome-enter welcome-enter-ghost">Options</button>
         <button type="button" id="welcome-help-open" class="welcome-enter welcome-enter-ghost">How to play</button>
         <p class="welcome-hint" id="welcome-hint">WASD to move · Space to jump · mouse to look</p>
         <p id="welcome-gpu" class="welcome-gpu"></p>
       </div>
+      <div class="welcome-card world-select" id="welcome-worlds" hidden></div>
       <div class="welcome-card" id="welcome-loading" hidden>
         <h2>Loading</h2>
         <p id="welcome-loading-status" class="welcome-hint">Preparing halls…</p>

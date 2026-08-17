@@ -126,6 +126,13 @@ describe('world data', () => {
     assert.ok(Math.abs(cd.position.x - dc.position.x) > 200, 'C and D halls must not share an origin');
   });
 
+  it('lists worlds with a preview image for the picker', () => {
+    const index = readJson('data/worlds/index.json');
+    assert.ok(index.worlds.length >= 1);
+    assert.equal(index.worlds[0].id, 'two-rooms');
+    assert.ok(index.worlds[0].preview.startsWith('/worlds/'));
+  });
+
   it('validates the shipped world against the catalog', () => {
     const world = readJson('data/worlds/two-rooms.json');
     const catalog = readJson('data/catalog.json');
