@@ -130,6 +130,17 @@
           "position": [6.4, 1, 1.2],
           "rotation": [0, -1.5707963267948966, 0],
           "props": { "color": "#f0c040", "coversPortalId": "door-cg" }
+        },
+        {
+          "id": "pad-gold",
+          "kind": "interact.pad",
+          "position": [4.6, 0.04, 1.2],
+          "props": {
+            "color": "#f0c040",
+            "action": "unlock",
+            "portalId": "door-cg",
+            "text": "The gold lane unseals."
+          }
         }
       ],
       "portals": [
