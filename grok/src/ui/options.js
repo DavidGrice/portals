@@ -155,25 +155,25 @@ export function bindOptions({
     return new GraphicsSettings({
       profile: field('opt-profile')?.value,
       aaMode: field('opt-aa')?.value,
-      hardwareAa: field('opt-hardware-aa')?.checked,
+      hardwareAa: isOn('opt-hardware-aa'),
       fov: Number(field('opt-fov')?.value),
       recursion: Number(field('opt-recursion')?.value),
       pixelRatio: field('opt-scale')?.value === 'device' ? 'device' : Number(field('opt-scale')?.value),
-      shadows: field('opt-shadows')?.checked,
-      fillLight: field('opt-fill')?.checked,
+      shadows: isOn('opt-shadows'),
+      fillLight: isOn('opt-fill'),
       anisotropy: Number(field('opt-anisotropy')?.value),
       viewDistance: Number(field('opt-view')?.value),
       mouseSensitivity: Number(field('opt-mouse')?.value),
-      invertY: field('opt-invert')?.checked,
+      invertY: isOn('opt-invert'),
       moveSpeed: Number(field('opt-move')?.value),
       jumpSpeed: Number(field('opt-jump')?.value),
       lookKeySpeed: Number(field('opt-look-keys')?.value),
       masterVolume: Number(field('opt-vol-master')?.value),
       musicVolume: Number(field('opt-vol-music')?.value),
       sfxVolume: Number(field('opt-vol-sfx')?.value),
-      showFps: field('opt-fps')?.checked,
-      showCrosshair: field('opt-crosshair')?.checked,
-      colorblindMode: field('opt-colorblind')?.checked,
+      showFps: isOn('opt-fps'),
+      showCrosshair: isOn('opt-crosshair'),
+      colorblindMode: isOn('opt-colorblind'),
       uiTheme: field('opt-theme')?.value,
       keybinds: { ...settings.keybinds },
     });
@@ -195,13 +195,13 @@ export function bindOptions({
     setRange('opt-vol-master', next.masterVolume, `${Math.round(next.masterVolume * 100)}%`);
     setRange('opt-vol-music', next.musicVolume, `${Math.round(next.musicVolume * 100)}%`);
     setRange('opt-vol-sfx', next.sfxVolume, `${Math.round(next.sfxVolume * 100)}%`);
-    setCheck('opt-hardware-aa', next.hardwareAa);
-    setCheck('opt-shadows', next.shadows);
-    setCheck('opt-fill', next.fillLight);
-    setCheck('opt-invert', next.invertY);
-    setCheck('opt-fps', next.showFps);
-    setCheck('opt-crosshair', next.showCrosshair);
-    setCheck('opt-colorblind', next.colorblindMode);
+    setSelect('opt-hardware-aa', next.hardwareAa ? 'on' : 'off');
+    setSelect('opt-shadows', next.shadows ? 'on' : 'off');
+    setSelect('opt-fill', next.fillLight ? 'on' : 'off');
+    setSelect('opt-invert', next.invertY ? 'on' : 'off');
+    setSelect('opt-fps', next.showFps ? 'on' : 'off');
+    setSelect('opt-crosshair', next.showCrosshair ? 'on' : 'off');
+    setSelect('opt-colorblind', next.colorblindMode ? 'on' : 'off');
     setText('opt-aa-blurb', aaModeInfo(next.aaMode).blurb);
     setText('opt-profile-blurb', GRAPHICS_PROFILES[next.profile]?.blurb ?? '');
     setText('opt-theme-blurb', UI_THEMES.find((theme) => theme.id === next.uiTheme)?.blurb ?? '');
@@ -316,11 +316,8 @@ function setRange(id, value, label) {
   setText(`${id}-value`, label);
 }
 
-function setCheck(id, value) {
-  const node = field(id);
-  if (node) {
-    node.checked = Boolean(value);
-  }
+function isOn(id) {
+  return field(id)?.value === 'on';
 }
 
 export { GRAPHICS_PROFILES, AA_MODES };
