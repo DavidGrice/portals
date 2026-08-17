@@ -1,5 +1,5 @@
 import { Vector3 } from 'three';
-import { collectColliders, resolveColliders } from './colliders.js';
+import { collectColliders, resolveColliders, resolveGround } from './colliders.js';
 
 export class Player {
   constructor({
@@ -18,6 +18,7 @@ export class Player {
     this.jumpSpeed = jumpSpeed;
     this.velocity = new Vector3();
     this.onGround = true;
+    this.supportY = 0;
   }
 
   jump() {
@@ -30,22 +31,32 @@ export class Player {
   }
 
   step(dt, move, controls, room = null) {
-    const forward = Number(Boolean(move.forward)) - Number(Boolean(move.back));
-    const right = Number(Boolean(move.right)) - Number(Boolean(move.left));
+    const forward = Number(move?.forward ?? 0) - Number(move?.back ?? 0);
+    const right = Number(move?.right ?? 0) - Number(move?.left ?? 0);
     if (controls) {
-      controls.moveForward(forward * this.moveSpeed * dt);
-      controls.moveRight(right * this.moveSpeed * dt);
+      const distance = this.moveSpeed * dt;
+      controls.moveForward(forward * distance);
+      controls.moveRight(right * distance);
     }
 
-    if (room) {
-      resolveColliders(this.camera.position, this, collectColliders(room));
+    const colliders = room ? collectColliders(room) : [];
+    if (colliders.length) {
+      resolveColliders(this.camera.position, this, colliders);
     }
 
+    const prevY = this.camera.position.y;
     this.velocity.y -= this.gravity * dt;
     this.camera.position.y += this.velocity.y * dt;
 
-    if (this.camera.position.y <= this.eyeHeight) {
-      this.camera.position.y = this.eyeHeight;
+    if (colliders.length) {
+      resolveGround(this.camera.position, this, colliders, prevY);
+      return;
+    }
+
+    this.supportY = 0;
+    const floorY = this.eyeHeight;
+    if (this.velocity.y <= 0 && this.camera.position.y <= floorY) {
+      this.camera.position.y = floorY;
       this.velocity.y = 0;
       this.onGround = true;
     } else {

@@ -4,6 +4,13 @@ const worldBox = new Box3();
 const scratch = new Vector3();
 const cornerPool = [new Vector3(), new Vector3(), new Vector3(), new Vector3()];
 
+/** How far below a top we still snap (landing), in world units. */
+export const LAND_WINDOW = 0.28;
+/** How far above a top we still count as standing on it. */
+export const SNAP_DOWN = 0.08;
+/** Horizontal pad so the capsule center can sit near a cube edge. */
+export const SUPPORT_PAD = 0.12;
+
 export function collectColliders(room) {
   const colliders = [];
   if (!room?.scene) {
@@ -78,7 +85,52 @@ export function collectColliders(room) {
   return colliders;
 }
 
-export function resolveColliders(position, { radius = 0.28, eyeHeight = 1 } = {}, colliders) {
+export function overlapsSupport(position, collider) {
+  return (
+    position.x >= collider.minX - SUPPORT_PAD &&
+    position.x <= collider.maxX + SUPPORT_PAD &&
+    position.z >= collider.minZ - SUPPORT_PAD &&
+    position.z <= collider.maxZ + SUPPORT_PAD
+  );
+}
+
+export function isOnAabbTop(position, collider, { eyeHeight = 1, velocityY = 0, prevY = null } = {}) {
+  if (collider.type !== 'aabb' || !overlapsSupport(position, collider)) {
+    return false;
+  }
+  const feet = position.y - eyeHeight;
+  const top = collider.maxY;
+  const prevFeet = (prevY ?? position.y) - eyeHeight;
+  if (velocityY > 0 && feet > top) {
+    return false;
+  }
+  if (prevFeet >= top - LAND_WINDOW && feet <= top + SNAP_DOWN) {
+    return true;
+  }
+  return feet <= top + SNAP_DOWN && feet >= top - LAND_WINDOW;
+}
+
+export function findSupportY(position, body, colliders, prevY = position.y) {
+  let supportY = 0;
+  const eyeHeight = body.eyeHeight ?? 1;
+  const velocityY = body.velocity?.y ?? 0;
+  for (const collider of colliders) {
+    if (collider.type !== 'aabb') {
+      continue;
+    }
+    if (!isOnAabbTop(position, collider, { eyeHeight, velocityY, prevY })) {
+      continue;
+    }
+    if (collider.maxY > supportY) {
+      supportY = collider.maxY;
+    }
+  }
+  return supportY;
+}
+
+export function resolveColliders(position, body = {}, colliders) {
+  const radius = body.radius ?? 0.28;
+  const eyeHeight = body.eyeHeight ?? 1;
   const feet = position.y - eyeHeight;
   const head = position.y + 0.25;
 
@@ -93,7 +145,21 @@ export function resolveColliders(position, { radius = 0.28, eyeHeight = 1 } = {}
     if (collider.type !== 'aabb') {
       continue;
     }
-    if (head < collider.minY || feet > collider.maxY) {
+
+    // Above or landing on the top: walkable, never a side wall.
+    if (overlapsSupport(position, collider) && feet >= collider.maxY - LAND_WINDOW) {
+      continue;
+    }
+
+    if (head < collider.minY || feet >= collider.maxY) {
+      continue;
+    }
+    if (
+      position.x <= collider.minX - radius ||
+      position.x >= collider.maxX + radius ||
+      position.z <= collider.minZ - radius ||
+      position.z >= collider.maxZ + radius
+    ) {
       continue;
     }
 
@@ -101,10 +167,6 @@ export function resolveColliders(position, { radius = 0.28, eyeHeight = 1 } = {}
     const maxX = collider.maxX + radius;
     const minZ = collider.minZ - radius;
     const maxZ = collider.maxZ + radius;
-    if (position.x <= minX || position.x >= maxX || position.z <= minZ || position.z >= maxZ) {
-      continue;
-    }
-
     const left = position.x - minX;
     const right = maxX - position.x;
     const near = position.z - minZ;
@@ -122,4 +184,20 @@ export function resolveColliders(position, { radius = 0.28, eyeHeight = 1 } = {}
   }
 
   return position;
+}
+
+export function resolveGround(position, body, colliders, prevY) {
+  const supportY = findSupportY(position, body, colliders, prevY);
+  body.supportY = supportY;
+  const groundedY = supportY + (body.eyeHeight ?? 1);
+  if ((body.velocity?.y ?? 0) <= 0 && position.y <= groundedY) {
+    position.y = groundedY;
+    if (body.velocity) {
+      body.velocity.y = 0;
+    }
+    body.onGround = true;
+  } else {
+    body.onGround = false;
+  }
+  return supportY;
 }

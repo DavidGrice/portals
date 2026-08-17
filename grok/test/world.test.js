@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PerspectiveCamera } from 'three';
-import { Emitter, GraphicsSettings, Portal, PortalController, Room } from '../src/engine/index.js';
+import { applyLook, Emitter, GraphicsSettings, Portal, PortalController, Room } from '../src/engine/index.js';
 import { loadWorld, kindsByCategory } from '../src/content/loadWorld.js';
 import { validateWorld } from '../scripts/validate-world.js';
 
@@ -30,12 +30,55 @@ function mockRenderer() {
 
 describe('world data', () => {
   it('applies graphics profiles without a live renderer', () => {
+    const ultra = GraphicsSettings.fromProfile('ultra');
+    assert.equal(ultra.recursion, 4);
+    assert.equal(ultra.hardwareAa, true);
+    assert.equal(ultra.aaMode, 'off');
+    const performance = GraphicsSettings.fromProfile('performance');
+    assert.equal(performance.recursion, 1);
+    assert.equal(performance.hardwareAa, false);
+    assert.equal(performance.shadows, false);
+  });
+
+  it('migrates legacy low/high profile names and the old aa checkbox', () => {
     const high = GraphicsSettings.fromProfile('high');
-    assert.equal(high.recursion, 3);
-    assert.equal(high.aa, true);
-    const low = GraphicsSettings.fromProfile('low');
-    assert.equal(low.recursion, 1);
-    assert.equal(low.aa, false);
+    assert.equal(high.profile, 'balanced');
+    const low = new GraphicsSettings({ profile: 'low', aa: false });
+    assert.equal(low.profile, 'performance');
+    assert.equal(low.aaMode, 'off');
+    const fxaa = new GraphicsSettings({ profile: 'high', aa: true });
+    assert.equal(fxaa.profile, 'balanced');
+    assert.equal(fxaa.aaMode, 'fxaa');
+    assert.equal(fxaa.hardwareAa, true);
+  });
+
+  it('keeps post-process AA and control options independent of the preset', () => {
+    const next = GraphicsSettings.fromProfile('ultra', {
+      aaMode: 'smaa',
+      mouseSensitivity: 0.9,
+      invertY: true,
+      uiTheme: 'metal',
+    });
+    assert.equal(next.profile, 'ultra');
+    assert.equal(next.aaMode, 'smaa');
+    assert.equal(next.mouseSensitivity, 0.9);
+    assert.equal(next.invertY, true);
+    assert.equal(next.uiTheme, 'metal');
+    assert.equal(next.shadows, true);
+    assert.equal(next.fillLight, true);
+  });
+
+  it('applies look sensitivity and invert Y', () => {
+    const camera = new PerspectiveCamera(60, 1, 0.05, 100);
+    camera.rotation.order = 'YXZ';
+    camera.quaternion.setFromEuler(camera.rotation);
+    applyLook(camera, 10, 0, { mouseSensitivity: 0.5, invertY: false });
+    const yaw = camera.rotation.setFromQuaternion(camera.quaternion, 'YXZ').y;
+    assert.ok(yaw < 0, `yaw ${yaw}`);
+    const before = camera.rotation.x;
+    applyLook(camera, 0, 10, { mouseSensitivity: 0.5, invertY: true });
+    const pitch = camera.rotation.setFromQuaternion(camera.quaternion, 'YXZ').x;
+    assert.ok(pitch > before, `pitch ${pitch}`);
   });
 
   it('exports the engine barrel', () => {

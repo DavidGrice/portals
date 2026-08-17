@@ -44,12 +44,14 @@ Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/).
 
 | Input | Action |
 | --- | --- |
-| **Enter** or click **Enter** | Hide welcome, lock the pointer |
-| **Esc** | Unlock pointer, show welcome |
-| **WASD** / arrows | Move |
-| **Mouse** | Look |
-| **Space** | Jump |
-| **Options** | Graphics profiles (from the welcome card) |
+| **Enter** or tap **Enter** | Hide welcome and start (pointer lock on desktop) |
+| **Esc** / pause button / **O** | Pause, options, or close a panel |
+| **WASD** | Move (rebindable) |
+| **Arrows** | Look (rebindable) |
+| **Mouse** / drag | Look |
+| **Space** | Jump (rebindable) |
+| Touch | Left stick move, right-side drag look, Jump button |
+| **Options** | Graphics, controls, interface, sound, keybinds |
 
 The shipped world is four halls: **blue → red → green → violet**. Each door is a two-way pair except where `enabled` / `oneWay` say otherwise.
 
@@ -62,30 +64,40 @@ Query flags:
 
 ## Options / graphics
 
-Welcome → **Options**. Settings persist under `localStorage` key `portals-grok-graphics`.
+Welcome or pause → **Options**. Settings persist under `localStorage` key `portals-grok-graphics`. A first launch picks Performance / Balanced / Ultra from a device heuristic; after that your save wins.
 
-| Profile | AA | Recursion | Scale | Shadows | FOV |
+Quality presets and anti-aliasing are independent, the same way they are in a desktop game. WebGL has no sample-count MSAA picker — `Hardware AA` is the browser's boolean `gl.antialias` (changing it reloads so the context can be rebuilt with `stencil: true`). Post-process modes are:
+
+| Mode | What it does |
+| --- | --- |
+| Off | Portal pass draws to the screen. Hardware AA only, if enabled. |
+| FXAA | Portal pass draws into a stencil render target, then a cheap edge shader. |
+| SMAA | Same target, sharper morphological AA. |
+| Supersample 2× | Same target at 2× resolution, then a linear blit (~4× pixel cost). |
+
+The portal pass never goes through EffectComposer — stencil increment/decrement has to stay intact.
+
+| Preset | Hardware AA | Recursion | Scale | Shadows | View distance |
 | --- | --- | --- | --- | --- | --- |
-| Low | off | 1 | 0.75 | off | 60 |
-| Medium | off | 2 | 1 | off | 60 |
-| High | on | 3 | device (cap 2) | on | 60 |
-| Ultra | on | 4 | device (cap 2) | on | 70 |
+| Performance | off | 1 | 0.75 | off | 75% |
+| Balanced | on | 2 | 1 | on | 100% |
+| Ultra | on | 4 | device (cap 2) | on + fill light | 115% |
 
-You can override FOV, recursion, scale, AA, and shadows after picking a profile. **Anti-aliasing** is a WebGL context flag; changing it reloads the page so the renderer can be rebuilt with `stencil: true`.
+After a preset you can still change FOV, recursion, scale, anisotropy, view distance, shadows, fill light, look sensitivity, invert Y, walk/jump, keybinds, HUD, theme, and stored volume sliders.
 
-`prefers-reduced-motion` disables the welcome mote animation.
+`prefers-reduced-motion` disables the welcome mote animation. On a phone or tablet the welcome card is scrollable, look does not require pointer lock, and a virtual stick + Jump + Pause sit over the world.
 
 ## Layout
 
 ```
 grok/
   src/
-    engine/          Player, colliders, graphics, events, renderer factory
+    engine/          Player, colliders, graphics, post-AA, look, events, renderer factory
     portal/          Portal, PortalGeometry, PortalController, Room
     content/         JSON loader and prefabs
-    ui/              Options panel
-    main.js          Boot, pointer lock, loop
-    style.css        Welcome + options (Metalheart plaque, Aero glass card)
+    ui/              Options panel, touch HUD
+    main.js          Boot, pointer lock / touch, loop
+    style.css        Welcome, options tabs, themes, mobile HUD
   data/
     catalog.json     Kinds → prefabs
     worlds/          Playable worlds

@@ -1,6 +1,18 @@
-export { collectColliders, resolveColliders } from './colliders.js';
+export { collectColliders, findSupportY, isOnAabbTop, resolveColliders, resolveGround } from './colliders.js';
 export { Emitter } from './Emitter.js';
-export { GRAPHICS_PROFILES, GraphicsSettings, resolvePixelRatio } from './GraphicsSettings.js';
+export {
+  DEFAULT_KEYBINDS,
+  GRAPHICS_PROFILES,
+  GRAPHICS_QUALITY_LIST,
+  GraphicsSettings,
+  KEYBIND_GROUPS,
+  UI_THEMES,
+  resolvePixelRatio,
+} from './GraphicsSettings.js';
+export { AA_MODES, aaModeInfo } from './aaModes.js';
+export { detectTouch, suggestGraphicsQuality } from './deviceProfile.js';
+export { applyLook } from './look.js';
+export { PostAA } from './PostAA.js';
 export { Player } from './Player.js';
 export { createPortalRenderer, probeCapabilities } from './capabilities.js';
 export { Portal } from '../portal/Portal.js';

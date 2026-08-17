@@ -2,7 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>Portals</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -25,36 +27,131 @@
       <div class="welcome-card" id="welcome-home">
         <button type="button" id="welcome-enter" class="welcome-enter">Enter</button>
         <button type="button" id="welcome-options" class="welcome-enter welcome-enter-ghost">Options</button>
-        <p class="welcome-hint">WASD to move · Space to jump · mouse to look</p>
+        <p class="welcome-hint" id="welcome-hint">WASD to move · Space to jump · mouse to look</p>
         <p id="welcome-gpu" class="welcome-gpu"></p>
       </div>
       <form id="options" class="welcome-card options" hidden>
-        <h2>Graphics</h2>
-        <label>Profile
-          <select id="opt-profile">
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="ultra">Ultra</option>
-          </select>
-        </label>
-        <label>Field of view
-          <input id="opt-fov" type="range" min="50" max="90" step="1" />
-          <span id="opt-fov-value"></span>
-        </label>
-        <label>Portal recursion
-          <input id="opt-recursion" type="range" min="1" max="4" step="1" />
-          <span id="opt-recursion-value"></span>
-        </label>
-        <label>Render scale
-          <select id="opt-scale">
-            <option value="0.75">75%</option>
-            <option value="1">100%</option>
-            <option value="device">Device</option>
-          </select>
-        </label>
-        <label class="options-check"><input id="opt-aa" type="checkbox" /> Anti-aliasing (reloads)</label>
-        <label class="options-check"><input id="opt-shadows" type="checkbox" /> Shadows</label>
+        <h2>Options</h2>
+        <div class="options-tabs" role="tablist">
+          <button type="button" class="on" data-opt-tab="graphics">Graphics</button>
+          <button type="button" data-opt-tab="controls">Controls</button>
+          <button type="button" data-opt-tab="interface">Interface</button>
+          <button type="button" data-opt-tab="sound">Sound</button>
+          <button type="button" data-opt-tab="keybinds">Keybinds</button>
+        </div>
+
+        <div class="options-body">
+          <div data-opt-pane="graphics">
+            <label>Quality preset
+              <select id="opt-profile">
+                <option value="performance">Performance</option>
+                <option value="balanced">Balanced</option>
+                <option value="ultra">Ultra</option>
+              </select>
+            </label>
+            <p id="opt-profile-blurb" class="options-note"></p>
+
+            <label>Anti-aliasing
+              <select id="opt-aa">
+                <option value="off">Off</option>
+                <option value="fxaa">FXAA</option>
+                <option value="smaa">SMAA</option>
+                <option value="supersample2x">Supersample 2×</option>
+              </select>
+            </label>
+            <p id="opt-aa-blurb" class="options-note"></p>
+
+            <label>Anisotropic filtering
+              <select id="opt-anisotropy">
+                <option value="1">Off</option>
+                <option value="2">2×</option>
+                <option value="4">4×</option>
+                <option value="8">8×</option>
+                <option value="16">16×</option>
+              </select>
+            </label>
+            <label>Render scale
+              <select id="opt-scale">
+                <option value="0.5">50%</option>
+                <option value="0.75">75%</option>
+                <option value="1">100%</option>
+                <option value="device">Device</option>
+              </select>
+            </label>
+            <label>Field of view
+              <input id="opt-fov" type="range" min="50" max="100" step="1" />
+              <span id="opt-fov-value"></span>
+            </label>
+            <label>Portal recursion
+              <input id="opt-recursion" type="range" min="1" max="4" step="1" />
+              <span id="opt-recursion-value"></span>
+            </label>
+            <label>View distance
+              <input id="opt-view" type="range" min="0.7" max="1.3" step="0.05" />
+              <span id="opt-view-value"></span>
+            </label>
+            <label class="options-check"><input id="opt-hardware-aa" type="checkbox" /> Hardware AA (reloads)</label>
+            <label class="options-check"><input id="opt-shadows" type="checkbox" /> Shadows</label>
+            <label class="options-check"><input id="opt-fill" type="checkbox" /> Fill light</label>
+          </div>
+
+          <div data-opt-pane="controls" hidden>
+            <label>Look sensitivity
+              <input id="opt-mouse" type="range" min="0.1" max="1.5" step="0.05" />
+              <span id="opt-mouse-value"></span>
+            </label>
+            <label>Walk speed
+              <input id="opt-move" type="range" min="2" max="8" step="0.1" />
+              <span id="opt-move-value"></span>
+            </label>
+            <label>Jump strength
+              <input id="opt-jump" type="range" min="4" max="10" step="0.1" />
+              <span id="opt-jump-value"></span>
+            </label>
+            <label>Arrow-look speed
+              <input id="opt-look-keys" type="range" min="0.4" max="3" step="0.1" />
+              <span id="opt-look-keys-value"></span>
+            </label>
+            <label class="options-check"><input id="opt-invert" type="checkbox" /> Invert Y axis</label>
+          </div>
+
+          <div data-opt-pane="interface" hidden>
+            <label>Interface theme
+              <select id="opt-theme">
+                <option value="glass">Aero Glass</option>
+                <option value="metal">Metalheart</option>
+                <option value="chrome">Chrome</option>
+                <option value="leather">Leather</option>
+              </select>
+            </label>
+            <p id="opt-theme-blurb" class="options-note"></p>
+            <label class="options-check"><input id="opt-fps" type="checkbox" /> Show FPS counter</label>
+            <label class="options-check"><input id="opt-crosshair" type="checkbox" /> Show crosshair</label>
+            <label class="options-check"><input id="opt-colorblind" type="checkbox" /> High-contrast HUD</label>
+          </div>
+
+          <div data-opt-pane="sound" hidden>
+            <label>Master volume
+              <input id="opt-vol-master" type="range" min="0" max="1" step="0.05" />
+              <span id="opt-vol-master-value"></span>
+            </label>
+            <label>Effects
+              <input id="opt-vol-sfx" type="range" min="0" max="1" step="0.05" />
+              <span id="opt-vol-sfx-value"></span>
+            </label>
+            <label>Music &amp; ambience
+              <input id="opt-vol-music" type="range" min="0" max="1" step="0.05" />
+              <span id="opt-vol-music-value"></span>
+            </label>
+            <p class="options-note">Stored now so a later audio pass can read them. Nothing plays yet.</p>
+          </div>
+
+          <div data-opt-pane="keybinds" hidden>
+            <div id="opt-keybinds" class="options-keys"></div>
+            <button type="button" id="opt-reset-keys" class="welcome-enter welcome-enter-ghost">Reset keybinds</button>
+          </div>
+        </div>
+
         <div class="options-actions">
           <button type="submit" class="welcome-enter">Apply</button>
           <button type="button" id="options-back" class="welcome-enter welcome-enter-ghost">Back</button>
@@ -62,6 +159,16 @@
       </form>
     </div>
     <div id="crosshair" aria-hidden="true"></div>
+    <div id="fps" class="fps" hidden>0</div>
+    <div id="touch-hud" class="touch-hud" hidden>
+      <div id="touch-look" class="touch-look"></div>
+      <div id="touch-joy" class="touch-joy" aria-hidden="true">
+        <div id="touch-joy-knob" class="touch-joy-knob"></div>
+      </div>
+      <button type="button" id="touch-jump" class="touch-btn">Jump</button>
+      <button type="button" id="hud-pause" class="hud-pause" aria-label="Pause">II</button>
+    </div>
+    <button type="button" id="desk-pause" class="hud-pause hud-pause-desk" hidden aria-label="Pause">II</button>
     <aside id="debug" class="debug" hidden></aside>
     <script type="module" src="/src/main.js"></script>
   </body>
