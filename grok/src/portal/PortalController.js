@@ -1,4 +1,4 @@
-import { Matrix4, PerspectiveCamera, Plane, Quaternion, Scene, Vector3 } from 'three';
+import { Euler, Matrix4, PerspectiveCamera, Plane, Quaternion, Scene, Vector3 } from 'three';
 import { Portal } from './Portal.js';
 import { Room } from './Room.js';
 import { Emitter } from '../engine/Emitter.js';
@@ -18,13 +18,13 @@ const teleportPos = new Vector3();
 const teleportQuat = new Quaternion();
 const teleportScale = new Vector3();
 const cameraWorldPos = new Vector3();
+const poseEuler = new Euler(0, 0, 0, 'YXZ');
 const matrixStack = Array.from({ length: 8 }, () => ({
   world: new Matrix4(),
   worldInverse: new Matrix4(),
 }));
 
-const CROSS_Z = 0.12;
-const EMERGE_Z = 0.35;
+const EMERGE_Z = 0.18;
 const FACING_DOT = 0.05;
 const CLIP_OFFSET = 0.04;
 
@@ -137,7 +137,6 @@ export class PortalController {
     this._currentRoom = room;
     this._currentScene = room.scene;
     this._currentScenePortals = room.portals;
-    this.renderer.setClearColor(room.clearColor, 1);
     this._events.emit('room:enter', { room, roomId: room.id });
   }
 
@@ -179,10 +178,8 @@ export class PortalController {
   teleport(portal) {
     this.camera.updateMatrixWorld();
     this.computePortalViewMatrix(portal, this.camera).decompose(teleportPos, teleportQuat, teleportScale);
-    this.camera.position.copy(teleportPos);
-    this.camera.quaternion.copy(teleportQuat);
-    this.camera.updateMatrixWorld();
-    this._settleInFrontOf(portal.destinationPortal);
+    this._applyCameraPose(teleportPos, teleportQuat);
+    this._settleInDestHall(portal.destinationPortal);
     const fromId = this._currentRoom?.id ?? null;
     const toId = this._getRoom(portal.destinationPortal.scene)?.id ?? portal.destinationPortal.scene.name;
     this.setCurrentScene(toId);
@@ -196,32 +193,42 @@ export class PortalController {
     });
   }
 
+  _applyCameraPose(position, quaternion) {
+    this.camera.position.copy(position);
+    poseEuler.setFromQuaternion(quaternion);
+    this.camera.quaternion.setFromEuler(poseEuler);
+    this.camera.updateMatrixWorld();
+  }
+
   _crossedPortal(portal, currentPosition) {
     localPrev.copy(this._lastCameraPosition);
     localCurr.copy(currentPosition);
     portal.worldToLocal(localPrev);
     portal.worldToLocal(localCurr);
 
-    if (localPrev.z <= CROSS_Z || localCurr.z > CROSS_Z) {
+    if (localPrev.z * localCurr.z > 0) {
+      return false;
+    }
+    const span = localPrev.z - localCurr.z;
+    if (span === 0) {
       return false;
     }
 
-    const span = localPrev.z - localCurr.z;
-    const t = (localPrev.z - CROSS_Z) / span;
+    const t = localPrev.z / span;
     const x = localPrev.x + (localCurr.x - localPrev.x) * t;
     const y = localPrev.y + (localCurr.y - localPrev.y) * t;
 
     return Math.abs(x) <= portal.geometry.halfWidth && Math.abs(y) <= portal.geometry.halfHeight;
   }
 
-  _settleInFrontOf(destination) {
+  _settleInDestHall(destination) {
     destination.updateMatrixWorld(true);
     localCurr.copy(this.camera.position);
     destination.worldToLocal(localCurr);
-    if (Math.abs(localCurr.z) >= EMERGE_Z) {
+    if (localCurr.z >= EMERGE_Z) {
       return;
     }
-    localCurr.z = (localCurr.z < 0 ? -1 : 1) * EMERGE_Z;
+    localCurr.z = EMERGE_Z;
     destination.localToWorld(localCurr);
     this.camera.position.copy(localCurr);
     this.camera.updateMatrixWorld();
@@ -255,6 +262,9 @@ export class PortalController {
 
   render() {
     this.camera.updateMatrixWorld();
+    if (this._currentRoom) {
+      this.renderer.setClearColor(this._currentRoom.clearColor, 1);
+    }
     this.lastDrawInfo.drawn.length = 0;
     this.lastDrawInfo.skipped.length = 0;
     this.lastDrawInfo.destCam = null;

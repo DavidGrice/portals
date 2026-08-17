@@ -101,20 +101,23 @@ describe('portal engine', () => {
     const { camera, controller } = makePair();
     camera.position.set(0, 1, 2);
     controller.update();
-    camera.position.set(0, 1, 0.05);
+    camera.position.set(0, 1, -0.05);
     controller.update();
     assert.equal(controller.currentRoom.id, 'room-b');
   });
 
-  it('does not yank the camera on a same-place pair', () => {
-    const { camera, controller } = makePair();
+  it('emerges in the dest hall, not back on the same side', () => {
+    const { camera, controller, b } = makePair();
     camera.position.set(0, 1, 0.4);
     camera.lookAt(0, 1, 0);
     controller.update();
-    camera.position.set(0, 1, 0.05);
+    camera.position.set(0, 1, -0.05);
     controller.update();
     assert.equal(controller.currentRoom.id, 'room-b');
-    assert.ok(camera.position.z > 0, `camera z ${camera.position.z}`);
+    const local = camera.position.clone();
+    b.updateMatrixWorld(true);
+    b.worldToLocal(local);
+    assert.ok(local.z > 0.1, `dest hall local z ${local.z}`);
   });
 
   it('uses a door-sized front and a volume only on -Z', () => {
@@ -146,7 +149,7 @@ describe('portal engine', () => {
     const { camera, controller } = makePair();
     camera.position.set(3, 1, 2);
     controller.update();
-    camera.position.set(3, 1, 0.05);
+    camera.position.set(3, 1, -0.05);
     controller.update();
     assert.equal(controller.currentRoom.id, 'room-a');
   });
@@ -159,7 +162,7 @@ describe('portal engine', () => {
     controller.on('portal:cross', ({ portalId, from, to }) => log.push(`cross:${from}:${to}:${portalId}`));
     camera.position.set(0, 1, 2);
     controller.update();
-    camera.position.set(0, 1, 0.05);
+    camera.position.set(0, 1, -0.05);
     controller.update();
     assert.deepEqual(log, ['leave:room-a', 'enter:room-b', 'cross:room-a:room-b:door-ab']);
   });
@@ -269,17 +272,37 @@ describe('portal engine', () => {
     camera.position.set(0, 1, -3);
     camera.lookAt(0, 1, -5);
     controller.update();
-    camera.position.set(0, 1, -4.95);
+    camera.position.set(0, 1, -5.05);
     controller.update();
     assert.equal(controller.currentRoom.id, 'room-c');
     const local = camera.position.clone();
     cb.updateMatrixWorld(true);
     cb.worldToLocal(local);
-    assert.ok(Math.abs(local.z) >= 0.3, `emerge local z ${local.z}`);
+    assert.ok(local.z > 0.1, `emerge dest +Z ${local.z}`);
     const before = camera.position.clone();
     camera.position.add(new Vector3(0, 0, -0.2));
     controller.update();
     assert.equal(controller.currentRoom.id, 'room-c');
     assert.ok(camera.position.distanceTo(before) > 0.01);
+  });
+
+  it('teleports when walking back through the same door', () => {
+    const { camera, controller, a } = makePair();
+    camera.position.set(0, 1, 0.4);
+    camera.lookAt(0, 1, 0);
+    controller.update();
+    camera.position.set(0, 1, -0.05);
+    controller.update();
+    assert.equal(controller.currentRoom.id, 'room-b');
+    const inB = camera.position.clone();
+    camera.position.copy(inB);
+    controller.update();
+    camera.position.z += 0.4;
+    controller.update();
+    assert.equal(controller.currentRoom.id, 'room-a');
+    const local = camera.position.clone();
+    a.updateMatrixWorld(true);
+    a.worldToLocal(local);
+    assert.ok(local.z > 0.1, `return hall local z ${local.z}`);
   });
 });
