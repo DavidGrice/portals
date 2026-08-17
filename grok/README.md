@@ -54,7 +54,7 @@ Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/). The start menu is HTML on
 | Gamepad | Left stick move, right stick look, A jump, Start pause / Play |
 | **Options** | Graphics, controls, interface, sound, keybinds |
 
-The shipped world is five halls: **blue → red → green → violet**, plus a sealed **rose** hall. Walk to the glowing pad in violet and press **E** (or Use on a phone, X on a pad) to unseal it. Each hall is a corridor with walls; door holes stay larger than the stencil front. Halls keep distinct `origin`s. Quit to menu writes a **Continue** save.
+The shipped world is five halls: **blue → red → green → violet**, plus a sealed **rose** hall. Walk to the glowing pad in violet and press **E** (or Use on a phone, X on a pad) to unseal it. Each hall is a corridor with walls; door holes stay larger than the stencil front. Door metal carries a dest-colored rim glow. Halls have drifting motes (off on Performance). A room title fades in for 1.5 s when you enter. Floors and walls use tiled canvas maps so anisotropy has something to filter. Quit to menu writes a **Continue** save.
 
 Query flags:
 

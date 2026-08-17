@@ -1,6 +1,7 @@
 import { Scene } from 'three';
 import { PortalController } from '../engine/index.js';
 import { parseColor, spawnEntity } from './prefabs.js';
+import { attachMotes, setMoteDensity, tintGlow } from '../engine/atmosphere.js';
 
 export function withOrigin(vec, origin) {
   const base = vec ?? [0, 0, 0];
@@ -18,6 +19,7 @@ export function loadWorld(world, catalog, camera, renderer) {
       clearColor: parseColor(roomData.clearColor, 0x000000),
       tags: roomData.tags ?? [],
       spawn: roomData.spawn ?? null,
+      title: roomData.title ?? roomData.id,
       origin,
     });
 
@@ -49,6 +51,8 @@ export function loadWorld(world, catalog, camera, renderer) {
     portal.setDestinationPortal(destination);
   }
 
+  dressRooms(controller);
+
   controller.setCurrentScene(world.startRoom);
   if (world.startSpawn) {
     controller.setCameraPosition(...world.startSpawn);
@@ -58,6 +62,27 @@ export function loadWorld(world, catalog, camera, renderer) {
   }
 
   return controller;
+}
+
+export function dressRooms(controller) {
+  for (const room of controller.rooms) {
+    attachMotes(room, {
+      color: room.clearColor,
+      origin: room.origin ?? [0, 0, 0],
+      half: [7.2, 1.35, 5.6],
+    });
+    setMoteDensity(room, 1);
+    room.scene.traverse((object) => {
+      if (!object.userData.portalFrame || !object.userData.coversPortalId) {
+        return;
+      }
+      const portal = controller.getPortal(object.userData.coversPortalId);
+      const destRoom = controller.rooms.find((entry) => entry.scene === portal?.destinationPortal?.scene);
+      if (destRoom) {
+        tintGlow(object, destRoom.clearColor);
+      }
+    });
+  }
 }
 
 export function kindsByCategory(catalog) {

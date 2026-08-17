@@ -5,6 +5,7 @@ import { GraphicsSettings, probeCapabilities } from './engine/index.js';
 import { applyLook } from './engine/look.js';
 import { emptyPadButtons, firstGamepad, readGamepad } from './engine/gamepad.js';
 import { findInteract, runInteract } from './engine/interact.js';
+import { spawnCrossBurst, tickAtmosphere } from './engine/atmosphere.js';
 import { createSession } from './game/session.js';
 import { loadSave, poseFromSession, writeSave } from './content/save.js';
 import { bindOptions, refreshHud } from './ui/options.js';
@@ -262,6 +263,7 @@ export function createApp({
         height: window.innerHeight,
       });
       bindLiveSession(session);
+      showRoomTitle(session.controller.currentRoom?.title);
       state = APP_STATES.playing;
       setMenuVisible(false);
       showMenuCard('home');
@@ -351,6 +353,19 @@ export function createApp({
     return true;
   }
 
+  function showRoomTitle(title) {
+    const banner = document.getElementById('room-banner');
+    if (!banner || !title) {
+      return;
+    }
+    banner.textContent = title;
+    banner.hidden = false;
+    window.clearTimeout(showRoomTitle._timer);
+    showRoomTitle._timer = window.setTimeout(() => {
+      banner.hidden = true;
+    }, 1500);
+  }
+
   function updateInteractHud() {
     const hintNode = document.getElementById('interact-hint');
     const visible = Boolean(nearbyInteract);
@@ -365,13 +380,18 @@ export function createApp({
 
   function bindLiveSession(next) {
     unbindSession();
-    const offEnter = next.controller.on('room:enter', ({ roomId }) => {
+    const offEnter = next.controller.on('room:enter', ({ room, roomId }) => {
+      showRoomTitle(room?.title || roomId);
       if (showDebug) {
         updateDebug(roomId);
       }
     });
     const offCross = next.controller.on('portal:cross', ({ portalId, from, to }) => {
       lastCross = `${from} → ${to} via ${portalId ?? '?'}`;
+      const dest = next.controller.rooms.find((entry) => entry.id === to);
+      if (dest) {
+        spawnCrossBurst(dest, next.camera.position, dest.clearColor);
+      }
       if (showDebug) {
         updateDebug(to);
       }
@@ -436,6 +456,7 @@ export function createApp({
       updateInteractHud();
       session.controller.update();
     }
+    tickAtmosphere(session.controller.rooms, { elapsed: clock.elapsedTime, dt });
 
     session.postAA.begin();
     session.controller.render();

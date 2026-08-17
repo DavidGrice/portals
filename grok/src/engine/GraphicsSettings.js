@@ -2,6 +2,7 @@ import { DirectionalLight } from 'three';
 import { AA_MODE_IDS } from './aaModes.js';
 import { suggestGraphicsQuality } from './deviceProfile.js';
 import { applyFullscreen } from './gamepad.js';
+import { setMoteDensity } from './atmosphere.js';
 
 const STORAGE_KEY = 'portals-grok-graphics';
 const BASE_FAR = 280;
@@ -19,6 +20,7 @@ export const GRAPHICS_PROFILES = {
     recursion: 1,
     viewDistance: 0.75,
     fillLight: false,
+    particleDensity: 0,
   },
   balanced: {
     id: 'balanced',
@@ -32,6 +34,7 @@ export const GRAPHICS_PROFILES = {
     recursion: 2,
     viewDistance: 1,
     fillLight: false,
+    particleDensity: 1,
   },
   ultra: {
     id: 'ultra',
@@ -45,6 +48,7 @@ export const GRAPHICS_PROFILES = {
     recursion: 4,
     viewDistance: 1.15,
     fillLight: true,
+    particleDensity: 1.3,
   },
 };
 
@@ -324,6 +328,7 @@ export class GraphicsSettings {
         }
         applyAnisotropy(object, this.anisotropy);
       });
+      setMoteDensity(room, profile.particleDensity ?? 1);
       if (this.fillLight && !fill) {
         const light = new DirectionalLight(0xb8c8ff, 0.22);
         light.position.set(-6, 4, -3);
