@@ -1,0 +1,24 @@
+{
+  "id": "haunt-hall",
+  "title": "Dim hall",
+  "tags": ["interior", "haunt"],
+  "clearColor": "#121018",
+  "materials": {
+    "floor": "shared.stone",
+    "shell": "shared.plaster",
+    "accent": "#8870a0"
+  },
+  "atmosphere": { "density": 1.1 },
+  "shell": { "halfX": 8, "zMin": -6.2, "zMax": 5.2 },
+  "sockets": [
+    { "id": "entry", "role": "entry", "position": [0, 1, 0], "yaw": 3.141592653589793 },
+    { "id": "exit-a", "role": "exit", "position": [0, 1, -5], "yaw": 0 },
+    { "id": "exit-b", "role": "exit", "position": [-6.4, 1, 1.2], "yaw": 1.5707963267948966 }
+  ],
+  "dressing": [
+    {
+      "kind": "prop.candle",
+      "position": [3.2, 0, 2.4]
+    }
+  ]
+}

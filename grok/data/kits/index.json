@@ -1,0 +1,6 @@
+{
+  "kits": [
+    { "id": "cyber-cyan", "file": "cyber-cyan.json", "weight": 1 },
+    { "id": "haunt-hall", "file": "haunt-hall.json", "weight": 1 }
+  ]
+}
