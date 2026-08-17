@@ -48,4 +48,43 @@ describe('room compiler', () => {
       second.portals.map((portal) => portal.id),
     );
   });
+
+  it('never emits a dead-end or colliding origin across 200 compiles', () => {
+    const catalog = readJson('data/catalog.json');
+    const materials = readJson('data/materials.json');
+    const kits = [readJson('data/kits/cyber-cyan.json'), readJson('data/kits/haunt-hall.json')];
+    const origins = new Set();
+    const ids = new Set();
+    for (let i = 0; i < 200; i += 1) {
+      const rng = createRng(`batch-${i}`);
+      const kit = kits[i % kits.length];
+      const room = generateRoom({
+        kit,
+        roomId: `r${i}`,
+        origin: allocateOrigin(i, i % 3),
+        depth: i,
+        branch: i % 3,
+        exitCount: 1 + (i % 2),
+        rng,
+      });
+      const exits = room.portals.filter((portal) => portal.role === 'exit');
+      assert.ok(exits.length >= 1, `room ${room.id} has no exit`);
+      assert.ok(!ids.has(room.id));
+      ids.add(room.id);
+      const key = room.origin.join(',');
+      assert.ok(!origins.has(key), `origin collision ${key}`);
+      origins.add(key);
+      if (i % 20 === 0) {
+        const extra = generateRoom({
+          kit: kits[(i + 1) % kits.length],
+          roomId: `x${i}`,
+          origin: allocateOrigin(i + 1, 9),
+          depth: i + 1,
+        });
+        linkRooms(room, extra);
+        assert.deepEqual(validateWorld(worldFromRooms([room, extra]), catalog, materials), []);
+      }
+    }
+    assert.equal(origins.size, 200);
+  });
 });
