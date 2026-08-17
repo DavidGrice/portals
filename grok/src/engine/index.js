@@ -1,3 +1,4 @@
+export { collectColliders, resolveColliders } from './colliders.js';
 export { Emitter } from './Emitter.js';
 export { Player } from './Player.js';
 export { createPortalRenderer, probeCapabilities } from './capabilities.js';

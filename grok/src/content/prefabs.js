@@ -33,9 +33,11 @@ export const prefabs = {
 
   floor(entity) {
     const color = parseColor(entity.props?.color, 0x333333);
-    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshBasicMaterial({ color }));
+    const size = entity.props?.size ?? 20;
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(size, size), new THREE.MeshBasicMaterial({ color }));
     mesh.rotation.x = -Math.PI / 2;
     applyPose(mesh, entity);
+    mesh.userData.collider = { type: 'bounds', half: size * 0.5 };
     return mesh;
   },
 
@@ -44,6 +46,7 @@ export const prefabs = {
     const size = entity.props?.size ?? [1, 1, 1];
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(...size), new THREE.MeshBasicMaterial({ color }));
     applyPose(mesh, entity);
+    mesh.userData.collider = { type: 'aabb' };
     return mesh;
   },
 
@@ -76,6 +79,7 @@ export const prefabs = {
     for (const [x, y, z, sx, sy, sz] of pieces) {
       const mesh = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), material);
       mesh.position.set(x, y, z);
+      mesh.userData.collider = { type: 'aabb' };
       group.add(mesh);
     }
 

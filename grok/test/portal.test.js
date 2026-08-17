@@ -304,6 +304,36 @@ describe('portal engine', () => {
     assert.ok(camera.position.distanceTo(before) > 0.01);
   });
 
+  it('does not draw or cross a closed door', () => {
+    const { camera, controller, a } = makePair();
+    a.enabled = false;
+    camera.position.set(0, 1, 4);
+    camera.lookAt(0, 1, 0);
+    camera.updateMatrixWorld();
+    a.updateMatrixWorld(true);
+    assert.equal(controller._shouldDrawPortal(a, null), false);
+    camera.position.set(0, 1, 0.4);
+    controller.update();
+    camera.position.set(0, 1, -0.05);
+    controller.update();
+    assert.equal(controller.currentRoom.id, 'room-a');
+  });
+
+  it('one-way doors only cross from the walk-up side', () => {
+    const { camera, controller, a } = makePair();
+    a.oneWay = true;
+    camera.position.set(0, 1, -0.4);
+    controller.update();
+    camera.position.set(0, 1, 0.05);
+    controller.update();
+    assert.equal(controller.currentRoom.id, 'room-a');
+    camera.position.set(0, 1, 0.4);
+    controller.update();
+    camera.position.set(0, 1, -0.05);
+    controller.update();
+    assert.equal(controller.currentRoom.id, 'room-b');
+  });
+
   it('teleports when walking back through the same door', () => {
     const { camera, controller, a } = makePair();
     camera.position.set(0, 1, 0.4);

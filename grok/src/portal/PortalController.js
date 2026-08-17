@@ -168,7 +168,7 @@ export class PortalController {
     let crossed = null;
 
     for (const portal of this._currentScenePortals) {
-      if (!crossed && portal.destinationPortal?.scene && this._crossedPortal(portal, camera.position)) {
+      if (!crossed && this._canTraverse(portal) && this._crossedPortal(portal, camera.position)) {
         crossed = portal;
       }
     }
@@ -249,9 +249,23 @@ export class PortalController {
     this.camera.updateMatrixWorld();
   }
 
+  _canTraverse(portal) {
+    if (!portal.enabled || !portal.destinationPortal?.scene) {
+      return false;
+    }
+    if (portal.oneWay) {
+      localPrev.copy(this._lastCameraPosition);
+      portal.worldToLocal(localPrev);
+      if (localPrev.z <= 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   _shouldDrawPortal(portal, skipReturnId, viewCamera = this.camera) {
     const destination = portal.destinationPortal;
-    if (!destination?.scene) {
+    if (!portal.enabled || !destination?.scene) {
       return false;
     }
     if (destination.portalId === skipReturnId) {
