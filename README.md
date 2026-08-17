@@ -81,9 +81,9 @@ The portal pass never goes through EffectComposer — stencil increment/decremen
 | Balanced | on | 2 | 1 | on | 100% |
 | Ultra | on | 4 | device (cap 2) | on + fill light | 115% |
 
-You can also change FOV, recursion, anisotropy, view distance, fill light, look sensitivity, invert Y, walk/jump, keybinds, HUD, theme, and stored volume sliders. Toggles are Off / On dropdowns.
+You can also change FOV, recursion, anisotropy, view distance, fill light, look sensitivity, invert Y, walk/jump, keybinds, HUD, and stored volume sliders. Toggles are Off / On dropdowns.
 
-On a phone or tablet the welcome card is scrollable, look does not require pointer lock, and a virtual stick + Jump + Pause sit over the world. `prefers-reduced-motion` disables the welcome mote animation.
+On a phone or tablet the welcome card is scrollable, look does not require pointer lock, and a virtual stick + Jump + Pause sit over the world.
 
 ## Layout
 
@@ -95,7 +95,7 @@ grok/
     content/         JSON loader and prefabs
     ui/              Options panel, touch HUD
     main.js          Boot, pointer lock / touch, loop
-    style.css        Welcome, options tabs, themes, mobile HUD
+    style.css        Welcome, options tabs, mobile HUD
   data/
     catalog.json     Kinds → prefabs
     worlds/          Playable worlds
