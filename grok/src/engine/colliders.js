@@ -11,6 +11,9 @@ export function collectColliders(room) {
   }
 
   room.scene.traverse((object) => {
+    if (object.userData.portalOccluder) {
+      return;
+    }
     const spec = object.userData.collider;
     if (!spec) {
       return;

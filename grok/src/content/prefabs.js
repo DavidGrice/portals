@@ -99,9 +99,11 @@ export const prefabs = {
     material.polygonOffset = true;
     material.polygonOffsetFactor = -2;
     material.polygonOffsetUnits = -2;
-    const pieces = [
+    const lintels = [
       [0, outer / 2, walkUp, outer + thickness * 2, thickness, depth],
       [0, -outer / 2, walkUp, outer + thickness * 2, thickness, depth],
+    ];
+    const posts = [
       [-(outer / 2), 0, walkUp, thickness, outer, depth],
       [outer / 2, 0, walkUp, thickness, outer, depth],
     ];
@@ -113,13 +115,26 @@ export const prefabs = {
       [jambInner / 2 + jamb / 2, 0, 0, jamb, jambInner, jambDepth],
     ];
 
-    for (const [x, y, z, sx, sy, sz] of [...pieces, ...liners]) {
+    const addPiece = (pose, { collide } = {}) => {
+      const [x, y, z, sx, sy, sz] = pose;
       const mesh = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), material);
       mesh.position.set(x, y, z);
       mesh.castShadow = true;
       mesh.receiveShadow = true;
-      mesh.userData.collider = { type: 'aabb' };
+      if (collide) {
+        mesh.userData.collider = { type: 'aabb' };
+      }
       group.add(mesh);
+    };
+
+    for (const pose of lintels) {
+      addPiece(pose);
+    }
+    for (const pose of posts) {
+      addPiece(pose, { collide: true });
+    }
+    for (const pose of liners) {
+      addPiece(pose);
     }
 
     const occluder = new THREE.Mesh(
@@ -127,7 +142,6 @@ export const prefabs = {
       standardMaterial(color, { roughness: 0.9, metalness: 0 }),
     );
     occluder.position.set(0, 0, -0.14);
-    occluder.userData.collider = { type: 'aabb' };
     occluder.userData.portalOccluder = true;
     group.add(occluder);
 

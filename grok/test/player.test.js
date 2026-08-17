@@ -2,6 +2,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3 } from 'three';
 import { Player, Room, collectColliders, resolveColliders } from '../src/engine/index.js';
+import { prefabs } from '../src/content/prefabs.js';
 
 describe('player', () => {
   it('stays on the floor at eye height', () => {
@@ -36,5 +37,20 @@ describe('player', () => {
     const position = new Vector3(0, 1, 0);
     resolveColliders(position, { radius: 0.3, eyeHeight: 1 }, collectColliders(room));
     assert.ok(Math.abs(position.z) >= 0.79 || Math.abs(position.x) >= 0.79, `pushed to ${position.x},${position.z}`);
+  });
+
+  it('lets the capsule pass through a door opening', () => {
+    const scene = new Scene();
+    const frame = prefabs.frame({
+      id: 'frame-ab',
+      props: { color: '#ffffff', coversPortalId: 'door-ab' },
+    });
+    scene.add(frame);
+    scene.updateMatrixWorld(true);
+    const room = new Room({ id: 'test', scene });
+    const position = new Vector3(0, 1, 0.1);
+    resolveColliders(position, { radius: 0.28, eyeHeight: 1 }, collectColliders(room));
+    assert.ok(Math.abs(position.z - 0.1) < 0.001, `blocked in opening at z=${position.z}`);
+    assert.ok(Math.abs(position.x) < 0.001, `slid sideways to x=${position.x}`);
   });
 });
