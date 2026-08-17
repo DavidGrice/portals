@@ -95,7 +95,7 @@ function tick() {
   const dt = clock.getDelta();
 
   if (controls.isLocked) {
-    player.step(dt, move, controls);
+    player.step(dt, move, controls, controller.currentRoom);
   }
 
   controller.update();

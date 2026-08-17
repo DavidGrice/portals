@@ -27,6 +27,8 @@ export function loadWorld(world, catalog, camera, renderer) {
         portal.rotation.y = portalData.yaw;
       }
       portal.userData.destinationId = portalData.destinationId;
+      portal.enabled = portalData.enabled !== false;
+      portal.oneWay = Boolean(portalData.oneWay);
     }
   }
 

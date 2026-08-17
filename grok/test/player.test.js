@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { PerspectiveCamera } from 'three';
-import { Player } from '../src/engine/index.js';
+import { BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3 } from 'three';
+import { Player, Room, collectColliders, resolveColliders } from '../src/engine/index.js';
 
 describe('player', () => {
   it('stays on the floor at eye height', () => {
@@ -23,5 +23,18 @@ describe('player', () => {
     assert.ok(camera.position.y > 1, `y ${camera.position.y}`);
     assert.equal(player.onGround, false);
     assert.equal(player.jump(), false);
+  });
+
+  it('pushes the capsule out of a solid box', () => {
+    const scene = new Scene();
+    const box = new Mesh(new BoxGeometry(1, 1, 1), new MeshBasicMaterial());
+    box.position.set(0, 0.5, 0);
+    box.userData.collider = { type: 'aabb' };
+    scene.add(box);
+    box.updateMatrixWorld(true);
+    const room = new Room({ id: 'test', scene });
+    const position = new Vector3(0, 1, 0);
+    resolveColliders(position, { radius: 0.3, eyeHeight: 1 }, collectColliders(room));
+    assert.ok(Math.abs(position.z) >= 0.79 || Math.abs(position.x) >= 0.79, `pushed to ${position.x},${position.z}`);
   });
 });

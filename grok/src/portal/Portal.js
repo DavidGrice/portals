@@ -33,6 +33,12 @@ export class Portal extends Mesh {
     // Logical room this portal belongs to, not Object3D.parent.
     this.scene = null;
     this.destinationPortal = null;
+    this.enabled = true;
+    this.oneWay = false;
+  }
+
+  get isOpen() {
+    return this.enabled;
   }
 
   get volumeMaterial() {
