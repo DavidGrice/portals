@@ -26,7 +26,8 @@ const matrixStack = Array.from({ length: 8 }, () => ({
 
 const EMERGE_Z = 0.18;
 const FACING_DOT = 0.05;
-const CLIP_OFFSET = 0.04;
+const WALK_UP_MIN = 0.08;
+const CLIP_OFFSET = 0.06;
 const MIN_DEST_VIEW_Z = 0.35;
 const IGNORE_CLEAR_Z = 0.45;
 
@@ -553,7 +554,12 @@ export class PortalController {
     cameraWorldPos.setFromMatrixPosition(viewCamera.matrixWorld);
     portalWorldPos.setFromMatrixPosition(portal.matrixWorld);
     planeNormal.set(0, 0, 1).transformDirection(portal.matrixWorld);
-    return cameraWorldPos.sub(portalWorldPos).dot(planeNormal) >= FACING_DOT;
+    if (cameraWorldPos.sub(portalWorldPos).dot(planeNormal) < FACING_DOT) {
+      return false;
+    }
+    localCurr.setFromMatrixPosition(viewCamera.matrixWorld);
+    portal.worldToLocal(localCurr);
+    return localCurr.z > WALK_UP_MIN;
   }
 
   _getRoom(sceneOrName) {

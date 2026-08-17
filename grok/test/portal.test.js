@@ -1,9 +1,10 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { FrontSide, Scene, PerspectiveCamera, Quaternion, Vector3, Vector4 } from 'three';
+import { FRAME } from '../src/content/prefabs.js';
 import { Portal } from '../src/portal/Portal.js';
 import { PortalController } from '../src/portal/PortalController.js';
-import { PortalGeometry } from '../src/portal/PortalGeometry.js';
+import { FRONT_INSET, PortalGeometry } from '../src/portal/PortalGeometry.js';
 import { Room } from '../src/portal/Room.js';
 
 function mockRenderer() {
@@ -203,9 +204,26 @@ describe('portal engine', () => {
     camera.updateMatrixWorld();
     a.updateMatrixWorld(true);
     assert.equal(controller._shouldDrawPortal(a, null), true);
-    camera.position.set(0, 1, 0.05);
+    camera.position.set(0, 1, 0.12);
     camera.updateMatrixWorld();
     assert.equal(controller._shouldDrawPortal(a, null), true);
+  });
+
+  it('does not dest-draw from behind the door', () => {
+    const { camera, controller, a } = makePair();
+    camera.position.set(0, 1, -0.4);
+    camera.lookAt(0, 1, 0);
+    camera.updateMatrixWorld();
+    a.updateMatrixWorld(true);
+    assert.equal(controller._shouldDrawPortal(a, null), false);
+  });
+
+  it('keeps the stencil front inside the frame collar', () => {
+    const geometry = new PortalGeometry(2, 2);
+    const front = 2 - FRONT_INSET * 2;
+    const frameInner = FRAME.outer - FRAME.thickness * 2;
+    assert.ok(front <= frameInner - 0.08, `front ${front} vs inner ${frameInner}`);
+    assert.equal(FRAME.jambInner, front);
   });
 
   it('isolates one portal in the stencil scene', () => {
