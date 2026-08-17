@@ -98,6 +98,26 @@
       "emissive": "#3b7cff",
       "emissiveIntensity": 1.4
     },
+    "cyber.grid.gold": {
+      "recipe": "circuit",
+      "color": "#181204",
+      "line": "#f0c040",
+      "cells": 10,
+      "repeat": [8, 8],
+      "roughness": 0.26,
+      "metalness": 0.78,
+      "emissive": "#2a2008",
+      "emissiveIntensity": 0.45
+    },
+    "cyber.strip.gold": {
+      "recipe": "stripe",
+      "color": "#f0c040",
+      "line": "#ffe08a",
+      "roughness": 0.2,
+      "metalness": 0.45,
+      "emissive": "#f0c040",
+      "emissiveIntensity": 1.4
+    },
     "ages.dirt": {
       "recipe": "speckle",
       "color": "#6a4a28",
