@@ -147,9 +147,10 @@ Workflows live in `../.github/workflows/` (repo root).
 
 **One-time GitHub settings** (YAML cannot do these):
 
-1. Settings → General → **Allow auto-merge**
-2. Settings → Actions → **Allow GitHub Actions to create and approve pull requests**
-3. Branch protection (recommended): require the `quality` check; allow squash
+1. Settings → General → **Pull Requests** → **Allow auto-merge**
+2. Settings → General → **Pull Requests** → **Allow squash merging** (this is the squash switch; it is not a ruleset field)
+3. Settings → Actions → General → **Allow GitHub Actions to create and approve pull requests**
+4. Optional ruleset (Settings → Rules): require the **quality** status check on `portals-grok` / `main`
 
 Without (1) and (2), the PR workflows will run but cannot open or merge PRs.
 
