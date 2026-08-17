@@ -34,5 +34,8 @@ export function runInteract(target, { controller } = {}) {
     }
     return { type: 'unlock', portalId: target.spec.portalId, ok: Boolean(portal) };
   }
+  if (target.spec.action === 'launch') {
+    return { type: 'launch', impulse: target.spec.impulse ?? [0, 8, 0], text: target.spec.text ?? '' };
+  }
   return { type: target.spec.action ?? 'look', text: target.spec.text ?? '' };
 }

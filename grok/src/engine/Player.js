@@ -30,6 +30,16 @@ export class Player {
     return true;
   }
 
+  launch(impulse = [0, 8, 0]) {
+    this.velocity.x += Number(impulse[0]) || 0;
+    this.velocity.y += Number(impulse[1]) || 0;
+    this.velocity.z += Number(impulse[2]) || 0;
+    if (this.velocity.y > 0) {
+      this.onGround = false;
+    }
+    return true;
+  }
+
   step(dt, move, controls, room = null) {
     const forward = Number(move?.forward ?? 0) - Number(move?.back ?? 0);
     const right = Number(move?.right ?? 0) - Number(move?.left ?? 0);

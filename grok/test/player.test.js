@@ -26,6 +26,16 @@ describe('player', () => {
     assert.equal(player.jump(), false);
   });
 
+  it('launches even when already in the air', () => {
+    const camera = new PerspectiveCamera();
+    camera.position.set(0, 1.4, 0);
+    const player = new Player({ camera, eyeHeight: 1, gravity: 0 });
+    player.onGround = false;
+    assert.equal(player.launch([0, 5, 0]), true);
+    assert.equal(player.velocity.y, 5);
+    assert.equal(player.onGround, false);
+  });
+
   it('pushes the capsule out of a solid box', () => {
     const scene = new Scene();
     const box = new Mesh(new BoxGeometry(1, 1, 1), new MeshBasicMaterial());
