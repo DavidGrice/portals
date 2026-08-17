@@ -1,8 +1,11 @@
-import { WebGLRenderer } from 'three';
+import { PCFSoftShadowMap, WebGLRenderer } from 'three';
 
-export function createPortalRenderer() {
-  const renderer = new WebGLRenderer({ antialias: true, stencil: true });
-  renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio || 1, 2));
+export function createPortalRenderer({ antialias = true, pixelRatio, shadows = false } = {}) {
+  const renderer = new WebGLRenderer({ antialias, stencil: true });
+  const ratio = pixelRatio ?? Math.min(globalThis.devicePixelRatio || 1, 2);
+  renderer.setPixelRatio(ratio);
+  renderer.shadowMap.enabled = Boolean(shadows);
+  renderer.shadowMap.type = PCFSoftShadowMap;
   return renderer;
 }
 

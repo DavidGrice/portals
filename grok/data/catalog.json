@@ -21,6 +21,11 @@
       "category": "architecture",
       "prefab": "frame",
       "tags": ["architecture", "portal-frame"]
+    },
+    "env.light": {
+      "category": "environment",
+      "prefab": "light",
+      "tags": ["environment", "light"]
     }
   }
 }

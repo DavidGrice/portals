@@ -4,11 +4,15 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Modern Three.js portal rewrite",
+  "exports": {
+    ".": "./src/engine/index.js"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "validate-data": "node scripts/validate-world.js"
   },
   "devDependencies": {
     "vite": "^7.1.2"

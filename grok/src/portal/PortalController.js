@@ -86,6 +86,10 @@ export class PortalController {
     return this._allPortals;
   }
 
+  get rooms() {
+    return [...this._rooms.values()];
+  }
+
   registerScene(name, scene, { clearColor = 0x000000, tags = [], spawn = null } = {}) {
     const room = new Room({ id: name, scene, clearColor, tags, spawn });
     this._rooms.set(name, room);

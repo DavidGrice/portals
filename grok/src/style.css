@@ -189,6 +189,70 @@ canvas {
   outline: none;
 }
 
+.welcome-enter-ghost {
+  margin-top: 10px;
+  background: linear-gradient(104deg, rgba(58, 49, 96, 0.45), rgba(26, 23, 44, 0.55));
+  box-shadow: none;
+}
+
+.welcome-card + .welcome-card,
+.options {
+  margin-top: 0;
+}
+
+.options {
+  width: min(420px, calc(100% - 40px));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.options[hidden] {
+  display: none;
+}
+
+.options h2 {
+  position: relative;
+  margin: 0 0 4px;
+  font: 700 16px/1 var(--kk-font);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.options label {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font: 500 12px/1.3 var(--kk-font);
+  color: var(--kk-n-300);
+}
+
+.options select,
+.options input[type='range'] {
+  width: 100%;
+  accent-color: var(--kk-a-400);
+}
+
+.options select {
+  height: 34px;
+  border: 1px solid rgba(181, 171, 252, 0.28);
+  border-radius: 8px;
+  background: rgba(12, 10, 24, 0.65);
+  color: var(--kk-text);
+}
+
+.options-check {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.options-actions {
+  display: flex;
+  flex-direction: column;
+}
+
 .welcome-hint,
 .welcome-gpu {
   position: relative;
