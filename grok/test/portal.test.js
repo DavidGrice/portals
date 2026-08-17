@@ -108,6 +108,29 @@ describe('portal engine', () => {
     assert.deepEqual(log, ['leave:room-a', 'enter:room-b', 'cross:room-a:room-b:door-ab']);
   });
 
+  it('skips the return door and a back-facing door', () => {
+    const { camera, controller, a, b } = makePair();
+    camera.position.set(0, 1, 4);
+    camera.lookAt(0, 1, 0);
+    camera.updateMatrixWorld();
+    a.updateMatrixWorld(true);
+    b.updateMatrixWorld(true);
+    assert.equal(controller._shouldDrawPortal(a, null), true);
+    assert.equal(controller._shouldDrawPortal(b, 'door-ab'), false);
+    assert.equal(controller._shouldDrawPortal(b, null), false);
+  });
+
+  it('keeps drawing dest until the camera crosses', () => {
+    const { camera, controller, a } = makePair();
+    camera.position.set(0, 1, 0.2);
+    camera.updateMatrixWorld();
+    a.updateMatrixWorld(true);
+    assert.equal(controller._shouldDrawPortal(a, null), true);
+    camera.position.set(0, 1, 0.05);
+    camera.updateMatrixWorld();
+    assert.equal(controller._tooCloseToDraw(a), true);
+  });
+
   it('emerges in front of an offset destination and does not bounce', () => {
     const camera = new PerspectiveCamera(60, 1, 0.05, 100);
     const controller = new PortalController({ camera, renderer: mockRenderer() });

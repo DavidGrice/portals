@@ -31,7 +31,8 @@ const matrixStack = Array.from({ length: 8 }, () => ({
 
 const CROSS_Z = 0.12;
 const EMERGE_Z = 0.35;
-const STENCIL_CLEARANCE = 0.4;
+// Must stay below CROSS_Z so dest keeps drawing until teleport.
+const STENCIL_CLEARANCE = 0.08;
 const FACING_DOT = 0.05;
 
 function sign(value) {
@@ -230,6 +231,23 @@ export class PortalController {
     this.camera.updateMatrixWorld();
   }
 
+  _shouldDrawPortal(portal, skipReturnId) {
+    const destination = portal.destinationPortal;
+    if (!destination?.scene) {
+      return false;
+    }
+    if (destination.portalId === skipReturnId) {
+      return false;
+    }
+    if (!this._isPortalFacingCamera(portal)) {
+      return false;
+    }
+    if (this._tooCloseToDraw(portal)) {
+      return false;
+    }
+    return true;
+  }
+
   _tooCloseToDraw(portal) {
     localCurr.setFromMatrixPosition(this.camera.matrixWorld);
     portal.worldToLocal(localCurr);
@@ -284,17 +302,15 @@ export class PortalController {
       return;
     }
 
-    for (const portal of portals) {
-      const destination = portal.destinationPortal;
+    const drawn = [];
 
-      if (
-        !destination?.scene ||
-        destination.portalId === skipReturnId ||
-        !this._isPortalFacingCamera(portal) ||
-        this._tooCloseToDraw(portal)
-      ) {
+    for (const portal of portals) {
+      if (!this._shouldDrawPortal(portal, skipReturnId)) {
         continue;
       }
+
+      drawn.push(portal);
+      const destination = portal.destinationPortal;
 
       color.setMask(false);
       color.setLocked(true);
@@ -365,7 +381,9 @@ export class PortalController {
     stencil.setFunc(gl.LEQUAL, level, 0xff);
     stencil.setOp(gl.KEEP, gl.KEEP, gl.KEEP);
     stencil.setLocked(true);
-    this._showPortals(portals);
+    // Only depth-write openings we actually filled. Skipped return doors
+    // would otherwise punch holes that keep the framebuffer clear color.
+    this._showPortals(drawn);
     renderer.render(this._stencilScene, camera);
     color.setLocked(false);
     color.setMask(true);
