@@ -193,6 +193,7 @@ export class GraphicsSettings {
     this.musicVolume = clamp(number(migrated.musicVolume, 0.5), 0, 1);
     this.sfxVolume = clamp(number(migrated.sfxVolume, 0.9), 0, 1);
     this.showFps = Boolean(migrated.showFps);
+    this.showDebug = Boolean(migrated.showDebug);
     this.showCrosshair = migrated.showCrosshair !== false;
     this.colorblindMode = Boolean(migrated.colorblindMode);
     this.uiTheme = resolveTheme(migrated.uiTheme);
@@ -257,6 +258,7 @@ export class GraphicsSettings {
       musicVolume: this.musicVolume,
       sfxVolume: this.sfxVolume,
       showFps: this.showFps,
+      showDebug: this.showDebug,
       showCrosshair: this.showCrosshair,
       colorblindMode: this.colorblindMode,
       uiTheme: this.uiTheme,

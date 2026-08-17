@@ -179,6 +179,7 @@ export function bindOptions({
       musicVolume: Number(field('opt-vol-music')?.value),
       sfxVolume: Number(field('opt-vol-sfx')?.value),
       showFps: isOn('opt-fps'),
+      showDebug: isOn('opt-debug'),
       showCrosshair: isOn('opt-crosshair'),
       colorblindMode: isOn('opt-colorblind'),
       uiTheme: field('opt-theme')?.value,
@@ -208,6 +209,7 @@ export function bindOptions({
     setSelect('opt-fill', next.fillLight ? 'on' : 'off');
     setSelect('opt-invert', next.invertY ? 'on' : 'off');
     setSelect('opt-fps', next.showFps ? 'on' : 'off');
+    setSelect('opt-debug', next.showDebug ? 'on' : 'off');
     setSelect('opt-crosshair', next.showCrosshair ? 'on' : 'off');
     setSelect('opt-colorblind', next.colorblindMode ? 'on' : 'off');
     setSelect('opt-fullscreen', next.fullscreen ? 'on' : 'off');
@@ -298,11 +300,16 @@ export function bindOptions({
 export function refreshHud(settings) {
   const fps = field('fps');
   const crosshair = field('crosshair');
+  const debug = field('debug');
   if (fps) {
     fps.hidden = !settings.showFps;
   }
   if (crosshair) {
     crosshair.hidden = !settings.showCrosshair;
+  }
+  if (debug) {
+    const forced = new URLSearchParams(globalThis.location?.search ?? '').has('debug');
+    debug.hidden = !(settings.showDebug || forced);
   }
   if (typeof document !== 'undefined') {
     document.documentElement.dataset.theme = settings.uiTheme;

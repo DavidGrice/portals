@@ -29,8 +29,6 @@
         <button type="button" id="welcome-continue" class="welcome-enter welcome-enter-ghost" hidden>Continue</button>
         <button type="button" id="welcome-options" class="welcome-enter welcome-enter-ghost">Options</button>
         <button type="button" id="welcome-help-open" class="welcome-enter welcome-enter-ghost">How to play</button>
-        <p class="welcome-hint" id="welcome-hint">WASD to move · Space to jump · mouse to look</p>
-        <p id="welcome-gpu" class="welcome-gpu"></p>
       </div>
       <div class="welcome-card world-select" id="welcome-worlds" hidden></div>
       <div class="welcome-card" id="welcome-loading" hidden>
@@ -92,6 +90,7 @@
           <button type="button" class="on" data-opt-tab="graphics">Graphics</button>
           <button type="button" data-opt-tab="controls">Controls</button>
           <button type="button" data-opt-tab="interface">Interface</button>
+          <button type="button" data-opt-tab="system">System</button>
           <button type="button" data-opt-tab="sound">Sound</button>
           <button type="button" data-opt-tab="keybinds">Keybinds</button>
         </div>
@@ -205,12 +204,6 @@
               </select>
             </label>
             <p id="opt-theme-blurb" class="options-note"></p>
-            <label>FPS counter
-              <select id="opt-fps">
-                <option value="off">Off</option>
-                <option value="on">On</option>
-              </select>
-            </label>
             <label>Crosshair
               <select id="opt-crosshair">
                 <option value="off">Off</option>
@@ -229,6 +222,23 @@
                 <option value="on">On</option>
               </select>
             </label>
+          </div>
+
+          <div data-opt-pane="system" hidden>
+            <label>FPS counter
+              <select id="opt-fps">
+                <option value="off">Off</option>
+                <option value="on">On</option>
+              </select>
+            </label>
+            <label>Debug overlay
+              <select id="opt-debug">
+                <option value="off">Off</option>
+                <option value="on">On</option>
+              </select>
+            </label>
+            <p class="options-note">Room, nearest door, draw list, and last cross. Same as adding ?debug to the URL.</p>
+            <p class="options-note options-note-flush" id="opt-gpu">Probing GPU…</p>
           </div>
 
           <div data-opt-pane="sound" hidden>

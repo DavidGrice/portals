@@ -44,5 +44,8 @@ describe('gamepad', () => {
     const json = settings.toJSON();
     assert.equal(json.fullscreen, true);
     assert.equal(json.gamepadSensitivity, 1.1);
+    const debug = new GraphicsSettings({ showDebug: true });
+    assert.equal(debug.showDebug, true);
+    assert.equal(debug.toJSON().showDebug, true);
   });
 });

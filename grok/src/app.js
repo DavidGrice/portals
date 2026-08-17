@@ -27,7 +27,7 @@ export function createApp({
 } = {}) {
   const params = new URLSearchParams(globalThis.location?.search ?? '');
   const skipHud = params.has('nohud');
-  const showDebug = params.has('debug');
+  const debugFromUrl = params.has('debug');
   const isTouch = detectTouch();
   const touch = createTouchState();
   const lookHeld = { left: false, right: false, up: false, down: false };
@@ -54,8 +54,6 @@ export function createApp({
   const helpCard = document.getElementById('welcome-help');
   const worldsCard = document.getElementById('welcome-worlds');
   const playButton = document.getElementById('welcome-enter');
-  const gpuLine = document.getElementById('welcome-gpu');
-  const hint = document.getElementById('welcome-hint');
   const fpsNode = document.getElementById('fps');
   const deskPause = document.getElementById('desk-pause');
   const debugPanel = document.getElementById('debug');
@@ -88,9 +86,6 @@ export function createApp({
   });
 
   refreshHud(settings);
-  if (isTouch && hint) {
-    hint.textContent = 'Left stick to move · drag to look · Jump to hop onto cubes';
-  }
   if (playButton) {
     playButton.textContent = 'Play';
   }
@@ -98,6 +93,7 @@ export function createApp({
   probeCapabilities().then((capabilities) => {
     document.documentElement.dataset.portalBackend = capabilities.portalBackend;
     document.documentElement.dataset.webgpu = capabilities.webgpu ? 'yes' : 'no';
+    const gpuLine = document.getElementById('opt-gpu');
     if (gpuLine) {
       const adapter = capabilities.adapterLabel ? ` · ${capabilities.adapterLabel}` : '';
       gpuLine.textContent = `${capabilities.reason}${adapter}`;
@@ -377,6 +373,10 @@ export function createApp({
     return true;
   }
 
+  function debugEnabled() {
+    return debugFromUrl || settings.showDebug;
+  }
+
   function showRoomTitle(title) {
     const banner = document.getElementById('room-banner');
     if (!banner || !title) {
@@ -406,7 +406,7 @@ export function createApp({
     unbindSession();
     const offEnter = next.controller.on('room:enter', ({ room, roomId }) => {
       showRoomTitle(room?.title || roomId);
-      if (showDebug) {
+      if (debugEnabled()) {
         updateDebug(roomId);
       }
     });
@@ -416,7 +416,7 @@ export function createApp({
       if (dest) {
         spawnCrossBurst(dest, next.camera.position, dest.clearColor);
       }
-      if (showDebug) {
+      if (debugEnabled()) {
         updateDebug(to);
       }
     });
@@ -436,7 +436,7 @@ export function createApp({
     };
     next.controls.addEventListener('lock', onLock);
     next.controls.addEventListener('unlock', onUnlock);
-    if (showDebug && debugPanel) {
+    if (debugEnabled() && debugPanel) {
       debugPanel.hidden = false;
       updateDebug(next.controller.currentRoom?.id);
     }
@@ -495,7 +495,7 @@ export function createApp({
         fpsAcc = 0;
       }
     }
-    if (showDebug) {
+    if (debugEnabled()) {
       updateDebug(session.controller.currentRoom?.id);
     }
   }
