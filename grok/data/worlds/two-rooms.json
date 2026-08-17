@@ -1,0 +1,120 @@
+{
+  "id": "two-rooms",
+  "title": "Three halls",
+  "startRoom": "room-a",
+  "startSpawn": [0, 1, 4],
+  "lookAt": [0, 1, 0],
+  "rooms": [
+    {
+      "id": "room-a",
+      "title": "Blue hall",
+      "tags": ["interior", "start"],
+      "clearColor": "#2a3344",
+      "entities": [
+        { "id": "sky-a", "kind": "env.sky", "props": { "color": "#2a3344" } },
+        { "id": "floor-a", "kind": "env.floor", "props": { "color": "#3d4a5c" } },
+        {
+          "id": "cube-blue",
+          "kind": "prop.box",
+          "position": [-1.6, 0.4, 2.1],
+          "tags": ["landmark"],
+          "props": { "size": [0.8, 0.8, 0.8], "color": "#4da3ff" }
+        },
+        {
+          "id": "frame-ab",
+          "kind": "arch.frame",
+          "position": [0, 1, 0],
+          "props": { "color": "#7ec8ff", "coversPortalId": "door-ab" }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-ab",
+          "position": [0, 1, 0],
+          "yaw": 0,
+          "size": [2, 2],
+          "destinationId": "door-ba"
+        }
+      ]
+    },
+    {
+      "id": "room-b",
+      "title": "Red hall",
+      "tags": ["interior"],
+      "clearColor": "#4a1c1c",
+      "entities": [
+        { "id": "sky-b", "kind": "env.sky", "props": { "color": "#4a1c1c" } },
+        { "id": "floor-b", "kind": "env.floor", "props": { "color": "#5a2a24" } },
+        {
+          "id": "cube-gold",
+          "kind": "prop.box",
+          "position": [1.5, 0.4, -1.6],
+          "tags": ["landmark"],
+          "props": { "size": [0.8, 0.8, 0.8], "color": "#ffcc33" }
+        },
+        {
+          "id": "frame-ba",
+          "kind": "arch.frame",
+          "position": [0, 1, 0],
+          "rotation": [0, 3.141592653589793, 0],
+          "props": { "color": "#ffb020", "coversPortalId": "door-ba" }
+        },
+        {
+          "id": "frame-bc",
+          "kind": "arch.frame",
+          "position": [0, 1, -5],
+          "props": { "color": "#7ee0b0", "coversPortalId": "door-bc" }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-ba",
+          "position": [0, 1, 0],
+          "yaw": 3.141592653589793,
+          "size": [2, 2],
+          "destinationId": "door-ab"
+        },
+        {
+          "id": "door-bc",
+          "position": [0, 1, -5],
+          "yaw": 0,
+          "size": [2, 2],
+          "destinationId": "door-cb"
+        }
+      ]
+    },
+    {
+      "id": "room-c",
+      "title": "Green hall",
+      "tags": ["interior"],
+      "clearColor": "#1c3328",
+      "entities": [
+        { "id": "sky-c", "kind": "env.sky", "props": { "color": "#1c3328" } },
+        { "id": "floor-c", "kind": "env.floor", "props": { "color": "#2a4a38" } },
+        {
+          "id": "cube-green",
+          "kind": "prop.box",
+          "position": [-1.4, 0.4, -2],
+          "tags": ["landmark"],
+          "props": { "size": [0.8, 0.8, 0.8], "color": "#5dff9a" }
+        },
+        {
+          "id": "frame-cb",
+          "kind": "arch.frame",
+          "position": [0, 1, 0],
+          "rotation": [0, 3.141592653589793, 0],
+          "props": { "color": "#7ee0b0", "coversPortalId": "door-cb" }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-cb",
+          "position": [0, 1, 0],
+          "yaw": 3.141592653589793,
+          "size": [2, 2],
+          "destinationId": "door-bc"
+        }
+      ]
+    }
+  ]
+}

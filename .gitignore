@@ -1,0 +1,41 @@
+# archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+
+# dependencies / vendor installs
+node_modules/
+bower_components/
+
+# build / cache
+dist/
+.vite/
+.cache/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+*.swp
+*~
+
+# env
+.env
+.env.*
+!.env.example
+
+# leftover globe-viz dump (keep locally, do not commit)
+/app.js
+/package.json
+/package-lock.json
+/public/
+
+# vendor reference checkouts (keep locally, do not commit)
+/Portals-master/
+/three.portals-master/
