@@ -51,9 +51,9 @@ export class Portal extends Mesh {
     localEye.setFromMatrixPosition(camera.matrixWorld);
     this.worldToLocal(localEye);
     const dz = this.geometry.volumeDepth;
-    const near = Math.max(camera.near, this.geometry.frontZ);
+    const close = Math.max(0.35, camera.near, this.geometry.frontZ);
     const inside =
-      localEye.z < near &&
+      localEye.z < close &&
       localEye.z > -dz &&
       Math.abs(localEye.x) <= this.geometry.halfWidth + 0.25 &&
       Math.abs(localEye.y) <= this.geometry.halfHeight + 0.25;

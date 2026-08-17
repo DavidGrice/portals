@@ -27,6 +27,8 @@ const matrixStack = Array.from({ length: 8 }, () => ({
 const EMERGE_Z = 0.18;
 const FACING_DOT = 0.05;
 const CLIP_OFFSET = 0.04;
+const MIN_DEST_VIEW_Z = 0.35;
+const IGNORE_CLEAR_Z = 0.45;
 
 export class PortalController {
   constructor({ camera, renderer, maxRecursion = 4 }) {
@@ -55,6 +57,7 @@ export class PortalController {
     this._lastCameraPosition = new Vector3();
     this._lastCameraWorld = new Matrix4();
     this._hasLastPosition = false;
+    this._ignorePortalId = null;
     this._events = new Emitter();
     this.lastDrawInfo = { drawn: [], skipped: [], destCam: null, clip: 'none' };
   }
@@ -160,6 +163,8 @@ export class PortalController {
       return;
     }
 
+    this._clearIgnoreIfAway();
+
     let crossed = null;
 
     for (const portal of this._currentScenePortals) {
@@ -193,6 +198,7 @@ export class PortalController {
     const fromId = this._currentRoom?.id ?? null;
     const toId = this._getRoom(portal.destinationPortal.scene)?.id ?? portal.destinationPortal.scene.name;
     this.setCurrentScene(toId);
+    this._ignorePortalId = portal.destinationPortal?.portalId ?? null;
     this._rememberCameraPose();
     this._events.emit('portal:cross', {
       portal,
@@ -251,10 +257,53 @@ export class PortalController {
     if (destination.portalId === skipReturnId) {
       return false;
     }
+    if (portal.portalId && portal.portalId === this._ignorePortalId) {
+      return false;
+    }
     if (!this._isPortalFacingCamera(portal, viewCamera)) {
       return false;
     }
+    if (!this._isPortalInFrontOfCamera(portal, viewCamera)) {
+      return false;
+    }
     return true;
+  }
+
+  _clearIgnoreIfAway() {
+    if (!this._ignorePortalId) {
+      return;
+    }
+    const ignored = this.getPortal(this._ignorePortalId);
+    if (!ignored) {
+      this._ignorePortalId = null;
+      return;
+    }
+    localCurr.copy(this.camera.position);
+    ignored.worldToLocal(localCurr);
+    if (Math.abs(localCurr.z) > IGNORE_CLEAR_Z) {
+      this._ignorePortalId = null;
+    }
+  }
+
+  _isPortalInFrontOfCamera(portal, viewCamera = this.camera) {
+    portalWorldPos.setFromMatrixPosition(portal.matrixWorld);
+    portalWorldPos.applyMatrix4(viewCamera.matrixWorldInverse);
+    return portalWorldPos.z < 0;
+  }
+
+  _stabilizeDestCamera(destCamera, destination) {
+    destCamera.matrixWorld.decompose(teleportPos, teleportQuat, teleportScale);
+    localCurr.copy(teleportPos);
+    destination.updateMatrixWorld(true);
+    destination.worldToLocal(localCurr);
+    if (Math.abs(localCurr.z) >= MIN_DEST_VIEW_Z) {
+      destCamera.matrixWorldInverse.copy(destCamera.matrixWorld).invert();
+      return;
+    }
+    localCurr.z = localCurr.z < 0 ? -MIN_DEST_VIEW_Z : MIN_DEST_VIEW_Z;
+    destination.localToWorld(localCurr);
+    destCamera.matrixWorld.compose(localCurr, teleportQuat, teleportScale.set(1, 1, 1));
+    destCamera.matrixWorldInverse.copy(destCamera.matrixWorld).invert();
   }
 
   setSize(width, height) {
@@ -341,7 +390,7 @@ export class PortalController {
       const destCamera = this._portalCamera;
       this._copyCameraOptics(destCamera);
       destCamera.matrixWorld.copy(this.computePortalViewMatrix(portal, camera));
-      destCamera.matrixWorldInverse.copy(destCamera.matrixWorld).invert();
+      this._stabilizeDestCamera(destCamera, destination);
       const nextClip = this.buildDestClipPlane(destination, destCamera);
       if (level === 0) {
         destCamera.matrixWorld.decompose(teleportPos, teleportQuat, teleportScale);

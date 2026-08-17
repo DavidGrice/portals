@@ -120,6 +120,22 @@ describe('portal engine', () => {
     assert.ok(local.z > 0.1, `dest hall local z ${local.z}`);
     const forward = new Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
     assert.ok(forward.z < -0.5, `look into dest hall ${forward.z}`);
+    assert.equal(controller._shouldDrawPortal(b, null), false);
+  });
+
+  it('keeps dest eye off the dest plane when the player is close', () => {
+    const { camera, controller, a, b } = makePair();
+    camera.position.set(0, 1, 0.08);
+    camera.lookAt(0, 1, 0);
+    camera.updateMatrixWorld();
+    a.updateMatrixWorld(true);
+    b.updateMatrixWorld(true);
+    const destCamera = bindDestCamera(controller, a, camera);
+    controller._stabilizeDestCamera(destCamera, b);
+    const local = new Vector3();
+    destCamera.matrixWorld.decompose(local, new Quaternion(), new Vector3());
+    b.worldToLocal(local);
+    assert.ok(Math.abs(local.z) >= 0.3, `dest eye local z ${local.z}`);
   });
 
   it('uses a door-sized front and a volume only on -Z', () => {
