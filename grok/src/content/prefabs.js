@@ -295,6 +295,88 @@ export const prefabs = {
     };
     return mesh;
   },
+
+  glass(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const width = entity.props?.width ?? 1.72;
+    const height = entity.props?.height ?? 2.05;
+    const frameT = 0.07;
+    const depth = 0.09;
+    const frameColor = parseColor(entity.props?.frame, 0x8a93a8);
+    const tint = parseColor(entity.props?.color, 0xb8d4e8);
+    const frame = standardMaterial(frameColor, { roughness: 0.32, metalness: 0.62 });
+    addBox(group, frame, 0, height / 2, 0, width + frameT, frameT, depth);
+    addBox(group, frame, 0, -height / 2, 0, width + frameT, frameT, depth);
+    addBox(group, frame, -width / 2, 0, 0, frameT, height, depth);
+    addBox(group, frame, width / 2, 0, 0, frameT, height, depth);
+
+    const pane = new THREE.Mesh(
+      new THREE.PlaneGeometry(width - frameT, height - frameT),
+      new THREE.MeshPhysicalMaterial({
+        color: tint,
+        metalness: 0.04,
+        roughness: 0.06,
+        transmission: 0.82,
+        thickness: 0.045,
+        ior: 1.5,
+        transparent: true,
+        opacity: 0.38,
+        side: THREE.DoubleSide,
+        depthWrite: true,
+      }),
+    );
+    pane.userData.glass = true;
+    group.add(pane);
+
+    const slab = new THREE.Mesh(
+      new THREE.BoxGeometry(width + frameT, height + frameT, 0.08),
+      new THREE.MeshBasicMaterial({ visible: false }),
+    );
+    slab.userData.collider = { type: 'aabb' };
+    group.add(slab);
+    return group;
+  },
+
+  screen(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const width = entity.props?.width ?? 0.92;
+    const height = entity.props?.height ?? 0.54;
+    const bezel = 0.045;
+    const frameColor = parseColor(entity.props?.frame, 0x1a1c22);
+    const housing = standardMaterial(frameColor, { roughness: 0.42, metalness: 0.38 });
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(width + bezel * 2, height + bezel * 2, 0.08),
+      housing,
+    );
+    body.castShadow = true;
+    body.receiveShadow = true;
+    body.userData.collider = { type: 'aabb' };
+    group.add(body);
+
+    const surface = new THREE.Mesh(
+      new THREE.PlaneGeometry(width, height),
+      new THREE.MeshBasicMaterial({ color: 0x101218 }),
+    );
+    surface.position.z = 0.044;
+    surface.userData.screenSurface = true;
+    group.add(surface);
+
+    if (entity.props?.stand !== false) {
+      addBox(group, housing, 0, -(height / 2 + 0.24), 0, 0.08, 0.42, 0.08);
+      addBox(group, housing, 0, -(height / 2 + 0.46), 0.02, 0.42, 0.05, 0.22);
+    }
+
+    group.userData.screen = {
+      cameraPosition: entity.props?.cameraPosition ?? [4.8, 2.3, 5.2],
+      lookAt: entity.props?.lookAt ?? [0, 1.05, 0.2],
+      fov: entity.props?.fov ?? 58,
+      width: entity.props?.resolution?.[0] ?? 320,
+      height: entity.props?.resolution?.[1] ?? 180,
+    };
+    return group;
+  },
 };
 
 function addBox(group, material, x, y, z, sx, sy, sz, collide = true) {

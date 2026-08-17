@@ -479,6 +479,24 @@ export class PortalController {
     destCamera.updateProjectionMatrix();
   }
 
+  prepareDestView(portal, destCamera, { aspect } = {}) {
+    const destination = portal?.destinationPortal;
+    if (!destination) {
+      return null;
+    }
+    this._copyCameraOptics(destCamera);
+    if (aspect) {
+      destCamera.aspect = aspect;
+      destCamera.updateProjectionMatrix();
+    }
+    destCamera.matrixAutoUpdate = false;
+    destCamera.matrixWorldAutoUpdate = false;
+    destCamera.matrixWorld.copy(this.computePortalViewMatrix(portal));
+    this._stabilizeDestCamera(destCamera, destination);
+    destCamera.matrixWorldInverse.copy(destCamera.matrixWorld).invert();
+    return this.buildDestClipPlane(destination, destCamera);
+  }
+
   computePortalViewMatrix(portal, sourceCamera = this.camera) {
     const src = portal;
     const dst = portal.destinationPortal;

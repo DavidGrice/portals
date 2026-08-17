@@ -50,7 +50,9 @@ describe('session boot', () => {
     });
     assert.equal(first.controller.currentRoom.id, 'room-a');
     assert.ok(first.controller.getPortal('door-ab').destinationPortal);
+    assert.ok(first.gadgets.screens.length >= 1);
     first.dispose();
+    assert.equal(first.gadgets, null);
     assert.equal(first.controller, null);
 
     const second = createSession({

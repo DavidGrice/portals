@@ -17,6 +17,7 @@ export { PostAA } from './PostAA.js';
 export { GameAudio, gameAudio, mixGain } from './audio.js';
 export { attachMotes, profileMoteDensity, setMoteDensity, spawnCrossBurst } from './atmosphere.js';
 export { findInteract, runInteract } from './interact.js';
+export { attachGadgets, collectScreens, listDestViews, tickDestStrip, tickScreens } from './gadgets.js';
 export { Player } from './Player.js';
 export { createPortalRenderer, probeCapabilities } from './capabilities.js';
 export { Portal } from '../portal/Portal.js';

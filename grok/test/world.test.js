@@ -94,6 +94,8 @@ describe('world data', () => {
     const groups = kindsByCategory(catalog);
     assert.ok(groups.environment.includes('env.sky'));
     assert.ok(groups.prop.includes('prop.box'));
+    assert.ok(groups.prop.includes('prop.glass'));
+    assert.ok(groups.prop.includes('prop.screen'));
     assert.ok(groups.architecture.includes('arch.frame'));
     assert.ok(groups.architecture.includes('arch.corridor'));
     assert.ok(groups.interact.includes('interact.pad'));
@@ -124,6 +126,16 @@ describe('world data', () => {
     assert.ok(Math.abs(a.position.x - b.position.x) > 200, 'A and B halls must not share an origin');
     assert.ok(Math.abs(bc.position.x - cb.position.x) > 200, 'B and C halls must not share an origin');
     assert.ok(Math.abs(cd.position.x - dc.position.x) > 200, 'C and D halls must not share an origin');
+    const kinds = new Set();
+    for (const room of controller.rooms) {
+      room.scene.traverse((object) => {
+        if (object.userData.kind) {
+          kinds.add(object.userData.kind);
+        }
+      });
+    }
+    assert.ok(kinds.has('prop.glass'));
+    assert.ok(kinds.has('prop.screen'));
   });
 
   it('lists worlds with a preview image for the picker', () => {

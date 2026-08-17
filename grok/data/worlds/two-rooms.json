@@ -34,6 +34,25 @@
           "props": { "size": [0.8, 0.8, 0.8], "color": "#4da3ff" }
         },
         {
+          "id": "glass-a",
+          "kind": "prop.glass",
+          "position": [-4, 1.05, 2.6],
+          "rotation": [0, 1.5707963267948966, 0],
+          "props": { "color": "#9ecfff", "frame": "#8aa0b8" }
+        },
+        {
+          "id": "tv-a",
+          "kind": "prop.screen",
+          "position": [-7.92, 1.35, 2.4],
+          "rotation": [0, 1.5707963267948966, 0],
+          "props": {
+            "stand": false,
+            "frame": "#1a2430",
+            "cameraPosition": [6.4, 2.35, 5.1],
+            "lookAt": [0, 1.05, 0.2]
+          }
+        },
+        {
           "id": "frame-ab",
           "kind": "arch.frame",
           "position": [0, 1, 0],
@@ -138,6 +157,13 @@
           "props": { "size": [0.8, 0.8, 0.8], "color": "#5dff9a" }
         },
         {
+          "id": "glass-c",
+          "kind": "prop.glass",
+          "position": [-4, 1.05, 1.8],
+          "rotation": [0, 1.5707963267948966, 0],
+          "props": { "color": "#9ee8c4", "frame": "#6a8a78" }
+        },
+        {
           "id": "frame-cb",
           "kind": "arch.frame",
           "position": [0, 1, 0],
@@ -218,6 +244,18 @@
             "action": "unlock",
             "portalId": "door-de",
             "text": "The last door unseals."
+          }
+        },
+        {
+          "id": "tv-d",
+          "kind": "prop.screen",
+          "position": [7.92, 1.35, -2.8],
+          "rotation": [0, -1.5707963267948966, 0],
+          "props": {
+            "stand": false,
+            "frame": "#241830",
+            "cameraPosition": [0, 2.2, 4.4],
+            "lookAt": [0, 1.05, -5]
           }
         }
       ],

@@ -313,6 +313,10 @@ export function refreshHud(settings) {
     const forced = new URLSearchParams(globalThis.location?.search ?? '').has('debug');
     debug.hidden = !(settings.showDebug || forced);
   }
+  const destStrip = field('dest-strip');
+  if (destStrip && !(settings.showDebug || new URLSearchParams(globalThis.location?.search ?? '').has('debug'))) {
+    destStrip.hidden = true;
+  }
   if (typeof document !== 'undefined') {
     document.documentElement.dataset.theme = settings.uiTheme;
     document.documentElement.dataset.colorblind = settings.colorblindMode ? 'on' : 'off';

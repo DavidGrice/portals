@@ -7,6 +7,7 @@ import { emptyPadButtons, firstGamepad, readGamepad } from './engine/gamepad.js'
 import { findInteract, runInteract } from './engine/interact.js';
 import { spawnCrossBurst, tickAtmosphere } from './engine/atmosphere.js';
 import { gameAudio } from './engine/audio.js';
+import { tickDestStrip, tickScreens } from './engine/index.js';
 import { createSession } from './game/session.js';
 import { loadSave, poseFromSession, writeSave } from './content/save.js';
 import { bindOptions, refreshHud } from './ui/options.js';
@@ -58,6 +59,7 @@ export function createApp({
   const fpsNode = document.getElementById('fps');
   const deskPause = document.getElementById('desk-pause');
   const debugPanel = document.getElementById('debug');
+  const destStrip = document.getElementById('dest-strip');
   const loadingStatus = document.getElementById('welcome-loading-status');
 
   const options = bindOptions({
@@ -348,6 +350,10 @@ export function createApp({
       writeSave(poseFromSession(session, selectedWorldId));
     }
     gameAudio.mute();
+    if (destStrip) {
+      destStrip.hidden = true;
+      destStrip.replaceChildren();
+    }
     cancelAnimationFrame(raf);
     raf = 0;
     unbindSession();
@@ -423,6 +429,9 @@ export function createApp({
     const offEnter = next.controller.on('room:enter', ({ room, roomId }) => {
       gameAudio.startBed(room ?? roomId);
       showRoomTitle(room?.title || roomId);
+      if (next.gadgets && next.renderer) {
+        tickScreens(next.gadgets, { controller: next.controller, renderer: next.renderer, force: true });
+      }
       if (debugEnabled()) {
         updateDebug(roomId);
       }
@@ -505,6 +514,19 @@ export function createApp({
     session.postAA.begin();
     session.controller.render();
     session.postAA.end();
+
+    tickScreens(session.gadgets, {
+      controller: session.controller,
+      renderer: session.renderer,
+      dt,
+    });
+    tickDestStrip(session.gadgets, {
+      controller: session.controller,
+      renderer: session.renderer,
+      root: destStrip,
+      enabled: debugEnabled() && state !== APP_STATES.menu,
+      dt,
+    });
 
     if (settings.showFps && fpsNode) {
       fpsFrames += 1;

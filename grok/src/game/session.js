@@ -1,6 +1,6 @@
 import { PerspectiveCamera } from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
-import { GraphicsSettings, Player, PostAA, createPortalRenderer } from '../engine/index.js';
+import { GraphicsSettings, Player, PostAA, attachGadgets, createPortalRenderer } from '../engine/index.js';
 import { loadWorld } from '../content/loadWorld.js';
 import { applyPose } from '../content/save.js';
 
@@ -45,6 +45,7 @@ export function createSession({
     moveSpeed: nextSettings.moveSpeed,
     jumpSpeed: nextSettings.jumpSpeed,
   });
+  const gadgets = attachGadgets(controller);
 
   nextSettings.apply({
     camera: nextCamera,
@@ -65,6 +66,7 @@ export function createSession({
     player,
     postAA,
     controls,
+    gadgets,
     ownsRenderer,
     dispose() {
       disposeSession(this);
@@ -84,6 +86,7 @@ export function disposeSession(session) {
   }
   session.controls?.dispose?.();
   session.postAA?.dispose?.();
+  session.gadgets?.dispose?.();
 
   for (const room of session.controller?.rooms ?? []) {
     room.scene?.traverse(disposeObject3D);
@@ -101,6 +104,7 @@ export function disposeSession(session) {
   session.player = null;
   session.postAA = null;
   session.controls = null;
+  session.gadgets = null;
 }
 
 function stubPostAA() {

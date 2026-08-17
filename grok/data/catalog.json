@@ -47,6 +47,16 @@
       "prefab": "pad",
       "tags": ["interact"]
     },
+    "prop.glass": {
+      "category": "prop",
+      "prefab": "glass",
+      "tags": ["prop", "glass"]
+    },
+    "prop.screen": {
+      "category": "prop",
+      "prefab": "screen",
+      "tags": ["prop", "screen"]
+    },
     "env.light": {
       "category": "environment",
       "prefab": "light",

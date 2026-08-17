@@ -237,7 +237,7 @@
                 <option value="on">On</option>
               </select>
             </label>
-            <p class="options-note">Room, nearest door, draw list, and last cross. Same as adding ?debug to the URL.</p>
+            <p class="options-note">Room, nearest door, draw list, last cross, and a dest-camera strip. Same as adding ?debug to the URL. The strip is a diagnostic, not a portal.</p>
             <p class="options-note options-note-flush" id="opt-gpu">Probing GPU…</p>
           </div>
 
@@ -283,6 +283,7 @@
       <button type="button" id="hud-pause" class="hud-pause" aria-label="Pause">II</button>
     </div>
     <button type="button" id="desk-pause" class="hud-pause hud-pause-desk" hidden aria-label="Pause">II</button>
+    <aside id="dest-strip" class="dest-strip" hidden></aside>
     <aside id="debug" class="debug" hidden></aside>
     <script type="module" src="/src/main.js"></script>
   </body>
