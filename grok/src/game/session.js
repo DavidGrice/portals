@@ -2,6 +2,7 @@ import { PerspectiveCamera } from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { GraphicsSettings, Player, PostAA, createPortalRenderer } from '../engine/index.js';
 import { loadWorld } from '../content/loadWorld.js';
+import { applyPose } from '../content/save.js';
 
 const TEXTURE_KEYS = ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap'];
 
@@ -12,6 +13,7 @@ export function createSession({
   renderer = null,
   camera = null,
   mount = null,
+  pose = null,
   width = globalThis.innerWidth || 1280,
   height = globalThis.innerHeight || 720,
 } = {}) {
@@ -31,6 +33,9 @@ export function createSession({
   }
 
   const controller = loadWorld(world, catalog, nextCamera, nextRenderer);
+  if (pose) {
+    applyPose({ camera: nextCamera, controller }, pose);
+  }
   const postAA = ownsRenderer ? new PostAA(nextRenderer) : stubPostAA();
   const controls = createControls(nextCamera, nextRenderer.domElement);
   controls.pointerSpeed = 0;

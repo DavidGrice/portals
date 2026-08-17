@@ -10,6 +10,7 @@ export function createTouchState() {
     lookDX: 0,
     lookDY: 0,
     jump: false,
+    interact: false,
   };
 }
 
@@ -19,6 +20,7 @@ export function resetTouchState(state) {
   state.lookDX = 0;
   state.lookDY = 0;
   state.jump = false;
+  state.interact = false;
 }
 
 export function consumeTouchLook(state) {
@@ -27,6 +29,14 @@ export function consumeTouchLook(state) {
   state.lookDX = 0;
   state.lookDY = 0;
   return { dx, dy };
+}
+
+export function consumeTouchInteract(state) {
+  if (!state.interact) {
+    return false;
+  }
+  state.interact = false;
+  return true;
 }
 
 export function consumeTouchJump(state) {
@@ -56,15 +66,16 @@ export function applyTouchMove(move, state) {
 
 const JOYSTICK_RATIO = 52 / 120;
 
-export function bindTouchControls({ hud, state, onJump, onPause }) {
+export function bindTouchControls({ hud, state, onJump, onPause, onInteract }) {
   const look = document.getElementById('touch-look');
   const joy = document.getElementById('touch-joy');
   const knob = document.getElementById('touch-joy-knob');
   const jump = document.getElementById('touch-jump');
+  const interact = document.getElementById('touch-interact');
   const pause = document.getElementById('hud-pause');
 
   if (!hud) {
-    return () => {};
+    return { setVisible() {}, setInteractVisible() {}, isTouch: false };
   }
 
   let joyId = null;
@@ -121,7 +132,7 @@ export function bindTouchControls({ hud, state, onJump, onPause }) {
   }
 
   function onLookStart(event) {
-    if (event.target.closest('.touch-joy, .touch-btn, .hud-pause')) {
+    if (event.target.closest('.touch-joy, .touch-btn, .hud-pause, .touch-interact')) {
       return;
     }
     const touch = event.changedTouches[0];
@@ -165,10 +176,21 @@ export function bindTouchControls({ hud, state, onJump, onPause }) {
     state.jump = true;
     onJump?.();
   }, { passive: false });
+  interact?.addEventListener('touchstart', (event) => {
+    event.preventDefault();
+    state.interact = true;
+    onInteract?.();
+  }, { passive: false });
   pause?.addEventListener('click', () => onPause?.());
   window.addEventListener('touchmove', onTouchMove, { passive: false });
   window.addEventListener('touchend', onTouchEnd);
   window.addEventListener('touchcancel', onTouchEnd);
 
-  return { setVisible, isTouch: state.active };
+  function setInteractVisible(visible) {
+    if (interact) {
+      interact.hidden = !visible;
+    }
+  }
+
+  return { setVisible, setInteractVisible, isTouch: state.active };
 }

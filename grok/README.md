@@ -54,7 +54,7 @@ Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/). The start menu is HTML on
 | Gamepad | Left stick move, right stick look, A jump, Start pause / Play |
 | **Options** | Graphics, controls, interface, sound, keybinds |
 
-The shipped world is four halls: **blue → red → green → violet**. Each hall has its own `origin` (250 units apart on X) so a door shows that destination’s color and architecture, not another hall’s props stacked on the same coordinates. Landmark cubes sit in the walk-up pocket beside each entry, not in the doorway view. The sky is a smooth dome well inside the camera far plane.
+The shipped world is five halls: **blue → red → green → violet**, plus a sealed **rose** hall. Walk to the glowing pad in violet and press **E** (or Use on a phone, X on a pad) to unseal it. Each hall is a corridor with walls; door holes stay larger than the stencil front. Halls keep distinct `origin`s. Quit to menu writes a **Continue** save.
 
 Query flags:
 

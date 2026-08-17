@@ -1,8 +1,8 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3 } from 'three';
-import { Player, Room, collectColliders, resolveColliders } from '../src/engine/index.js';
-import { prefabs } from '../src/content/prefabs.js';
+import { Player, Room, collectColliders, findInteract, resolveColliders, runInteract } from '../src/engine/index.js';
+import { FRAME, prefabs } from '../src/content/prefabs.js';
 
 describe('player', () => {
   it('stays on the floor at eye height', () => {
@@ -94,5 +94,47 @@ describe('player', () => {
     assert.ok(camera.position.x > 1, `x ${camera.position.x}`);
     assert.equal(camera.position.y, 1);
     assert.equal(player.onGround, true);
+  });
+
+  it('corridor walls block the capsule but the door hole stays open', () => {
+    const scene = new Scene();
+    scene.add(prefabs.corridor({
+      props: { halfX: 8, zMin: 0, zMax: 6, openings: [0] },
+    }));
+    scene.updateMatrixWorld(true);
+    const room = new Room({ id: 'test', scene });
+    const inWall = new Vector3(0, 1, 6);
+    resolveColliders(inWall, { radius: 0.28, eyeHeight: 1 }, collectColliders(room));
+    assert.ok(Math.abs(inWall.z - 6) > 0.2, `still inside the back wall at z=${inWall.z}`);
+    const hole = new Vector3(0, 1, 0);
+    resolveColliders(hole, { radius: 0.28, eyeHeight: 1 }, collectColliders(room));
+    assert.ok(Math.abs(hole.x) < 0.001, `hole pushed x=${hole.x}`);
+    assert.ok(Math.abs(hole.z) < 0.001, `hole pushed z=${hole.z}`);
+    assert.ok(2.5 > FRAME.outer, 'opening must stay wider than the metal frame');
+  });
+
+  it('finds an interact pad in range and unlocks a portal', () => {
+    const scene = new Scene();
+    const pad = prefabs.pad({
+      props: { action: 'unlock', portalId: 'door-de' },
+    });
+    pad.position.set(0, 0.04, 0);
+    scene.add(pad);
+    scene.updateMatrixWorld(true);
+    const room = new Room({ id: 'test', scene });
+    const near = findInteract(room, new Vector3(0, 1, 0.4));
+    assert.equal(near.spec.action, 'unlock');
+    const far = findInteract(room, new Vector3(0, 1, 8));
+    assert.equal(far, null);
+    const portal = { enabled: false, portalId: 'door-de' };
+    const result = runInteract(near, {
+      controller: {
+        getPortal(id) {
+          return id === 'door-de' ? portal : null;
+        },
+      },
+    });
+    assert.equal(result.type, 'unlock');
+    assert.equal(portal.enabled, true);
   });
 });

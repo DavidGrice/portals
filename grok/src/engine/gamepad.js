@@ -23,7 +23,7 @@ export function firstGamepad(list = globalThis.navigator?.getGamepads?.() ?? [])
 }
 
 export function emptyPadButtons() {
-  return { a: false, start: false };
+  return { a: false, x: false, start: false };
 }
 
 export function readGamepad(pad, previous = emptyPadButtons(), { gamepadSensitivity = 0.5 } = {}) {
@@ -48,6 +48,7 @@ export function readGamepad(pad, previous = emptyPadButtons(), { gamepadSensitiv
   const dpadDown = Number(Boolean(pad.buttons?.[13]?.pressed));
   const dpadUp = Number(Boolean(pad.buttons?.[12]?.pressed));
   const a = Boolean(pad.buttons?.[0]?.pressed);
+  const x = Boolean(pad.buttons?.[2]?.pressed);
   const start = Boolean(pad.buttons?.[9]?.pressed);
   const lookScale = GAMEPAD_LOOK_SCALE * (gamepadSensitivity / 0.5);
 
@@ -57,8 +58,9 @@ export function readGamepad(pad, previous = emptyPadButtons(), { gamepadSensitiv
     lookDX: rx * lookScale,
     lookDY: ry * lookScale,
     jump: a && !previous.a,
+    interact: x && !previous.x,
     start: start && !previous.start,
-    pressed: { a, start },
+    pressed: { a, x, start },
   };
 }
 

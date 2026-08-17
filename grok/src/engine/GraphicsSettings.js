@@ -70,6 +70,7 @@ export const KEYBIND_GROUPS = [
       { id: 'left', label: 'Move Left' },
       { id: 'right', label: 'Move Right' },
       { id: 'jump', label: 'Jump' },
+      { id: 'interact', label: 'Interact' },
     ],
   },
   {
@@ -89,6 +90,7 @@ export const DEFAULT_KEYBINDS = {
   left: 'KeyA',
   right: 'KeyD',
   jump: 'Space',
+  interact: 'KeyE',
   lookLeft: 'ArrowLeft',
   lookRight: 'ArrowRight',
   lookUp: 'ArrowUp',

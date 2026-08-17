@@ -22,6 +22,31 @@
       "prefab": "frame",
       "tags": ["architecture", "portal-frame"]
     },
+    "arch.wall": {
+      "category": "architecture",
+      "prefab": "wall",
+      "tags": ["architecture"]
+    },
+    "arch.opening": {
+      "category": "architecture",
+      "prefab": "opening",
+      "tags": ["architecture"]
+    },
+    "arch.corridor": {
+      "category": "architecture",
+      "prefab": "corridor",
+      "tags": ["architecture"]
+    },
+    "prop.plaque": {
+      "category": "prop",
+      "prefab": "plaque",
+      "tags": ["prop"]
+    },
+    "interact.pad": {
+      "category": "interact",
+      "prefab": "pad",
+      "tags": ["interact"]
+    },
     "env.light": {
       "category": "environment",
       "prefab": "light",

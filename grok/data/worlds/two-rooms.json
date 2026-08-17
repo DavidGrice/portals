@@ -16,6 +16,17 @@
         { "id": "light-a", "kind": "env.light", "props": { "ambient": "#334055", "sun": "#e8f0ff" } },
         { "id": "floor-a", "kind": "env.floor", "props": { "color": "#3d4a5c" } },
         {
+          "id": "shell-a",
+          "kind": "arch.corridor",
+          "props": { "color": "#455064", "halfX": 8, "zMin": 0, "zMax": 6.2, "openings": [0] }
+        },
+        {
+          "id": "plaque-a",
+          "kind": "prop.plaque",
+          "position": [-2.2, 1.6, 5.9],
+          "props": { "color": "#7ec8ff", "text": "Blue hall" }
+        },
+        {
           "id": "cube-blue",
           "kind": "prop.box",
           "position": [7, 0.4, 3.2],
@@ -49,6 +60,17 @@
         { "id": "sky-b", "kind": "env.sky", "props": { "color": "#4a1c1c" } },
         { "id": "light-b", "kind": "env.light", "props": { "ambient": "#4a2820", "sun": "#ffd9b0" } },
         { "id": "floor-b", "kind": "env.floor", "props": { "color": "#5a2a24" } },
+        {
+          "id": "shell-b",
+          "kind": "arch.corridor",
+          "props": { "color": "#5c322c", "halfX": 8, "zMin": -6.2, "zMax": 5.2, "openings": [0, -5] }
+        },
+        {
+          "id": "plaque-b",
+          "kind": "prop.plaque",
+          "position": [-2.2, 1.6, 4.9],
+          "props": { "color": "#ffb020", "text": "Red hall" }
+        },
         {
           "id": "cube-gold",
           "kind": "prop.box",
@@ -98,6 +120,17 @@
         { "id": "light-c", "kind": "env.light", "props": { "ambient": "#1c3328", "sun": "#d8ffe8" } },
         { "id": "floor-c", "kind": "env.floor", "props": { "color": "#2a4a38" } },
         {
+          "id": "shell-c",
+          "kind": "arch.corridor",
+          "props": { "color": "#2f4f3c", "halfX": 8, "zMin": -6.2, "zMax": 5.2, "openings": [0, -5] }
+        },
+        {
+          "id": "plaque-c",
+          "kind": "prop.plaque",
+          "position": [-2.2, 1.6, 4.9],
+          "props": { "color": "#7ee0b0", "text": "Green hall" }
+        },
+        {
           "id": "cube-green",
           "kind": "prop.box",
           "position": [7, 0.4, 3.2],
@@ -146,6 +179,17 @@
         { "id": "light-d", "kind": "env.light", "props": { "ambient": "#2a2040", "sun": "#efe8ff" } },
         { "id": "floor-d", "kind": "env.floor", "props": { "color": "#3a2f55" } },
         {
+          "id": "shell-d",
+          "kind": "arch.corridor",
+          "props": { "color": "#3d3458", "halfX": 8, "zMin": -6.2, "zMax": 5.2, "openings": [0, -5] }
+        },
+        {
+          "id": "plaque-d",
+          "kind": "prop.plaque",
+          "position": [-2.2, 1.6, 4.9],
+          "props": { "color": "#c4b5fd", "text": "Violet hall" }
+        },
+        {
           "id": "cube-violet",
           "kind": "prop.box",
           "position": [7, 0.4, 3.2],
@@ -158,6 +202,23 @@
           "position": [0, 1, 0],
           "rotation": [0, 3.141592653589793, 0],
           "props": { "color": "#c4b5fd", "coversPortalId": "door-dc" }
+        },
+        {
+          "id": "frame-de",
+          "kind": "arch.frame",
+          "position": [0, 1, -5],
+          "props": { "color": "#f0abfc", "coversPortalId": "door-de" }
+        },
+        {
+          "id": "pad-unlock-de",
+          "kind": "interact.pad",
+          "position": [0, 0.04, -3.2],
+          "props": {
+            "color": "#f0abfc",
+            "action": "unlock",
+            "portalId": "door-de",
+            "text": "The last door unseals."
+          }
         }
       ],
       "portals": [
@@ -167,6 +228,60 @@
           "yaw": 3.141592653589793,
           "size": [2, 2],
           "destinationId": "door-cd"
+        },
+        {
+          "id": "door-de",
+          "position": [0, 1, -5],
+          "yaw": 0,
+          "size": [2, 2],
+          "destinationId": "door-ed",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "id": "room-e",
+      "title": "Rose hall",
+      "tags": ["interior", "secret"],
+      "origin": [1000, 0, 0],
+      "clearColor": "#3a2040",
+      "entities": [
+        { "id": "sky-e", "kind": "env.sky", "props": { "color": "#3a2040" } },
+        { "id": "light-e", "kind": "env.light", "props": { "ambient": "#3a2040", "sun": "#ffe4f4" } },
+        { "id": "floor-e", "kind": "env.floor", "props": { "color": "#4a2a40" } },
+        {
+          "id": "shell-e",
+          "kind": "arch.corridor",
+          "props": { "color": "#523048", "halfX": 8, "zMin": -6.2, "zMax": 1, "openings": [0] }
+        },
+        {
+          "id": "plaque-e",
+          "kind": "prop.plaque",
+          "position": [2.2, 1.6, -5.9],
+          "props": { "color": "#f0abfc", "text": "Rose hall" }
+        },
+        {
+          "id": "cube-rose",
+          "kind": "prop.box",
+          "position": [-3, 0.4, -3],
+          "tags": ["landmark"],
+          "props": { "size": [0.8, 0.8, 0.8], "color": "#f0abfc" }
+        },
+        {
+          "id": "frame-ed",
+          "kind": "arch.frame",
+          "position": [0, 1, 0],
+          "rotation": [0, 3.141592653589793, 0],
+          "props": { "color": "#f0abfc", "coversPortalId": "door-ed" }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-ed",
+          "position": [0, 1, 0],
+          "yaw": 3.141592653589793,
+          "size": [2, 2],
+          "destinationId": "door-de"
         }
       ]
     }

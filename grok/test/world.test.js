@@ -95,6 +95,8 @@ describe('world data', () => {
     assert.ok(groups.environment.includes('env.sky'));
     assert.ok(groups.prop.includes('prop.box'));
     assert.ok(groups.architecture.includes('arch.frame'));
+    assert.ok(groups.architecture.includes('arch.corridor'));
+    assert.ok(groups.interact.includes('interact.pad'));
   });
 
   it('loads two-rooms and resolves portal links', () => {
@@ -116,7 +118,9 @@ describe('world data', () => {
     const dc = controller.getPortal('door-dc');
     assert.equal(cd.destinationPortal, dc);
     assert.equal(controller.getPortal('door-dc').destinationId, 'door-cd');
-    assert.equal(world.rooms.length, 4);
+    assert.ok(world.rooms.length >= 5);
+    assert.equal(controller.getPortal('door-de').enabled, false);
+    assert.equal(controller.getPortal('door-ed').destinationId, 'door-de');
     assert.ok(Math.abs(a.position.x - b.position.x) > 200, 'A and B halls must not share an origin');
     assert.ok(Math.abs(bc.position.x - cb.position.x) > 200, 'B and C halls must not share an origin');
     assert.ok(Math.abs(cd.position.x - dc.position.x) > 200, 'C and D halls must not share an origin');

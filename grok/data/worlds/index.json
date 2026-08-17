@@ -1,0 +1,9 @@
+{
+  "worlds": [
+    {
+      "id": "two-rooms",
+      "title": "Four halls",
+      "file": "two-rooms.json"
+    }
+  ]
+}

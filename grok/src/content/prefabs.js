@@ -148,7 +148,115 @@ export const prefabs = {
 
     return group;
   },
+
+  wall(entity) {
+    const size = entity.props?.size ?? [4, 3, 0.24];
+    const color = parseColor(entity.props?.color, 0x4a5160);
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(...size), standardMaterial(color, { roughness: 0.9, metalness: 0.04 }));
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    applyPose(mesh, entity);
+    if (entity.props?.collide !== false) {
+      mesh.userData.collider = { type: 'aabb' };
+    }
+    return mesh;
+  },
+
+  opening(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const color = parseColor(entity.props?.color, 0x4a5160);
+    const material = standardMaterial(color, { roughness: 0.9, metalness: 0.04 });
+    addOpeningWall(group, material, {
+      z: 0,
+      halfX: entity.props?.halfX ?? 8,
+      height: entity.props?.height ?? 3.2,
+      thickness: entity.props?.thickness ?? 0.24,
+      holeWidth: entity.props?.holeWidth ?? 2.5,
+      holeHeight: entity.props?.holeHeight ?? 2.35,
+    });
+    return group;
+  },
+
+  corridor(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const color = parseColor(entity.props?.color, 0x4a5160);
+    const material = standardMaterial(color, { roughness: 0.9, metalness: 0.04 });
+    const halfX = entity.props?.halfX ?? 8;
+    const zMin = entity.props?.zMin ?? -7;
+    const zMax = entity.props?.zMax ?? 6;
+    const height = entity.props?.height ?? 3.2;
+    const thickness = entity.props?.thickness ?? 0.24;
+    const holeWidth = entity.props?.holeWidth ?? 2.5;
+    const holeHeight = entity.props?.holeHeight ?? 2.35;
+    const openings = new Set((entity.props?.openings ?? []).map((entry) => Number(entry.z ?? entry)));
+    const length = zMax - zMin;
+    const midZ = (zMin + zMax) * 0.5;
+
+    addBox(group, material, -(halfX + thickness * 0.5), height * 0.5, midZ, thickness, height, length);
+    addBox(group, material, halfX + thickness * 0.5, height * 0.5, midZ, thickness, height, length);
+    addBox(group, material, 0, height + thickness * 0.5, midZ, halfX * 2 + thickness * 2, thickness, length, false);
+
+    const wallZs = new Set([zMin, zMax, ...openings]);
+    for (const z of wallZs) {
+      if (openings.has(z)) {
+        addOpeningWall(group, material, { z, halfX, height, thickness, holeWidth, holeHeight });
+      } else {
+        addBox(group, material, 0, height * 0.5, z, halfX * 2, height, thickness);
+      }
+    }
+    return group;
+  },
+
+  plaque(entity) {
+    const color = parseColor(entity.props?.color, 0xcfd3e5);
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(1.4, 0.7, 0.06),
+      standardMaterial(color, { roughness: 0.5, metalness: 0.15 }),
+    );
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    applyPose(mesh, entity);
+    mesh.userData.plaque = entity.props?.text ?? '';
+    return mesh;
+  },
+
+  pad(entity) {
+    const color = parseColor(entity.props?.color, 0xb5abfc);
+    const mesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.42, 0.42, 0.08, 20),
+      standardMaterial(color, { roughness: 0.35, metalness: 0.2 }),
+    );
+    applyPose(mesh, entity);
+    mesh.userData.interact = {
+      action: entity.props?.action ?? 'look',
+      portalId: entity.props?.portalId ?? null,
+      text: entity.props?.text ?? '',
+    };
+    return mesh;
+  },
 };
+
+function addBox(group, material, x, y, z, sx, sy, sz, collide = true) {
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), material);
+  mesh.position.set(x, y, z);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  if (collide) {
+    mesh.userData.collider = { type: 'aabb' };
+  }
+  group.add(mesh);
+}
+
+function addOpeningWall(group, material, { z, halfX, height, thickness, holeWidth, holeHeight }) {
+  const holeHalf = holeWidth * 0.5;
+  const sideWidth = Math.max(halfX - holeHalf, 0.1);
+  addBox(group, material, -halfX + sideWidth * 0.5, height * 0.5, z, sideWidth, height, thickness);
+  addBox(group, material, halfX - sideWidth * 0.5, height * 0.5, z, sideWidth, height, thickness);
+  const lintel = Math.max(height - holeHeight, 0.08);
+  addBox(group, material, 0, holeHeight + lintel * 0.5, z, holeWidth, lintel, thickness);
+}
 
 export function spawnEntity(entity, catalog) {
   const kind = catalog.kinds?.[entity.kind];

@@ -4,9 +4,11 @@ import catalog from '../data/catalog.json';
 import { GraphicsSettings, probeCapabilities } from './engine/index.js';
 import { applyLook } from './engine/look.js';
 import { emptyPadButtons, firstGamepad, readGamepad } from './engine/gamepad.js';
+import { findInteract, runInteract } from './engine/interact.js';
 import { createSession } from './game/session.js';
+import { loadSave, poseFromSession, writeSave } from './content/save.js';
 import { bindOptions, refreshHud } from './ui/options.js';
-import { applyTouchMove, bindTouchControls, consumeTouchJump, consumeTouchLook, createTouchState, detectTouch } from './ui/touch.js';
+import { applyTouchMove, bindTouchControls, consumeTouchInteract, consumeTouchJump, consumeTouchLook, createTouchState, detectTouch } from './ui/touch.js';
 
 export const APP_STATES = {
   menu: 'menu',
@@ -40,6 +42,8 @@ export function createApp({
   let fpsFrames = 0;
   let fpsAcc = 0;
   let unbindSession = () => {};
+  let selectedWorldId = worldData?.id ?? 'two-rooms';
+  let nearbyInteract = null;
 
   const welcome = document.getElementById('welcome');
   const home = document.getElementById('welcome-home');
@@ -77,6 +81,7 @@ export function createApp({
       }
     },
     onPause: pause,
+    onInteract: tryInteract,
   });
 
   refreshHud(settings);
@@ -97,7 +102,14 @@ export function createApp({
     console.info('portals-grok capabilities', capabilities);
   });
 
+  const continueButton = document.getElementById('welcome-continue');
+  const worldSelect = document.getElementById('opt-world');
+  refreshContinue();
+  worldSelect?.addEventListener('change', () => {
+    selectedWorldId = worldSelect.value || selectedWorldId;
+  });
   playButton?.addEventListener('click', () => play());
+  continueButton?.addEventListener('click', () => play({ useSave: true }));
   document.getElementById('welcome-help-open')?.addEventListener('click', () => showMenuCard('help'));
   document.getElementById('welcome-help-back')?.addEventListener('click', () => showMenuCard('home'));
   document.getElementById('pause-resume')?.addEventListener('click', () => resume());
@@ -206,6 +218,10 @@ export function createApp({
 
   function setHudVisible(visible) {
     touchHud.setVisible(visible && isTouch);
+    if (!visible) {
+      nearbyInteract = null;
+      updateInteractHud();
+    }
     if (deskPause) {
       deskPause.hidden = !(visible && !isTouch);
     }
@@ -224,7 +240,7 @@ export function createApp({
     }
   }
 
-  async function play() {
+  async function play({ useSave = false } = {}) {
     if (state === APP_STATES.loading || state === APP_STATES.playing) {
       return state;
     }
@@ -236,10 +252,12 @@ export function createApp({
     await frame();
     try {
       setLoading('Loading halls…');
+      const save = useSave ? loadSave() : null;
       session = createSessionFn({
         settings,
         world: worldData,
         catalog: catalogData,
+        pose: save && save.worldId === selectedWorldId ? save : null,
         width: window.innerWidth,
         height: window.innerHeight,
       });
@@ -295,6 +313,9 @@ export function createApp({
   }
 
   function quitToMenu() {
+    if (session) {
+      writeSave(poseFromSession(session, selectedWorldId));
+    }
     cancelAnimationFrame(raf);
     raf = 0;
     unbindSession();
@@ -305,7 +326,41 @@ export function createApp({
     setHudVisible(false);
     setMenuVisible(true);
     showMenuCard('home');
+    refreshContinue();
     return state;
+  }
+
+  function refreshContinue() {
+    const save = loadSave();
+    if (continueButton) {
+      continueButton.hidden = !save;
+    }
+  }
+
+  function tryInteract() {
+    if (state !== APP_STATES.playing || !session) {
+      return false;
+    }
+    const target = nearbyInteract ?? findInteract(session.controller.currentRoom, session.camera.position);
+    if (!target) {
+      return false;
+    }
+    runInteract(target, { controller: session.controller });
+    nearbyInteract = findInteract(session.controller.currentRoom, session.camera.position);
+    updateInteractHud();
+    return true;
+  }
+
+  function updateInteractHud() {
+    const hintNode = document.getElementById('interact-hint');
+    const visible = Boolean(nearbyInteract);
+    if (hintNode) {
+      hintNode.hidden = !visible;
+      if (visible) {
+        hintNode.textContent = nearbyInteract.spec.action === 'unlock' ? 'E  Unseal door' : 'E  Look';
+      }
+    }
+    touchHud.setInteractVisible?.(visible && state === APP_STATES.playing);
   }
 
   function bindLiveSession(next) {
@@ -370,10 +425,15 @@ export function createApp({
       if (consumeTouchJump(touch) || pad.jump) {
         session.player.jump();
       }
+      if (consumeTouchInteract(touch) || pad.interact) {
+        tryInteract();
+      }
       if (pad.start) {
         pause();
       }
       session.player.step(dt, move, session.controls, session.controller.currentRoom);
+      nearbyInteract = findInteract(session.controller.currentRoom, session.camera.position);
+      updateInteractHud();
       session.controller.update();
     }
 
@@ -452,6 +512,10 @@ export function createApp({
     } else if (code === bindCode('jump')) {
       if (down) {
         session?.player.jump();
+      }
+    } else if (code === bindCode('interact')) {
+      if (down) {
+        tryInteract();
       }
     } else if (code === bindCode('lookLeft')) {
       lookHeld.left = down;

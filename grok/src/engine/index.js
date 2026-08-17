@@ -14,6 +14,7 @@ export { detectTouch, suggestGraphicsQuality } from './deviceProfile.js';
 export { applyLook } from './look.js';
 export { applyDeadzone, applyFullscreen, firstGamepad, readGamepad } from './gamepad.js';
 export { PostAA } from './PostAA.js';
+export { findInteract, runInteract } from './interact.js';
 export { Player } from './Player.js';
 export { createPortalRenderer, probeCapabilities } from './capabilities.js';
 export { Portal } from '../portal/Portal.js';

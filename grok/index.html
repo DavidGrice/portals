@@ -26,6 +26,12 @@
       </header>
       <div class="welcome-card" id="welcome-home">
         <button type="button" id="welcome-enter" class="welcome-enter">Play</button>
+        <button type="button" id="welcome-continue" class="welcome-enter welcome-enter-ghost" hidden>Continue</button>
+        <label class="menu-world">World
+          <select id="opt-world">
+            <option value="two-rooms">Four halls</option>
+          </select>
+        </label>
         <button type="button" id="welcome-options" class="welcome-enter welcome-enter-ghost">Options</button>
         <button type="button" id="welcome-help-open" class="welcome-enter welcome-enter-ghost">How to play</button>
         <p class="welcome-hint" id="welcome-hint">WASD to move · Space to jump · mouse to look</p>
@@ -47,7 +53,8 @@
         <ul class="help-list">
           <li>WASD to move, mouse or arrows to look, Space to jump.</li>
           <li>You can land on the colored cubes and stay on them.</li>
-          <li>Esc or the pause button freezes the world. O opens Options.</li>
+          <li>Stand on the glowing pad in the last hall and press E to unseal the rose door.</li>
+          <li>Esc or the pause button freezes the world. O opens Options. Quit writes a Continue save.</li>
           <li>On a phone: left stick, drag to look, Jump, Pause.</li>
           <li>Gamepad: left stick move, right stick look, A jump, Start pause / Play.</li>
         </ul>
@@ -226,6 +233,7 @@
         </div>
       </form>
     </div>
+    <div id="interact-hint" class="interact-hint" hidden>E</div>
     <div id="crosshair" aria-hidden="true"></div>
     <div id="fps" class="fps" hidden>0</div>
     <div id="touch-hud" class="touch-hud" hidden>
@@ -234,6 +242,7 @@
         <div id="touch-joy-knob" class="touch-joy-knob"></div>
       </div>
       <button type="button" id="touch-jump" class="touch-btn">Jump</button>
+      <button type="button" id="touch-interact" class="touch-btn touch-interact" hidden>Use</button>
       <button type="button" id="hud-pause" class="hud-pause" aria-label="Pause">II</button>
     </div>
     <button type="button" id="desk-pause" class="hud-pause hud-pause-desk" hidden aria-label="Pause">II</button>
