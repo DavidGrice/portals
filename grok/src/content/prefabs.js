@@ -19,6 +19,15 @@ function applyPose(object, entity) {
   }
 }
 
+export const FRAME = {
+  outer: 2.16,
+  thickness: 0.08,
+  depth: 0.1,
+  walkUp: 0.08,
+  jambDepth: 0.16,
+  jambInner: 1.88,
+};
+
 function standardMaterial(color, extras = {}) {
   return new THREE.MeshStandardMaterial({
     color,
@@ -84,24 +93,27 @@ export const prefabs = {
     group.userData.portalFrame = true;
     group.userData.coversPortalId = entity.props?.coversPortalId ?? null;
     applyPose(group, entity);
-    group.translateZ(0.08);
 
-    const thickness = 0.08;
-    const width = 2.16;
-    const height = 2.16;
-    const depth = 0.1;
+    const { outer, thickness, depth, walkUp, jambDepth, jambInner } = FRAME;
     const material = standardMaterial(color, { roughness: 0.55, metalness: 0.22 });
     material.polygonOffset = true;
     material.polygonOffsetFactor = -2;
     material.polygonOffsetUnits = -2;
     const pieces = [
-      [0, height / 2, 0, width + thickness * 2, thickness, depth],
-      [0, -height / 2, 0, width + thickness * 2, thickness, depth],
-      [-(width / 2), 0, 0, thickness, height, depth],
-      [width / 2, 0, 0, thickness, height, depth],
+      [0, outer / 2, walkUp, outer + thickness * 2, thickness, depth],
+      [0, -outer / 2, walkUp, outer + thickness * 2, thickness, depth],
+      [-(outer / 2), 0, walkUp, thickness, outer, depth],
+      [outer / 2, 0, walkUp, thickness, outer, depth],
+    ];
+    const jamb = (outer - jambInner) * 0.5;
+    const liners = [
+      [0, jambInner / 2 + jamb / 2, 0, jambInner + jamb * 2, jamb, jambDepth],
+      [0, -(jambInner / 2 + jamb / 2), 0, jambInner + jamb * 2, jamb, jambDepth],
+      [-(jambInner / 2 + jamb / 2), 0, 0, jamb, jambInner, jambDepth],
+      [jambInner / 2 + jamb / 2, 0, 0, jamb, jambInner, jambDepth],
     ];
 
-    for (const [x, y, z, sx, sy, sz] of pieces) {
+    for (const [x, y, z, sx, sy, sz] of [...pieces, ...liners]) {
       const mesh = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), material);
       mesh.position.set(x, y, z);
       mesh.castShadow = true;
@@ -109,6 +121,15 @@ export const prefabs = {
       mesh.userData.collider = { type: 'aabb' };
       group.add(mesh);
     }
+
+    const occluder = new THREE.Mesh(
+      new THREE.BoxGeometry(outer, outer, 0.05),
+      standardMaterial(color, { roughness: 0.9, metalness: 0 }),
+    );
+    occluder.position.set(0, 0, -0.14);
+    occluder.userData.collider = { type: 'aabb' };
+    occluder.userData.portalOccluder = true;
+    group.add(occluder);
 
     return group;
   },

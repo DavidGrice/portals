@@ -5,7 +5,7 @@ import { BufferAttribute, BufferGeometry } from 'three';
 const FRONT_INDICES = [0, 1, 3, 0, 3, 2];
 const VOLUME_INDICES = [1, 3, 5, 7, 5, 3, 3, 6, 7, 2, 6, 3, 0, 4, 6, 0, 6, 2, 0, 5, 4, 1, 5, 0, 4, 5, 6, 5, 7, 6];
 const FRONT_Z = 0.01;
-const FRONT_INSET = 0.02;
+export const FRONT_INSET = 0.06;
 
 export class PortalGeometry extends BufferGeometry {
   constructor(width, height) {
@@ -35,7 +35,7 @@ export class PortalGeometry extends BufferGeometry {
 
     const hx = this.halfWidth;
     const hy = this.halfHeight;
-    const inset = Math.min(FRONT_INSET, hx * 0.05, hy * 0.05);
+    const inset = Math.min(FRONT_INSET, hx * 0.2, hy * 0.2);
     const fx = hx - inset;
     const fy = hy - inset;
     const dx = Math.tan(fovX / 2) * dz / Math.max(hx, 1e-4);
