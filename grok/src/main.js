@@ -134,6 +134,8 @@ function updateDebug(roomId) {
     `near  ${nearest} z=${nearestZ}`,
     `draw  ${drawn}`,
     `skip  ${skipped}`,
+    `dest  ${controller.lastDrawInfo.destCam ?? '—'}`,
+    `clip  ${controller.lastDrawInfo.clip ?? 'none'}`,
     `cross ${lastCross}`,
     `gpu   ${document.documentElement.dataset.webgpu ?? '?'} / ${document.documentElement.dataset.portalBackend ?? '?'}`,
   ].join('\n');

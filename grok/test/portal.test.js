@@ -10,6 +10,7 @@ function mockRenderer() {
   return {
     autoClear: true,
     clearColor: 0,
+    clippingPlanes: [],
     setClearColor(color) {
       this.clearColor = color;
     },
@@ -21,6 +22,50 @@ function mockRenderer() {
     clear() {},
     render() {},
   };
+}
+
+function makeThreeRooms() {
+  const camera = new PerspectiveCamera(60, 16 / 9, 0.05, 100);
+  const controller = new PortalController({ camera, renderer: mockRenderer() });
+  controller.registerScene('room-a', new Scene(), { clearColor: 0x2a3344 });
+  controller.registerScene('room-b', new Scene(), { clearColor: 0x4a1c1c });
+  controller.registerScene('room-c', new Scene(), { clearColor: 0x1c3328 });
+  const ab = controller.createPortal(2, 2, 'room-a', { id: 'door-ab' });
+  ab.position.set(0, 1, 0);
+  const ba = controller.createPortal(2, 2, 'room-b', { id: 'door-ba' });
+  ba.position.set(0, 1, 0);
+  ba.rotateY(Math.PI);
+  const bc = controller.createPortal(2, 2, 'room-b', { id: 'door-bc' });
+  bc.position.set(0, 1, -5);
+  const cb = controller.createPortal(2, 2, 'room-c', { id: 'door-cb' });
+  cb.position.set(0, 1, 0);
+  cb.rotateY(Math.PI);
+  ab.setDestinationPortal(ba);
+  ba.setDestinationPortal(ab);
+  bc.setDestinationPortal(cb);
+  cb.setDestinationPortal(bc);
+  for (const portal of controller.allPortals) {
+    portal.updateMatrixWorld(true);
+  }
+  return { camera, controller, ab, ba, bc, cb };
+}
+
+function bindDestCamera(controller, src, sourceCamera) {
+  const destCamera = controller._portalCamera;
+  controller._copyCameraOptics(destCamera);
+  destCamera.matrixWorld.copy(controller.computePortalViewMatrix(src, sourceCamera));
+  destCamera.matrixWorldInverse.copy(destCamera.matrixWorld).invert();
+  return destCamera;
+}
+
+function projectPoint(destCamera, world) {
+  const clip = new Vector4(world.x, world.y, world.z, 1)
+    .applyMatrix4(destCamera.matrixWorldInverse)
+    .applyMatrix4(destCamera.projectionMatrix);
+  const ndcZ = clip.z / clip.w;
+  const inClip =
+    clip.w > 0 && Math.abs(clip.x) <= clip.w && Math.abs(clip.y) <= clip.w && Math.abs(clip.z) <= clip.w;
+  return { inClip, ndcZ };
 }
 
 function makePair() {
@@ -167,32 +212,45 @@ describe('portal engine', () => {
     assert.ok(forward.z < -0.9, `dest forward ${forward.z}`);
   });
 
-  it('clips behind dest and keeps dest-room points', () => {
-    const { camera, controller, a } = makePair();
+  it('keeps dest rooms at a healthy depth for every door', () => {
+    const { camera, controller, ab, bc, cb } = makeThreeRooms();
+
     camera.position.set(0, 1, 4);
     camera.lookAt(0, 1, 0);
     camera.updateMatrixWorld();
-    a.updateMatrixWorld(true);
-    a.destinationPortal.updateMatrixWorld(true);
-    camera.matrixAutoUpdate = false;
-    camera.matrixWorld.copy(controller.computePortalViewMatrix(a));
-    camera.matrixWorldInverse.copy(camera.matrixWorld).invert();
-    const proj = controller.computePortalProjectionMatrix(a.destinationPortal);
+    const destBFromA = bindDestCamera(controller, ab, camera);
+    assert.equal(destBFromA.parent, null);
+    const gold = projectPoint(destBFromA, new Vector3(1.5, 0.4, -1.6));
+    assert.equal(gold.inClip, true);
+    assert.ok(Math.abs(gold.ndcZ) > 0.15, `A->B gold ndcZ ${gold.ndcZ}`);
+    const planeAB = controller.buildDestClipPlane(ab.destinationPortal, destBFromA);
+    assert.ok(planeAB.distanceToPoint(new Vector3(0, 1, -2)) > 0);
+    assert.ok(planeAB.distanceToPoint(new Vector3(0, 1, 2)) < 0);
 
-    const inClip = (world) => {
-      const clip = new Vector4(world.x, world.y, world.z, 1)
-        .applyMatrix4(camera.matrixWorldInverse)
-        .applyMatrix4(proj);
-      return (
-        clip.w > 0 &&
-        Math.abs(clip.x) <= clip.w &&
-        Math.abs(clip.y) <= clip.w &&
-        Math.abs(clip.z) <= clip.w
-      );
-    };
+    camera.position.set(0, 1, -3);
+    camera.lookAt(0, 1, -5);
+    camera.updateMatrixWorld();
+    const destCFromB = bindDestCamera(controller, bc, camera);
+    const green = projectPoint(destCFromB, new Vector3(-1.4, 0.4, -2));
+    assert.equal(green.inClip, true);
+    assert.ok(Math.abs(green.ndcZ) > 0.15, `B->C green ndcZ ${green.ndcZ}`);
+    const planeBC = controller.buildDestClipPlane(bc.destinationPortal, destCFromB);
+    assert.ok(planeBC.distanceToPoint(new Vector3(-1.4, 0.4, -2)) > 0);
+    assert.ok(planeBC.distanceToPoint(new Vector3(0, 1, 2)) < 0);
 
-    assert.equal(inClip(new Vector3(0, 1, -2)), true);
-    assert.equal(inClip(new Vector3(0, 1, 2)), false);
+    camera.position.set(0, 1, -2);
+    camera.lookAt(0, 1, 0);
+    camera.updateMatrixWorld();
+    const destBFromC = bindDestCamera(controller, cb, camera);
+    const redCube = projectPoint(destBFromC, new Vector3(1.5, 0.4, -1.6));
+    const goldFrame = projectPoint(destBFromC, new Vector3(0, 1, 0));
+    assert.equal(redCube.inClip, true);
+    assert.equal(goldFrame.inClip, true);
+    assert.ok(Math.abs(redCube.ndcZ) > 0.15, `C->B gold ndcZ ${redCube.ndcZ}`);
+    const planeCB = controller.buildDestClipPlane(cb.destinationPortal, destBFromC);
+    assert.ok(planeCB.distanceToPoint(new Vector3(1.5, 0.4, -1.6)) > 0);
+    assert.ok(planeCB.distanceToPoint(new Vector3(0, 1, -7)) < 0);
+    assert.equal(camera.matrixWorld.elements[14], camera.position.z);
   });
 
   it('emerges in front of an offset destination and does not bounce', () => {
