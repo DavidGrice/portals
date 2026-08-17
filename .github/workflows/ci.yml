@@ -1,9 +1,10 @@
-# Replaced by ci.yml (same quality gate, named branches only).
-# Kept so existing check URLs do not 404; it forwards to the same commands.
-name: test
+name: ci
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [portals-grok, main]
+  pull_request:
+    branches: [portals-grok, main]
 
 jobs:
   quality:
