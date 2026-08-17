@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { createDemo } from './demo.js';
-import { createPortalRenderer, probeCapabilities } from './engine/capabilities.js';
+import { createPortalRenderer, probeCapabilities } from './engine/index.js';
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.05, 100);
 const renderer = createPortalRenderer();

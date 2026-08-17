@@ -1,5 +1,5 @@
 import { Scene } from 'three';
-import { PortalController } from '../portal/PortalController.js';
+import { PortalController } from '../engine/index.js';
 import { parseColor, spawnEntity } from './prefabs.js';
 
 export function loadWorld(world, catalog, camera, renderer) {
