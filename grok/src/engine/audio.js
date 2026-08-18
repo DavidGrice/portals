@@ -13,6 +13,8 @@ export const BEDS = {
   cyber: { freqs: [40, 80, 160, 320], filter: 420, lfo: 0.11, gain: 0.08, whisper: 1280, sub: 40 },
   agesPast: { freqs: [38, 57, 76], filter: 180, lfo: 0.035, gain: 0.1, sub: 22 },
   agesFuture: { freqs: [48, 96, 192], filter: 360, lfo: 0.08, gain: 0.09, whisper: 880, sub: 24 },
+  agesPrimordial: { freqs: [22, 33, 44], filter: 90, lfo: 0.02, gain: 0.12, sub: 14, whisper: 180 },
+  agesIndustrial: { freqs: [55, 82, 110], filter: 240, lfo: 0.07, gain: 0.1, whisper: 300, sub: 28 },
 };
 
 const ROOM_BED = {
@@ -38,6 +40,12 @@ export function bedForRoom(room) {
   const tags = room?.tags ?? [];
   if (tags.includes('cyber')) {
     return 'cyber';
+  }
+  if (tags.includes('industrial')) {
+    return 'agesIndustrial';
+  }
+  if (id === 'primordial' || tags.includes('primordial')) {
+    return 'agesPrimordial';
   }
   if (tags.includes('future')) {
     return 'agesFuture';
@@ -201,6 +209,11 @@ export class GameAudio {
 
   whoosh() {
     this._noise(0.28, 240, 0.2, 1800);
+  }
+
+  slam() {
+    this._noise(0.16, 160, 0.2, 50);
+    this._tone(70, 28, 0.22, 0.14);
   }
 
   footstep() {
