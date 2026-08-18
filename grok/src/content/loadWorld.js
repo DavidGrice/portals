@@ -21,6 +21,7 @@ export function addRoom(controller, roomData, catalog) {
   });
   room.kitId = roomData.kitId ?? null;
   room.depth = roomData.depth ?? 0;
+  room.atmosphere = roomData.atmosphere ?? null;
 
   for (const entity of roomData.entities ?? []) {
     scene.add(spawnEntity({
@@ -86,7 +87,7 @@ export function dressRooms(controller) {
       origin: room.origin ?? [0, 0, 0],
       half: [7.2, 1.35, 5.6],
     });
-    setMoteDensity(room, 1);
+    setMoteDensity(room, room.atmosphere?.density ?? 1);
     room.scene.traverse((object) => {
       if (!object.userData.portalFrame || !object.userData.coversPortalId) {
         return;

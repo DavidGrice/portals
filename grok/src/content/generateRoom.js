@@ -150,6 +150,7 @@ export function generateRoom({
     origin: origin ?? allocateOrigin(depth, branch),
     clearColor: kit.clearColor ?? '#111111',
     kitId: kit.id,
+    atmosphere: kit.atmosphere ?? null,
     depth,
     branch,
     entities,
