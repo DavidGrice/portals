@@ -1,0 +1,10 @@
+{
+  "id": "drift",
+  "title": "Drift",
+  "theme": "drift",
+  "generated": true,
+  "startRoom": "drift-0",
+  "startSpawn": [0, 1, 4],
+  "lookAt": [0, 1, 0],
+  "rooms": []
+}

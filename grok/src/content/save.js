@@ -36,6 +36,8 @@ export function poseFromSession(session, worldId) {
     position: [session.camera.position.x, session.camera.position.y, session.camera.position.z],
     yaw: euler.y,
     pitch: euler.x,
+    seed: session.controller?.drift?.seed,
+    depth: session.controller?.drift?.depth,
   };
 }
 

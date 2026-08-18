@@ -27,6 +27,13 @@
       "blurb": "Walk nine eras, primordial to orbit.",
       "preview": "/worlds/ages.jpg",
       "file": "ages.json"
+    },
+    {
+      "id": "drift",
+      "title": "Drift",
+      "blurb": "One-way. It will not remember you.",
+      "preview": "/worlds/circuit-grid.jpg",
+      "file": "drift.json"
     }
   ]
 }

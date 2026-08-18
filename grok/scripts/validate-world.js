@@ -75,6 +75,10 @@ if (isMain) {
   let failed = false;
   for (const entry of index.worlds ?? []) {
     const world = readJson(`data/worlds/${entry.file}`);
+    if (world.generated) {
+      console.log(`skip ${entry.id} generated stub`);
+      continue;
+    }
     const errors = validateWorld(world, catalog, materials);
     if (errors.length) {
       console.error(`${entry.id}:\n${errors.join('\n')}`);

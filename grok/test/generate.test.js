@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { PerspectiveCamera } from 'three';
 import { createRng } from '../src/content/rng.js';
 import { allocateOrigin, generateRoom, linkRooms, worldFromRooms } from '../src/content/generateRoom.js';
-import { sealArrival, spawnLookahead } from '../src/content/drift.js';
+import { evictBehind, openDrift, sealArrival, spawnLookahead } from '../src/content/drift.js';
 import { addRoom, relinkPortals } from '../src/content/loadWorld.js';
 import { PortalController } from '../src/engine/index.js';
 import { validateWorld } from '../scripts/validate-world.js';
@@ -146,5 +146,14 @@ describe('room compiler', () => {
     assert.equal(sealArrival(exit), true);
     assert.equal(exit.destinationPortal.enabled, false);
     assert.equal(exit.destinationPortal.oneWay, true);
+  });
+
+  it('opens a seeded Drift world with at least one dest hall', () => {
+    const first = openDrift({ seed: 'abcd', depth: 0 });
+    const second = openDrift({ seed: 'abcd', depth: 0 });
+    assert.equal(first.id, 'drift');
+    assert.ok(first.rooms.length >= 2);
+    assert.equal(first.rooms[0].id, second.rooms[0].id);
+    assert.ok(first.rooms[0].portals.some((portal) => portal.role === 'exit' && portal.destinationId));
   });
 });

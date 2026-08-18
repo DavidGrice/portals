@@ -2,6 +2,7 @@ import { PerspectiveCamera } from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { GraphicsSettings, Player, PostAA, attachGadgets, createPortalRenderer } from '../engine/index.js';
 import { loadWorld } from '../content/loadWorld.js';
+import { openDrift } from '../content/drift.js';
 import { applyPose } from '../content/save.js';
 
 const TEXTURE_KEYS = ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap'];
@@ -32,7 +33,11 @@ export function createSession({
     document.body.insertBefore(nextRenderer.domElement, document.body.firstChild);
   }
 
-  const controller = loadWorld(world, catalog, nextCamera, nextRenderer);
+  const resolvedWorld = world?.id === 'drift' || world?.generated
+    ? openDrift({ seed: pose?.seed, depth: pose?.depth ?? 0 })
+    : world;
+  const controller = loadWorld(resolvedWorld, catalog, nextCamera, nextRenderer);
+  controller.drift = resolvedWorld?.id === 'drift' ? { seed: resolvedWorld.seed, depth: resolvedWorld.depth ?? 0 } : null;
   if (pose) {
     applyPose({ camera: nextCamera, controller }, pose);
   }

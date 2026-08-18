@@ -8,7 +8,7 @@ import { findInteract, runInteract } from './engine/interact.js';
 import { nearestFireDistance, spawnCrossBurst, tickAtmosphere } from './engine/atmosphere.js';
 import { gameAudio } from './engine/audio.js';
 import { tickDestStrip, tickScreens } from './engine/index.js';
-import { sealArrival } from './content/drift.js';
+import { evictBehind, kitsForDepth, sealArrival, spawnLookahead } from './content/drift.js';
 import { tickMaterials } from './content/materials.js';
 import { createSession } from './game/session.js';
 import { loadSave, poseFromSession, writeSave } from './content/save.js';
@@ -444,6 +444,22 @@ export function createApp({
     const offEnter = next.controller.on('room:enter', ({ room, roomId }) => {
       gameAudio.startBed(room ?? roomId);
       showRoomTitle(room?.title || roomId);
+      if (next.controller.drift) {
+        const depth = room.depth ?? next.controller.drift.depth ?? 0;
+        next.controller.drift.depth = depth;
+        spawnLookahead(next.controller, {
+          catalog: catalogData,
+          kits: kitsForDepth(depth + 1),
+          seed: next.controller.drift.seed,
+          depth,
+          room,
+        });
+        evictBehind(next.controller);
+        const banner = document.getElementById('room-banner');
+        if (banner) {
+          banner.textContent = `${room?.title || roomId} · ${depth} · ${next.controller.drift.seed}`;
+        }
+      }
       if (next.gadgets && next.renderer) {
         tickScreens(next.gadgets, { controller: next.controller, renderer: next.renderer, force: true });
       }
@@ -453,8 +469,10 @@ export function createApp({
     });
     const offCross = next.controller.on('portal:cross', ({ portal, portalId, from, to }) => {
       lastCross = `${from} → ${to} via ${portalId ?? '?'}`;
-      if (next.controller.currentRoom?.tags?.includes('generated')) {
-        sealArrival(portal ?? next.controller.getPortal(portalId));
+      if (next.controller.currentRoom?.tags?.includes('generated') || next.controller.drift) {
+        if (sealArrival(portal ?? next.controller.getPortal(portalId))) {
+          gameAudio.slam();
+        }
       }
       gameAudio.whoosh();
       const dest = next.controller.rooms.find((entry) => entry.id === to);

@@ -3,12 +3,14 @@ import fourHalls from '../../data/worlds/two-rooms.json' with { type: 'json' };
 import hauntedHouse from '../../data/worlds/haunted-house.json' with { type: 'json' };
 import circuitGrid from '../../data/worlds/circuit-grid.json' with { type: 'json' };
 import ages from '../../data/worlds/ages.json' with { type: 'json' };
+import drift from '../../data/worlds/drift.json' with { type: 'json' };
 
 const WORLD_DATA = {
   'two-rooms': fourHalls,
   'haunted-house': hauntedHouse,
   'circuit-grid': circuitGrid,
   ages,
+  drift,
 };
 
 export function listWorlds() {

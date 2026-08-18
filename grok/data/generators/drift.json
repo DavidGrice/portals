@@ -1,0 +1,13 @@
+{
+  "id": "drift",
+  "lookahead": 1,
+  "keepBehind": 0,
+  "maxLiveRooms": 4,
+  "minExits": 1,
+  "maxExits": 2,
+  "depths": [
+    { "until": 4, "kits": ["cyber-cyan", "haunt-hall"] },
+    { "until": 12, "kits": ["cyber-cyan", "haunt-hall", "ages-mesozoic", "ages-stone"] },
+    { "until": 99, "kits": ["cyber-cyan", "haunt-hall", "ages-present", "ages-orbital", "ages-industrial"] }
+  ]
+}

@@ -115,6 +115,32 @@ export class PortalController {
     return this._portalsById.get(id) ?? null;
   }
 
+  removeRoom(id) {
+    const room = this._rooms.get(id);
+    if (!room || room === this._currentRoom) {
+      return false;
+    }
+    for (const portal of room.portals) {
+      this._portalsById.delete(portal.portalId);
+      this._allPortals = this._allPortals.filter((entry) => entry !== portal);
+      if (portal.destinationPortal) {
+        portal.destinationPortal.destinationPortal = null;
+      }
+    }
+    room.scene?.traverse((object) => {
+      if (object.isPortal || object.type === 'Portal') {
+        return;
+      }
+      object.geometry?.dispose?.();
+      const materials = Array.isArray(object.material) ? object.material : [object.material];
+      for (const material of materials) {
+        material?.dispose?.();
+      }
+    });
+    this._rooms.delete(id);
+    return true;
+  }
+
   addPortalToScene(sceneOrName, portal) {
     const room = this._getRoom(sceneOrName);
 

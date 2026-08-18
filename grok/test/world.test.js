@@ -161,6 +161,9 @@ describe('world data', () => {
     assert.ok(cyan.emissiveIntensity > 0);
     for (const entry of index.worlds) {
       const world = readJson(`data/worlds/${entry.file}`);
+      if (world.generated) {
+        continue;
+      }
       assert.deepEqual(validateWorld(world, catalog, materials), [], entry.id);
     }
     assert.ok(groupsHasLight(catalog));
