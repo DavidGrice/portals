@@ -20,7 +20,7 @@
           "id": "shell-foyer",
           "kind": "arch.chamber",
           "props": {
-            "material": "haunt.plaster",
+            "material": "haunt.plaster.dirty",
             "halfX": 7,
             "zMin": 0,
             "zMax": 8,
@@ -37,7 +37,7 @@
         { "id": "portrait-foyer", "kind": "prop.portrait", "position": [-3.2, 0, 0.2], "props": { "frame": "#4a3820", "color": "#3a2428" } },
         { "id": "candle-foyer-a", "kind": "prop.candle", "position": [-5.6, 1.02, 5.4] },
         { "id": "candle-foyer-b", "kind": "prop.candle", "position": [5.2, 0, 2.4] },
-        { "id": "frame-fh", "kind": "arch.frame", "position": [0, 1, 0], "props": { "color": "#6a5840", "coversPortalId": "door-fh" } }
+        { "id": "frame-fh", "kind": "arch.frame", "position": [0, 1, 0], "props": { "color": "#6a5840", "frameMaterial": "metal.iron", "coversPortalId": "door-fh" } }
       ],
       "portals": [
         { "id": "door-fh", "position": [0, 1, 0], "yaw": 0, "size": [2, 2], "destinationId": "door-hf" }

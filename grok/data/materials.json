@@ -214,6 +214,71 @@
       "sheen": 0.5,
       "map": "/assets/textures/haunt/velvet.jpg"
     },
+    "metal.gold": {
+      "recipe": "metal",
+      "color": "#ffe39d",
+      "line": "#c4a060",
+      "roughness": 0.22,
+      "metalness": 1,
+      "clearcoat": 0.18
+    },
+    "metal.copper": {
+      "recipe": "metal",
+      "color": "#fad2c2",
+      "line": "#8a5040",
+      "roughness": 0.28,
+      "metalness": 1
+    },
+    "metal.iron": {
+      "recipe": "metal",
+      "color": "#c6c7c8",
+      "line": "#4a4c4e",
+      "roughness": 0.48,
+      "metalness": 1
+    },
+    "metal.silver": {
+      "recipe": "metal",
+      "color": "#fcfbf5",
+      "line": "#8a8a86",
+      "roughness": 0.12,
+      "metalness": 1,
+      "clearcoat": 0.2
+    },
+    "metal.aluminum": {
+      "recipe": "metal",
+      "color": "#f5f6f6",
+      "line": "#8a8c8e",
+      "roughness": 0.3,
+      "metalness": 1
+    },
+    "metal.chrome": {
+      "recipe": "metal",
+      "color": "#c4c5c5",
+      "line": "#6a6c6e",
+      "roughness": 0.1,
+      "metalness": 1,
+      "clearcoat": 0.35
+    },
+    "glass.pane": {
+      "recipe": "tile",
+      "color": "#c8dcec",
+      "line": "#8ab0c8",
+      "roughness": 0.04,
+      "metalness": 0,
+      "ior": 1.5,
+      "transmission": 0.86,
+      "envMapIntensity": 1
+    },
+    "haunt.plaster.dirty": {
+      "recipe": "plaster",
+      "color": "#8a8074",
+      "line": "#5a5248",
+      "repeat": [3, 3],
+      "roughness": 0.94,
+      "metalness": 0,
+      "overlay": "cloud",
+      "map": "/assets/textures/haunt/plaster.jpg"
+    },
     "ages.hull": {
       "recipe": "stripe",
       "color": "#2a3038",

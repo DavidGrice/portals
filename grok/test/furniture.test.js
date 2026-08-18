@@ -59,6 +59,20 @@ describe('haunt furniture and textures', () => {
     assert.equal(buildMaterial('shared.stone').type, 'MeshPhysicalMaterial');
   });
 
+  it('uses measured Chaos metal F0 values and a glass IOR of 1.5', () => {
+    const gold = resolveMaterial('metal.gold');
+    assert.equal(gold.metalness, 1);
+    assert.equal(gold.color, 0xffe39d);
+    const iron = resolveMaterial('metal.iron');
+    assert.equal(iron.metalness, 1);
+    const glass = resolveMaterial('glass.pane');
+    assert.equal(glass.ior, 1.5);
+    assert.ok(glass.transmission > 0.5);
+    const dirty = resolveMaterial('haunt.plaster.dirty');
+    assert.equal(dirty.overlay, 'cloud');
+    assert.equal(buildMaterial('metal.gold').metalness, 1);
+  });
+
   it('assigns a stubbed file map when a loader is provided', () => {
     const fake = { isTexture: true, repeat: { set() {} }, wrapS: 0, wrapT: 0, anisotropy: 1 };
     const material = buildMaterial('haunt.plaster');

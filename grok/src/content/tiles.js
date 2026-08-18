@@ -14,6 +14,9 @@ export function makeRecipeTexture(recipe = 'tile', options = {}) {
   if (recipe === 'speckle') {
     return makeSpeckleTexture(options);
   }
+  if (recipe === 'cloud') {
+    return makeCloudTexture(options);
+  }
   return makeTileTexture(options);
 }
 
@@ -144,6 +147,67 @@ export function makeSpeckleTexture({
     const r = 1 + rand() * 2.4;
     ctx.fillRect(x, y, r, r);
   }
+  return finishTexture(ctx.canvas, repeat);
+}
+
+export function makeCloudTexture({
+  color = '#3a342c',
+  line = '#8a8074',
+  size = 256,
+  repeat = [3, 3],
+} = {}) {
+  const ctx = makeContext(size);
+  if (!ctx) {
+    return null;
+  }
+  const image = ctx.createImageData(size, size);
+  let seed = 19;
+  const rand = () => {
+    seed = (seed * 16807) % 2147483647;
+    return (seed - 1) / 2147483646;
+  };
+  const noise = (x, y, s) => {
+    const xs = x / s;
+    const ys = y / s;
+    const x0 = Math.floor(xs);
+    const y0 = Math.floor(ys);
+    const fx = xs - x0;
+    const fy = ys - y0;
+    const n = (ix, iy) => {
+      const k = Math.sin(ix * 127.1 + iy * 311.7) * 43758.5453;
+      return k - Math.floor(k);
+    };
+    const a = n(x0, y0);
+    const b = n(x0 + 1, y0);
+    const c = n(x0, y0 + 1);
+    const d = n(x0 + 1, y0 + 1);
+    const sx = fx * fx * (3 - 2 * fx);
+    const sy = fy * fy * (3 - 2 * fy);
+    return a * (1 - sx) * (1 - sy) + b * sx * (1 - sy) + c * (1 - sx) * sy + d * sx * sy;
+  };
+  for (let y = 0; y < size; y += 1) {
+    for (let x = 0; x < size; x += 1) {
+      let v = 0;
+      let amp = 0.5;
+      let s = 48;
+      for (let o = 0; o < 5; o += 1) {
+        v += noise(x, y, s) * amp;
+        s *= 0.5;
+        amp *= 0.5;
+      }
+      v = Math.max(0, Math.min(1, (v - 0.42) * 2.2));
+      const i = (y * size + x) * 4;
+      const stain = Math.round(v * 180);
+      image.data[i] = stain;
+      image.data[i + 1] = stain;
+      image.data[i + 2] = stain;
+      image.data[i + 3] = Math.round(v * 220);
+    }
+  }
+  ctx.putImageData(image, 0, 0);
+  void color;
+  void line;
+  void rand;
   return finishTexture(ctx.canvas, repeat);
 }
 

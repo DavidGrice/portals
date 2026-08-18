@@ -16,7 +16,10 @@
     "material": {
       "type": "object",
       "properties": {
-        "recipe": { "enum": ["tile", "circuit", "stripe", "speckle", "wood", "plaster", "brick", "stone", "metal", "fabric", "dirt"] },
+        "recipe": { "enum": ["tile", "circuit", "stripe", "speckle", "cloud", "wood", "plaster", "brick", "stone", "metal", "fabric", "dirt"] },
+        "ior": { "type": "number" },
+        "transmission": { "type": "number" },
+        "overlay": { "type": "string" },
         "clearcoat": { "type": "number" },
         "sheen": { "type": "number" },
         "envMapIntensity": { "type": "number" },

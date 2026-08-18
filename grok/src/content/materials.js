@@ -1,6 +1,6 @@
 import { MeshPhysicalMaterial, RepeatWrapping, SRGBColorSpace, Vector2 } from 'three';
 import materials from '../../data/materials.json' with { type: 'json' };
-import { makeRecipePbr, makeRecipeTexture } from './tiles.js';
+import { makeCloudTexture, makeRecipePbr, makeRecipeTexture } from './tiles.js';
 
 export function listMaterials(library = materials) {
   return Object.keys(library?.materials ?? {});
@@ -34,6 +34,9 @@ export function resolveMaterial(id, { color, library = materials } = {}) {
     clearcoat: def?.clearcoat ?? 0,
     sheen: def?.sheen ?? 0,
     envMapIntensity: def?.envMapIntensity ?? 0.55,
+    ior: def?.ior ?? 1.5,
+    transmission: def?.transmission ?? 0,
+    overlay: def?.overlay ?? null,
   };
 }
 
@@ -67,7 +70,14 @@ export function buildMaterial(id, extras = {}) {
     sheen: spec.sheen,
     sheenColor: spec.sheen ? spec.color : 0x000000,
     envMapIntensity: spec.envMapIntensity,
+    ior: spec.ior,
+    transmission: spec.transmission,
+    thickness: spec.transmission ? 0.08 : 0,
+    transparent: spec.transmission > 0,
   });
+  if (spec.overlay === 'cloud' || spec.overlay === 'dirt') {
+    applyCloudOverlay(material, spec);
+  }
   material.userData.materialSpec = spec;
   if (extras.loader && spec.mapPath) {
     hydrateMaterialMaps(material, spec, extras);
@@ -164,6 +174,22 @@ export function tickMaterials(rooms, dt = 0.016) {
     });
   }
   return count;
+}
+
+function applyCloudOverlay(material, spec) {
+  const cloud = makeCloudTexture({
+    color: spec.line,
+    line: spec.line,
+    repeat: spec.repeat,
+  });
+  if (!cloud || !material.map) {
+    if (cloud) {
+      material.alphaMap = cloud;
+    }
+    return;
+  }
+  material.aoMap = cloud;
+  material.aoMapIntensity = 0.85;
 }
 
 function hex(value) {

@@ -626,7 +626,9 @@ export const prefabs = {
     const depth = 0.09;
     const frameColor = parseColor(entity.props?.frame, 0x8a93a8);
     const tint = parseColor(entity.props?.color, 0xb8d4e8);
-    const frame = standardMaterial(frameColor, { roughness: 0.32, metalness: 0.62 });
+    const frame = entity.props?.frameMaterial
+      ? buildMaterial(entity.props.frameMaterial)
+      : standardMaterial(frameColor, { roughness: 0.32, metalness: 0.62 });
     addBox(group, frame, 0, height / 2, 0, width + frameT, frameT, depth);
     addBox(group, frame, 0, -height / 2, 0, width + frameT, frameT, depth);
     addBox(group, frame, -width / 2, 0, 0, frameT, height, depth);
