@@ -8,7 +8,14 @@ import { findInteract, runInteract } from './engine/interact.js';
 import { nearestFireDistance, spawnCrossBurst, tickAtmosphere, tickNpcs } from './engine/atmosphere.js';
 import { gameAudio } from './engine/audio.js';
 import { tickDestStrip, tickScreens } from './engine/index.js';
-import { evictBehind, ensureForwardDoors, kitsForDepth, sealArrival } from './content/drift.js';
+import {
+  evictBehind,
+  ensureForwardDoors,
+  kitsForDepth,
+  liveDestExits,
+  logDriftEndRoom,
+  sealArrival,
+} from './content/drift.js';
 import { tickMaterials } from './content/materials.js';
 import { createSession } from './game/session.js';
 import { loadSave, poseFromSession, writeSave } from './content/save.js';
@@ -454,9 +461,28 @@ export function createApp({
           depth,
           room,
         };
-        ensureForwardDoors(next.controller, lookArgs);
-        evictBehind(next.controller);
-        ensureForwardDoors(next.controller, lookArgs);
+        const firstSpawn = ensureForwardDoors(next.controller, lookArgs);
+        const evicted = evictBehind(next.controller);
+        const refill = ensureForwardDoors(next.controller, lookArgs);
+        const live = liveDestExits(room, next.controller);
+        console.log('[drift] enter', {
+          seed: next.controller.drift.seed,
+          depth,
+          room: roomId,
+          kit: room.kitId ?? null,
+          liveDests: live.length,
+          spawned: firstSpawn.length + refill.length,
+          evicted,
+        });
+        if (live.length < 1) {
+          logDriftEndRoom(next.controller, {
+            room,
+            spawned: firstSpawn.map((entry) => entry.id),
+            refilled: refill.map((entry) => entry.id),
+            evicted,
+            kits: (lookArgs.kits ?? []).map((kit) => kit.id),
+          });
+        }
         const banner = document.getElementById('room-banner');
         if (banner) {
           banner.textContent = `${room?.title || roomId} · ${depth} · ${next.controller.drift.seed}`;

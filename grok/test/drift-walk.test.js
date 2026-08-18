@@ -11,8 +11,10 @@ import {
   ensureForwardDoors,
   kitsForDepth,
   liveDestExits,
+  logDriftEndRoom,
   openDrift,
   sealArrival,
+  snapshotDriftRoom,
 } from '../src/content/drift.js';
 import { generateRoom, isForwardSocket, unusedExits } from '../src/content/generateRoom.js';
 import { validateWorld } from '../scripts/validate-world.js';
@@ -160,6 +162,28 @@ describe('Drift walk harness', () => {
           `seed ${seed} step ${step} arrived in ${destRoom.id} with no spawnable door`,
         );
       }
+    }
+  });
+
+  it('dumps an end-room snapshot for the browser console', () => {
+    const world = openDrift({ seed: 'log-end', depth: 0 });
+    const camera = new PerspectiveCamera(60, 1, 0.05, 280);
+    const controller = loadWorld(world, catalogData, camera, mockRenderer());
+    controller.drift = { seed: 'log-end', depth: 0, origins: world.originPool, seq: 0 };
+    const snap = snapshotDriftRoom(controller, controller.currentRoom);
+    assert.equal(snap.seed, 'log-end');
+    assert.ok(snap.roomId);
+    assert.ok(Array.isArray(snap.portals));
+    const warnings = [];
+    const original = console.warn;
+    console.warn = (...args) => warnings.push(args);
+    try {
+      const payload = logDriftEndRoom(controller, { evicted: [] });
+      assert.equal(payload.roomId, snap.roomId);
+      assert.equal(warnings.length, 1);
+      assert.match(String(warnings[0][0]), /END ROOM/);
+    } finally {
+      console.warn = original;
     }
   });
 });

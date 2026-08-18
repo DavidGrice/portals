@@ -269,6 +269,53 @@ export function ensureForwardDoors(controller, options = {}) {
   return spawned;
 }
 
+function portalDump(portal, controller) {
+  const dest = portal?.destinationPortal;
+  const destRoom = dest ? roomForPortal(controller, dest) : null;
+  return {
+    id: portal.portalId ?? portal.id ?? null,
+    role: portal.userData?.role ?? portal.role ?? null,
+    enabled: portal.enabled !== false,
+    sealed: Boolean(portal.userData?.sealed),
+    oneWay: Boolean(portal.oneWay),
+    destId: portal.userData?.destinationId ?? portal.destinationId ?? dest?.portalId ?? null,
+    destRoom: destRoom?.id ?? null,
+    destLive: Boolean(destRoom),
+    position: portal.position ? [portal.position.x, portal.position.y, portal.position.z] : null,
+  };
+}
+
+export function snapshotDriftRoom(controller, room = controller?.currentRoom) {
+  const drift = controller?.drift ?? {};
+  const portals = (room?.portals ?? []).map((portal) => portalDump(portal, controller));
+  return {
+    seed: drift.seed ?? null,
+    depth: room?.depth ?? drift.depth ?? null,
+    seq: drift.seq ?? null,
+    roomId: room?.id ?? null,
+    title: room?.title ?? null,
+    kitId: room?.kitId ?? null,
+    tags: room?.tags ?? [],
+    liveRooms: (controller?.rooms ?? []).map((entry) => ({
+      id: entry.id,
+      depth: entry.depth ?? null,
+      kitId: entry.kitId ?? null,
+    })),
+    portals,
+    unusedExits: unusedLiveExits(room).map((portal) => portal.portalId ?? portal.id),
+    liveDests: liveDestExits(room, controller).map((portal) => portal.portalId ?? portal.id),
+    sealed: portals.filter((portal) => portal.sealed || portal.enabled === false).map((portal) => portal.id),
+  };
+}
+
+export function logDriftEndRoom(controller, extra = {}) {
+  const room = extra.room ?? controller?.currentRoom;
+  const snapshot = snapshotDriftRoom(controller, room);
+  const payload = { ...snapshot, ...extra };
+  console.warn('[drift] END ROOM — no spawnable forward door', payload);
+  return payload;
+}
+
 export function spawnSealSlab(portal) {
   if (!portal?.scene) {
     return null;
