@@ -26,7 +26,10 @@
             "zMin": 0,
             "zMax": 6.2,
             "openings": [0],
-            "sideOpenings": [{ "side": -1, "z": 3.2 }]
+            "sideOpenings": [
+              { "side": -1, "z": 3.2 },
+              { "side": 1, "z": 3.2 }
+            ]
           }
         },
         {
@@ -77,9 +80,23 @@
           "position": [-6.4, 1, 3.2],
           "rotation": [0, 1.5707963267948966, 0],
           "props": { "color": "#a8b4c8", "coversPortalId": "door-ws" }
+        },
+        {
+          "id": "frame-wb",
+          "kind": "arch.frame",
+          "position": [6.4, 1, 3.2],
+          "rotation": [0, -1.5707963267948966, 0],
+          "props": { "color": "#3b7cff", "coversPortalId": "door-wb" }
         }
       ],
       "portals": [
+        {
+          "id": "door-wb",
+          "position": [6.4, 1, 3.2],
+          "yaw": -1.5707963267948966,
+          "size": [2, 2],
+          "destinationId": "door-bw"
+        },
         {
           "id": "door-ws",
           "position": [-6.4, 1, 3.2],
@@ -285,7 +302,15 @@
         {
           "id": "shell-blue",
           "kind": "arch.corridor",
-          "props": { "material": "cyber.grid.blue", "color": "#040814", "halfX": 8, "zMin": -6.2, "zMax": 1, "openings": [0] }
+          "props": {
+            "material": "cyber.grid.blue",
+            "color": "#040814",
+            "halfX": 8,
+            "zMin": -6.2,
+            "zMax": 1,
+            "openings": [0],
+            "sideOpenings": [{ "side": -1, "z": -2.4 }]
+          }
         },
         {
           "id": "strip-blue-l",
@@ -318,6 +343,13 @@
           "position": [0, 1, 0],
           "rotation": [0, 3.141592653589793, 0],
           "props": { "color": "#3b7cff", "coversPortalId": "door-br" }
+        },
+        {
+          "id": "frame-bw",
+          "kind": "arch.frame",
+          "position": [-6.4, 1, -2.4],
+          "rotation": [0, 1.5707963267948966, 0],
+          "props": { "color": "#e8eef8", "coversPortalId": "door-bw" }
         }
       ],
       "portals": [
@@ -327,6 +359,13 @@
           "yaw": 3.141592653589793,
           "size": [2, 2],
           "destinationId": "door-rb"
+        },
+        {
+          "id": "door-bw",
+          "position": [-6.4, 1, -2.4],
+          "yaw": 1.5707963267948966,
+          "size": [2, 2],
+          "destinationId": "door-wb"
         }
       ]
     },
