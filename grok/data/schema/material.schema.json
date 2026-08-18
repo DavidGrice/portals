@@ -16,7 +16,10 @@
     "material": {
       "type": "object",
       "properties": {
-        "recipe": { "enum": ["tile", "circuit", "stripe", "speckle"] },
+        "recipe": { "enum": ["tile", "circuit", "stripe", "speckle", "wood", "plaster", "brick", "stone", "metal", "fabric", "dirt"] },
+        "clearcoat": { "type": "number" },
+        "sheen": { "type": "number" },
+        "envMapIntensity": { "type": "number" },
         "color": { "type": ["string", "number"] },
         "line": { "type": ["string", "number"] },
         "cells": { "type": "number" },

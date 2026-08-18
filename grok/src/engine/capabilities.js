@@ -1,9 +1,12 @@
-import { PCFSoftShadowMap, WebGLRenderer } from 'three';
+import { ACESFilmicToneMapping, PCFSoftShadowMap, SRGBColorSpace, WebGLRenderer } from 'three';
 
 export function createPortalRenderer({ antialias = true, pixelRatio, shadows = false } = {}) {
-  const renderer = new WebGLRenderer({ antialias, stencil: true });
+  const renderer = new WebGLRenderer({ antialias, stencil: true, powerPreference: 'high-performance' });
   const ratio = pixelRatio ?? Math.min(globalThis.devicePixelRatio || 1, 2);
   renderer.setPixelRatio(ratio);
+  renderer.outputColorSpace = SRGBColorSpace;
+  renderer.toneMapping = ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.12;
   renderer.shadowMap.enabled = Boolean(shadows);
   renderer.shadowMap.type = PCFSoftShadowMap;
   return renderer;

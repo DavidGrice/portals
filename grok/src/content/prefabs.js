@@ -111,15 +111,28 @@ export const prefabs = {
     applyPose(group, entity);
     const ambient = parseColor(entity.props?.ambient, 0x3a3d4d);
     const sun = parseColor(entity.props?.sun, 0xfff4e5);
-    group.add(new THREE.AmbientLight(ambient, entity.props?.ambientIntensity ?? 0.45));
+    const hemi = new THREE.HemisphereLight(0xb8c8e0, ambient, (entity.props?.ambientIntensity ?? 0.45) * 0.85);
+    hemi.userData.hemiLight = true;
+    group.add(hemi);
+    group.add(new THREE.AmbientLight(ambient, (entity.props?.ambientIntensity ?? 0.45) * 0.28));
     const directional = new THREE.DirectionalLight(sun, entity.props?.sunIntensity ?? 0.85);
-    const aim = entity.props?.aim ?? [4, 8, 3];
+    const aim = entity.props?.aim ?? [6, 11, 4];
     directional.position.set(...aim);
     directional.castShadow = true;
-    directional.shadow.mapSize.set(1024, 1024);
-    directional.shadow.camera.near = 0.5;
-    directional.shadow.camera.far = 40;
+    directional.shadow.mapSize.set(2048, 2048);
+    directional.shadow.bias = -0.00035;
+    directional.shadow.normalBias = 0.03;
+    directional.shadow.camera.near = 0.4;
+    directional.shadow.camera.far = 48;
+    directional.shadow.camera.left = -16;
+    directional.shadow.camera.right = 16;
+    directional.shadow.camera.top = 16;
+    directional.shadow.camera.bottom = -16;
     group.add(directional);
+    const fill = new THREE.DirectionalLight(0x8899bb, 0.18);
+    fill.position.set(-5, 4, -3);
+    fill.userData.isFillLight = true;
+    group.add(fill);
     return group;
   },
 

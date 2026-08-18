@@ -1,6 +1,10 @@
 import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from 'three';
+import { makePbrSet, PBR_RECIPES } from './tiles-pbr.js';
 
 export function makeRecipeTexture(recipe = 'tile', options = {}) {
+  if (PBR_RECIPES.includes(recipe)) {
+    return makePbrSet(recipe, options)?.map ?? makeTileTexture(options);
+  }
   if (recipe === 'circuit') {
     return makeCircuitTexture(options);
   }
@@ -11,6 +15,14 @@ export function makeRecipeTexture(recipe = 'tile', options = {}) {
     return makeSpeckleTexture(options);
   }
   return makeTileTexture(options);
+}
+
+export function makeRecipePbr(recipe = 'tile', options = {}) {
+  if (PBR_RECIPES.includes(recipe)) {
+    return makePbrSet(recipe, options);
+  }
+  const map = makeRecipeTexture(recipe, options);
+  return { map, roughnessMap: null, normalMap: null };
 }
 
 export function makeTileTexture({

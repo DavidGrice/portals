@@ -51,6 +51,14 @@ describe('haunt furniture and textures', () => {
     assert.equal(material.map, before);
   });
 
+  it('builds Blender-style PBR recipe sets for wood, brick, and metal', () => {
+    assert.equal(resolveMaterial('haunt.boards').recipe, 'wood');
+    assert.equal(resolveMaterial('haunt.brick').recipe, 'brick');
+    assert.equal(resolveMaterial('haunt.iron').recipe, 'metal');
+    assert.equal(resolveMaterial('ages.dirt').recipe, 'dirt');
+    assert.equal(buildMaterial('shared.stone').type, 'MeshPhysicalMaterial');
+  });
+
   it('assigns a stubbed file map when a loader is provided', () => {
     const fake = { isTexture: true, repeat: { set() {} }, wrapS: 0, wrapT: 0, anisotropy: 1 };
     const material = buildMaterial('haunt.plaster');

@@ -295,6 +295,13 @@ export class GraphicsSettings {
     if (renderer) {
       renderer.setPixelRatio(resolvePixelRatio(this.pixelRatio));
       renderer.shadowMap.enabled = this.shadows;
+      if (this.profile === 'performance') {
+        renderer.toneMappingExposure = 1;
+      } else if (this.profile === 'ultra') {
+        renderer.toneMappingExposure = 1.18;
+      } else {
+        renderer.toneMappingExposure = 1.12;
+      }
     }
 
     flashlight?.applyProfile?.(this.profile);

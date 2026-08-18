@@ -2,7 +2,7 @@
 
 A first-person WebGL portal engine: recursive stencil openings, JSON-authored rooms, and a small playable demo of four halls.
 
-The product lives entirely in this `grok/` folder.
+The product lives entirely in this `grok/` folder. Materials follow a Blender-style PBR path (see `ATTRIBUTION.md`).
 
 ## What it is
 

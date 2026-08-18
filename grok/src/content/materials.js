@@ -1,6 +1,6 @@
-import { MeshStandardMaterial, RepeatWrapping } from 'three';
+import { MeshPhysicalMaterial, RepeatWrapping, SRGBColorSpace, Vector2 } from 'three';
 import materials from '../../data/materials.json' with { type: 'json' };
-import { makeRecipeTexture } from './tiles.js';
+import { makeRecipePbr, makeRecipeTexture } from './tiles.js';
 
 export function listMaterials(library = materials) {
   return Object.keys(library?.materials ?? {});
@@ -31,24 +31,42 @@ export function resolveMaterial(id, { color, library = materials } = {}) {
     roughnessMapPath: def?.roughnessMap ?? null,
     normalMapPath: def?.normalMap ?? null,
     surface: def?.surface ?? null,
+    clearcoat: def?.clearcoat ?? 0,
+    sheen: def?.sheen ?? 0,
+    envMapIntensity: def?.envMapIntensity ?? 0.55,
   };
 }
 
 export function buildMaterial(id, extras = {}) {
   const spec = resolveMaterial(id, extras);
-  const map = extras.map ?? makeRecipeTexture(spec.recipe, {
-    color: hex(spec.color),
-    line: spec.line,
-    cells: spec.cells,
-    repeat: spec.repeat,
-  });
-  const material = new MeshStandardMaterial({
-    color: spec.color,
-    map,
+  const pbr = extras.map
+    ? { map: extras.map, roughnessMap: extras.roughnessMap ?? null, normalMap: extras.normalMap ?? null }
+    : (makeRecipePbr(spec.recipe, {
+      color: hex(spec.color),
+      line: spec.line,
+      cells: spec.cells,
+      repeat: spec.repeat,
+    }) ?? { map: makeRecipeTexture(spec.recipe, {
+      color: hex(spec.color),
+      line: spec.line,
+      cells: spec.cells,
+      repeat: spec.repeat,
+    }) });
+  const hasMap = Boolean(pbr.map);
+  const material = new MeshPhysicalMaterial({
+    color: hasMap ? 0xffffff : spec.color,
+    map: pbr.map ?? null,
+    roughnessMap: pbr.roughnessMap ?? null,
+    normalMap: pbr.normalMap ?? null,
+    normalScale: new Vector2(0.65, 0.65),
     roughness: extras.roughness ?? spec.roughness,
     metalness: extras.metalness ?? spec.metalness,
     emissive: spec.emissive,
     emissiveIntensity: spec.emissiveIntensity,
+    clearcoat: spec.clearcoat,
+    sheen: spec.sheen,
+    sheenColor: spec.sheen ? spec.color : 0x000000,
+    envMapIntensity: spec.envMapIntensity,
   });
   material.userData.materialSpec = spec;
   if (extras.loader && spec.mapPath) {
@@ -57,33 +75,45 @@ export function buildMaterial(id, extras = {}) {
   return material;
 }
 
-export function hydrateMaterialMaps(material, spec, { loader, anisotropy = 4 } = {}) {
+export function hydrateMaterialMaps(material, spec, { loader, anisotropy = 8 } = {}) {
   const path = spec?.mapPath;
   if (!material || !path || !loader?.load) {
     return material;
   }
   try {
-    const texture = loader.load(path);
-    if (!texture) {
-      return material;
+    const apply = (texture, key, colorSpace) => {
+      if (!texture) {
+        return;
+      }
+      if ('wrapS' in texture) {
+        texture.wrapS = RepeatWrapping;
+        texture.wrapT = RepeatWrapping;
+      }
+      if (texture.repeat?.set) {
+        texture.repeat.set(spec.repeat?.[0] ?? 1, spec.repeat?.[1] ?? 1);
+      }
+      if (colorSpace) {
+        texture.colorSpace = colorSpace;
+      }
+      texture.anisotropy = anisotropy;
+      material[key] = texture;
+    };
+    apply(loader.load(path), 'map', SRGBColorSpace);
+    if (spec.roughnessMapPath) {
+      apply(loader.load(spec.roughnessMapPath), 'roughnessMap', null);
     }
-    if ('wrapS' in texture) {
-      texture.wrapS = RepeatWrapping;
-      texture.wrapT = RepeatWrapping;
+    if (spec.normalMapPath) {
+      apply(loader.load(spec.normalMapPath), 'normalMap', null);
     }
-    if (texture.repeat?.set) {
-      texture.repeat.set(spec.repeat?.[0] ?? 1, spec.repeat?.[1] ?? 1);
-    }
-    texture.anisotropy = anisotropy;
-    material.map = texture;
+    material.color.setHex(0xffffff);
     material.needsUpdate = true;
   } catch {
-    // recipe map stays
+    // recipe maps stay
   }
   return material;
 }
 
-export function hydrateRoomMaterials(rooms, { loader = null, anisotropy = 4 } = {}) {
+export function hydrateRoomMaterials(rooms, { loader = null, anisotropy = 8 } = {}) {
   if (!loader) {
     return 0;
   }
@@ -119,12 +149,17 @@ export function tickMaterials(rooms, dt = 0.016) {
   for (const room of rooms) {
     room.scene?.traverse((object) => {
       const scroll = object.userData?.scroll;
-      const map = object.material?.map;
-      if (!scroll || !map) {
+      const maps = [object.material?.map, object.material?.roughnessMap, object.material?.normalMap];
+      if (!scroll) {
         return;
       }
-      map.offset.x = (map.offset.x + (scroll[0] ?? 0) * dt) % 1;
-      map.offset.y = (map.offset.y + (scroll[1] ?? 0) * dt) % 1;
+      for (const map of maps) {
+        if (!map) {
+          continue;
+        }
+        map.offset.x = (map.offset.x + (scroll[0] ?? 0) * dt) % 1;
+        map.offset.y = (map.offset.y + (scroll[1] ?? 0) * dt) % 1;
+      }
       count += 1;
     });
   }
