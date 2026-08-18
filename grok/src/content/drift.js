@@ -35,11 +35,16 @@ const KIT_BY_ID = {
   'ages-near-future': agesNearFuture,
 };
 
+export function allKits() {
+  return Object.values(KIT_BY_ID).filter(Boolean);
+}
+
 export function kitsForDepth(depth = 0, config = generatorConfig) {
   const row = [...(config.depths ?? [])].find((entry) => depth <= (entry.until ?? 99))
     ?? config.depths?.[config.depths.length - 1];
   const ids = row?.kits ?? Object.keys(KIT_BY_ID);
-  return ids.map((id) => KIT_BY_ID[id]).filter(Boolean);
+  const kits = ids.map((id) => KIT_BY_ID[id]).filter(Boolean);
+  return kits.length ? kits : allKits();
 }
 
 export function openDrift({
@@ -108,27 +113,13 @@ export function disposeSiblings(controller, keepId) {
   return removed;
 }
 
-export function evictBehind(controller, { maxLive = generatorConfig.maxLiveRooms ?? 6 } = {}) {
-  const rooms = controller.rooms;
-  if (rooms.length <= maxLive) {
-    return [];
+export function roomForPortal(controller, portal) {
+  if (!controller || !portal) {
+    return null;
   }
-  const current = controller.currentRoom;
-  const destScenes = new Set(
-    (current?.portals ?? [])
-      .map((portal) => portal.destinationPortal?.scene)
-      .filter(Boolean),
-  );
-  const extras = rooms.filter((room) => room !== current && !destScenes.has(room.scene));
-  const removed = [];
-  while (controller.rooms.length > maxLive && extras.length) {
-    const room = extras.shift();
-    if (controller.removeRoom?.(room.id)) {
-      controller.drift?.origins?.release(room.id);
-      removed.push(room.id);
-    }
-  }
-  return removed;
+  return controller.rooms.find((room) => (
+    room.portals.includes(portal) || room.scene === portal.scene
+  )) ?? null;
 }
 
 export function unusedLiveExits(room) {
@@ -136,6 +127,62 @@ export function unusedLiveExits(room) {
     const role = portal.userData?.role ?? portal.role;
     return role === 'exit' && portal.enabled !== false && !portal.destinationPortal;
   });
+}
+
+export function liveDestExits(room, controller) {
+  return (room?.portals ?? []).filter((portal) => {
+    const role = portal.userData?.role ?? portal.role;
+    if (role !== 'exit' || portal.enabled === false || !portal.destinationPortal) {
+      return false;
+    }
+    return Boolean(roomForPortal(controller, portal.destinationPortal));
+  });
+}
+
+export function clearDanglingDests(room, controller) {
+  let cleared = 0;
+  for (const portal of room?.portals ?? []) {
+    if (!portal.destinationPortal) {
+      continue;
+    }
+    if (roomForPortal(controller, portal.destinationPortal)) {
+      continue;
+    }
+    portal.destinationPortal = null;
+    portal.destinationId = null;
+    portal.userData.destinationId = null;
+    cleared += 1;
+  }
+  return cleared;
+}
+
+export function evictBehind(controller, { maxLive = generatorConfig.maxLiveRooms ?? 6 } = {}) {
+  const rooms = controller.rooms;
+  if (rooms.length <= maxLive) {
+    return [];
+  }
+  const current = controller.currentRoom;
+  const keep = new Set(
+    liveDestExits(current, controller)
+      .map((portal) => roomForPortal(controller, portal.destinationPortal)?.id)
+      .filter(Boolean),
+  );
+  if (current?.id) {
+    keep.add(current.id);
+  }
+  const extras = rooms.filter((room) => !keep.has(room.id));
+  const removed = [];
+  while (controller.rooms.length > maxLive && extras.length) {
+    const room = extras.shift();
+    if (keep.has(room.id)) {
+      continue;
+    }
+    if (controller.removeRoom?.(room.id)) {
+      controller.drift?.origins?.release(room.id);
+      removed.push(room.id);
+    }
+  }
+  return removed;
 }
 
 export function spawnLookahead(controller, {
@@ -146,11 +193,18 @@ export function spawnLookahead(controller, {
   room = controller.currentRoom,
   config = generatorConfig,
 } = {}) {
-  if (!room || !kits?.length) {
+  if (!room) {
     return [];
   }
+  const kitList = (kits?.length ? kits : kitsForDepth((room.depth ?? depth) + 1, config));
+  const usable = kitList?.length ? kitList : allKits();
+  if (!usable.length || !catalog) {
+    return [];
+  }
+  clearDanglingDests(room, controller);
   const spawned = [];
-  const rng = createRng(`${seed}:${depth}:${room.id}`);
+  const fromDepth = Number(room.depth ?? depth ?? 0);
+  const rng = createRng(`${seed}:${fromDepth}:${room.id}`);
   const pool = controller.drift?.origins ?? createOriginPool();
   if (controller.drift) {
     controller.drift.origins = pool;
@@ -159,19 +213,35 @@ export function spawnLookahead(controller, {
   const maxExits = Number(config.maxExits ?? 4);
   const exits = unusedLiveExits(room);
   for (const [index, exit] of exits.entries()) {
-    const kit = pickOne(rng, kits);
-    const destId = `d${depth + 1}-${index}-${Math.floor(rng() * 1e6)}`;
-    const dest = generateRoom({
-      kit,
-      roomId: destId,
-      origin: pool.acquire(destId),
-      depth: depth + 1,
-      branch: index,
-      exitCount: pickExitCount(rng, { minExits, maxExits, available: 4 }),
-      minExits,
-      rng,
-    });
+    const kit = pickOne(rng, usable) ?? usable[0];
+    if (!kit) {
+      continue;
+    }
+    const seq = controller.drift
+      ? (controller.drift.seq = (Number(controller.drift.seq) || 0) + 1)
+      : index + 1;
+    const destId = `d${fromDepth + 1}-${seq}`;
+    let dest;
+    try {
+      dest = generateRoom({
+        kit,
+        roomId: destId,
+        origin: pool.acquire(destId),
+        depth: fromDepth + 1,
+        branch: index,
+        exitCount: pickExitCount(rng, { minExits, maxExits, available: 4 }),
+        minExits,
+        rng,
+      });
+    } catch {
+      pool.release(destId);
+      continue;
+    }
     const entry = dest.portals.find((portal) => portal.role === 'entry');
+    if (!entry) {
+      pool.release(destId);
+      continue;
+    }
     entry.destinationId = exit.portalId;
     exit.userData.destinationId = entry.id;
     addRoom(controller, dest, catalog);
@@ -179,6 +249,23 @@ export function spawnLookahead(controller, {
   }
   relinkPortals(controller, { strict: false });
   dressRooms(controller);
+  return spawned;
+}
+
+export function ensureForwardDoors(controller, options = {}) {
+  const room = options.room ?? controller.currentRoom;
+  const config = options.config ?? generatorConfig;
+  const minLive = Number(options.minLive ?? config.minLiveDests ?? 1);
+  if (!room) {
+    return [];
+  }
+  clearDanglingDests(room, controller);
+  const spawned = [];
+  spawned.push(...spawnLookahead(controller, { ...options, room, config }));
+  if (liveDestExits(room, controller).length >= minLive) {
+    return spawned;
+  }
+  spawned.push(...spawnLookahead(controller, { ...options, room, config }));
   return spawned;
 }
 

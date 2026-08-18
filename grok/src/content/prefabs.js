@@ -192,6 +192,7 @@ export const prefabs = {
       standardMaterial(color, { roughness: 0.9, metalness: 0 }),
     );
     occluder.position.set(0, 0, -0.14);
+    occluder.visible = false;
     occluder.userData.portalOccluder = true;
     group.add(occluder);
 

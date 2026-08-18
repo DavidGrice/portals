@@ -341,13 +341,29 @@ function wallFromSocket(socket) {
   return z < 0 ? 'north' : 'south';
 }
 
+export function isForwardSocket(socket) {
+  if (!socket) {
+    return false;
+  }
+  if (socket.wall === 'north') {
+    return true;
+  }
+  const x = Number(socket.position?.[0] ?? 0);
+  const z = Number(socket.position?.[2] ?? 0);
+  return z < -2 && Math.abs(x) < 1.5;
+}
+
 function chooseExits(exits, wanted, rng) {
   if (!exits.length) {
     return [{ id: 'exit-a', role: 'exit', position: [0, 1, -5], yaw: 0, wall: 'north' }];
   }
-  const pool = [...exits];
-  const chosen = [];
   const roll = typeof rng === 'function' ? rng : Math.random;
+  const chosen = [];
+  const pool = [...exits];
+  const forwardIndex = pool.findIndex((socket) => isForwardSocket(socket));
+  if (forwardIndex >= 0) {
+    chosen.push(pool.splice(forwardIndex, 1)[0]);
+  }
   while (chosen.length < wanted && pool.length) {
     const index = pickInt(roll, 0, pool.length - 1);
     chosen.push(pool.splice(index, 1)[0]);

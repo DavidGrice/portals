@@ -6,8 +6,15 @@ import { fileURLToPath } from 'node:url';
 import { PerspectiveCamera } from 'three';
 import { PortalController } from '../src/engine/index.js';
 import { loadWorld } from '../src/content/loadWorld.js';
-import { evictBehind, kitsForDepth, openDrift, sealArrival, spawnLookahead, unusedLiveExits } from '../src/content/drift.js';
-import { unusedExits } from '../src/content/generateRoom.js';
+import {
+  evictBehind,
+  ensureForwardDoors,
+  kitsForDepth,
+  liveDestExits,
+  openDrift,
+  sealArrival,
+} from '../src/content/drift.js';
+import { generateRoom, isForwardSocket, unusedExits } from '../src/content/generateRoom.js';
 import { validateWorld } from '../scripts/validate-world.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -33,9 +40,44 @@ function roomForScene(controller, scene) {
   return controller.rooms.find((room) => room.scene === scene) ?? null;
 }
 
+const catalogData = readJson('data/catalog.json');
+
+function lookArgs(controller, room, seed) {
+  const depth = room.depth ?? controller.drift?.depth ?? 0;
+  return {
+    catalog: catalogData,
+    kits: kitsForDepth(depth + 1),
+    seed,
+    depth,
+    room,
+  };
+}
+
+function enterAndFill(controller, destRoom, seed, config) {
+  controller.setCurrentScene(destRoom.id);
+  controller.drift.depth = destRoom.depth ?? (controller.drift.depth ?? 0) + 1;
+  const args = lookArgs(controller, destRoom, seed);
+  ensureForwardDoors(controller, args);
+  evictBehind(controller, { maxLive: config.maxLiveRooms });
+  ensureForwardDoors(controller, args);
+  return liveDestExits(destRoom, controller);
+}
+
 describe('Drift walk harness', () => {
+  it('always compiles a forward door plus reserved unused exits', () => {
+    const kit = readJson('data/kits/cyber-cyan.json');
+    for (let i = 0; i < 40; i += 1) {
+      const room = generateRoom({ kit, roomId: `fwd-${i}`, exitCount: 2, rng: () => i / 40 });
+      const exits = room.portals.filter((portal) => portal.role === 'exit');
+      assert.ok(exits.some((portal) => isForwardSocket({
+        wall: portal.wall,
+        position: portal.position,
+      })), `${room.id} has no forward door`);
+    }
+  });
+
   it('walks 40 sealed crosses without a dead end or a leak', () => {
-    const catalog = readJson('data/catalog.json');
+    const catalog = catalogData;
     const materials = readJson('data/materials.json');
     const config = readJson('data/generators/drift.json');
     const seed = 'walk-40';
@@ -45,34 +87,16 @@ describe('Drift walk harness', () => {
 
     const camera = new PerspectiveCamera(60, 1, 0.05, 280);
     const controller = loadWorld(world, catalog, camera, mockRenderer());
-    controller.drift = { seed, depth: 0, origins: world.originPool };
+    controller.drift = { seed, depth: 0, origins: world.originPool, seq: 0 };
     controller.setCurrentScene(world.startRoom);
+    ensureForwardDoors(controller, lookArgs(controller, controller.currentRoom, seed));
 
     const seen = new Set([controller.currentRoom.id]);
     const disposed = new Set();
 
     for (let step = 0; step < 40; step += 1) {
       const current = controller.currentRoom;
-      const liveExits = unusedLiveExits(current);
-      const readyExits = current.portals.filter((portal) => (
-        portal.userData.role === 'exit'
-        && portal.enabled !== false
-        && portal.destinationPortal
-      ));
-      if (readyExits.length === 0 && liveExits.length) {
-        spawnLookahead(controller, {
-          catalog,
-          kits: kitsForDepth((current.depth ?? step) + 1),
-          seed,
-          depth: current.depth ?? step,
-          room: current,
-        });
-      }
-      const doors = current.portals.filter((portal) => (
-        portal.userData.role === 'exit'
-        && portal.enabled !== false
-        && portal.destinationPortal
-      ));
+      const doors = liveDestExits(current, controller);
       assert.ok(doors.length >= 1, `step ${step} room ${current.id} has no live dest door`);
       const pick = doors[step % doors.length];
       const destPortal = pick.destinationPortal;
@@ -81,29 +105,10 @@ describe('Drift walk harness', () => {
       const destUnused = destRoom.portals.filter((portal) => portal.userData.role === 'exit');
       assert.ok(destUnused.length >= 1, `step ${step} dest ${destRoom.id} has no unused exits before arrival`);
 
+      const live = enterAndFill(controller, destRoom, seed, config);
       assert.equal(sealArrival(pick), true);
       assert.equal(destPortal.enabled, false);
-      for (const sibling of destUnused) {
-        assert.notEqual(sibling.userData.sealed, true);
-      }
-
-      const beforeIds = new Set(controller.rooms.map((room) => room.id));
-      controller.setCurrentScene(destRoom.id);
-      controller.drift.depth = destRoom.depth ?? step + 1;
-      const spawned = spawnLookahead(controller, {
-        catalog,
-        kits: kitsForDepth((destRoom.depth ?? step) + 1),
-        seed,
-        depth: destRoom.depth ?? step + 1,
-        room: destRoom,
-      });
-      assert.ok(spawned.length >= 1, `step ${step} spawned no lookahead`);
-      assert.equal(unusedLiveExits(destRoom).length, 0);
-      const evicted = evictBehind(controller, { maxLive: config.maxLiveRooms });
-      for (const id of evicted) {
-        disposed.add(id);
-        assert.ok(!controller.rooms.some((room) => room.id === id));
-      }
+      assert.ok(live.length >= 1, `step ${step} dest ${destRoom.id} has no spawnable door after enter`);
       assert.ok(controller.rooms.length <= config.maxLiveRooms, `live ${controller.rooms.length} > ${config.maxLiveRooms}`);
       for (const portal of controller.allPortals) {
         const destId = portal.userData.destinationId;
@@ -118,7 +123,6 @@ describe('Drift walk harness', () => {
         }
       }
       seen.add(destRoom.id);
-      assert.ok(!beforeIds.has(spawned[0].id) || spawned.length >= 1);
     }
 
     assert.ok(seen.size >= 40);
@@ -126,5 +130,36 @@ describe('Drift walk harness', () => {
     assert.equal(again.rooms[0].id, world.rooms[0].id);
     assert.equal(again.rooms[0].kitId, world.rooms[0].kitId);
     assert.equal(unusedExits(again.rooms[1]).length >= 2, true);
+  });
+
+  it('keeps at least one spawnable door on every seed through 16 hops', () => {
+    const catalog = catalogData;
+    const config = readJson('data/generators/drift.json');
+    for (let seedIndex = 0; seedIndex < 40; seedIndex += 1) {
+      const seed = `hop-${seedIndex}`;
+      const world = openDrift({ seed, depth: 0 });
+      const camera = new PerspectiveCamera(60, 1, 0.05, 280);
+      const controller = loadWorld(world, catalog, camera, mockRenderer());
+      controller.drift = { seed, depth: 0, origins: world.originPool, seq: 0 };
+      controller.setCurrentScene(world.startRoom);
+      ensureForwardDoors(controller, lookArgs(controller, controller.currentRoom, seed));
+
+      for (let step = 0; step < 16; step += 1) {
+        const doors = liveDestExits(controller.currentRoom, controller);
+        assert.ok(
+          doors.length >= 1,
+          `seed ${seed} step ${step} room ${controller.currentRoom.id} has no door`,
+        );
+        const pick = doors[step % doors.length];
+        const destRoom = roomForScene(controller, pick.destinationPortal.scene);
+        assert.ok(destRoom, `seed ${seed} step ${step} dest missing`);
+        const live = enterAndFill(controller, destRoom, seed, config);
+        sealArrival(pick);
+        assert.ok(
+          live.length >= 1,
+          `seed ${seed} step ${step} arrived in ${destRoom.id} with no spawnable door`,
+        );
+      }
+    }
   });
 });

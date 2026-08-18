@@ -8,7 +8,7 @@ import { findInteract, runInteract } from './engine/interact.js';
 import { nearestFireDistance, spawnCrossBurst, tickAtmosphere, tickNpcs } from './engine/atmosphere.js';
 import { gameAudio } from './engine/audio.js';
 import { tickDestStrip, tickScreens } from './engine/index.js';
-import { evictBehind, kitsForDepth, sealArrival, spawnLookahead } from './content/drift.js';
+import { evictBehind, ensureForwardDoors, kitsForDepth, sealArrival } from './content/drift.js';
 import { tickMaterials } from './content/materials.js';
 import { createSession } from './game/session.js';
 import { loadSave, poseFromSession, writeSave } from './content/save.js';
@@ -447,14 +447,16 @@ export function createApp({
       if (next.controller.drift) {
         const depth = room.depth ?? next.controller.drift.depth ?? 0;
         next.controller.drift.depth = depth;
-        spawnLookahead(next.controller, {
+        const lookArgs = {
           catalog: catalogData,
           kits: kitsForDepth(depth + 1),
           seed: next.controller.drift.seed,
           depth,
           room,
-        });
+        };
+        ensureForwardDoors(next.controller, lookArgs);
         evictBehind(next.controller);
+        ensureForwardDoors(next.controller, lookArgs);
         const banner = document.getElementById('room-banner');
         if (banner) {
           banner.textContent = `${room?.title || roomId} · ${depth} · ${next.controller.drift.seed}`;

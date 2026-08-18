@@ -5,6 +5,7 @@
   "maxLiveRooms": 6,
   "minExits": 2,
   "maxExits": 4,
+  "minLiveDests": 1,
   "depths": [
     { "until": 4, "kits": ["cyber-cyan", "haunt-hall"] },
     { "until": 12, "kits": ["cyber-cyan", "haunt-hall", "ages-mesozoic", "ages-stone"] },
