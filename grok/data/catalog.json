@@ -71,6 +71,16 @@
       "category": "environment",
       "prefab": "light",
       "tags": ["environment", "light"]
+    },
+    "prop.model": {
+      "category": "prop",
+      "prefab": "model",
+      "tags": ["prop", "model"]
+    },
+    "prop.npc": {
+      "category": "prop",
+      "prefab": "npc",
+      "tags": ["prop", "npc"]
     }
   }
 }

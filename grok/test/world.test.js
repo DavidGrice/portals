@@ -100,6 +100,8 @@ describe('world data', () => {
     assert.ok(groups.architecture.includes('arch.frame'));
     assert.ok(groups.architecture.includes('arch.corridor'));
     assert.ok(groups.interact.includes('interact.pad'));
+    assert.ok(groups.prop.includes('prop.model'));
+    assert.ok(groups.prop.includes('prop.npc'));
   });
 
   it('loads two-rooms and resolves portal links', () => {

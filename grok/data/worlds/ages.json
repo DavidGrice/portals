@@ -184,6 +184,12 @@
           }
         },
         {
+          "id": "silhouette-mesozoic",
+          "kind": "prop.model",
+          "position": [-5.5, 1.2, 2.4],
+          "props": { "size": [0.7, 2.4, 2.1], "color": "#120c08" }
+        },
+        {
           "id": "cube-mesozoic",
           "kind": "prop.box",
           "position": [

@@ -382,6 +382,7 @@ export const prefabs = {
       fov: entity.props?.fov ?? 58,
       width: entity.props?.resolution?.[0] ?? 320,
       height: entity.props?.resolution?.[1] ?? 180,
+      video: entity.props?.video ?? null,
     };
     return group;
   },
@@ -476,6 +477,41 @@ export const prefabs = {
       candle: true,
     };
     return group;
+  },
+
+  model(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const size = entity.props?.size ?? [1, 1.6, 0.8];
+    const proxy = new THREE.Mesh(
+      new THREE.BoxGeometry(...size),
+      standardMaterial(parseColor(entity.props?.color, 0x2a2a2a), { roughness: 0.85, metalness: 0.05 }),
+    );
+    proxy.castShadow = true;
+    proxy.userData.collider = { type: 'aabb' };
+    group.add(proxy);
+    group.userData.model = { src: entity.props?.src ?? null };
+    if (entity.props?.src && typeof document !== 'undefined') {
+      import('three/addons/loaders/GLTFLoader.js').then(({ GLTFLoader }) => {
+        new GLTFLoader().load(entity.props.src, (gltf) => {
+          proxy.visible = false;
+          group.add(gltf.scene);
+        });
+      }).catch(() => {});
+    }
+    return group;
+  },
+
+  npc(entity) {
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(0.5, 1.6, 0.4),
+      standardMaterial(parseColor(entity.props?.color, 0x3a3030), { roughness: 0.8, metalness: 0.04 }),
+    );
+    mesh.position.y = 0.8;
+    applyPose(mesh, entity);
+    mesh.userData.collider = { type: 'aabb' };
+    mesh.userData.npc = { lookAtPlayer: entity.props?.lookAtPlayer !== false };
+    return mesh;
   },
 };
 
