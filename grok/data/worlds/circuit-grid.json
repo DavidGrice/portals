@@ -19,7 +19,15 @@
         {
           "id": "shell-white",
           "kind": "arch.corridor",
-          "props": { "material": "cyber.grid.white", "color": "#0c1014", "halfX": 8, "zMin": 0, "zMax": 6.2, "openings": [0] }
+          "props": {
+            "material": "cyber.grid.white",
+            "color": "#0c1014",
+            "halfX": 8,
+            "zMin": 0,
+            "zMax": 6.2,
+            "openings": [0],
+            "sideOpenings": [{ "side": -1, "z": 3.2 }]
+          }
         },
         {
           "id": "strip-white-l",
@@ -62,9 +70,23 @@
           "kind": "arch.frame",
           "position": [0, 1, 0],
           "props": { "color": "#e8eef8", "coversPortalId": "door-wc" }
+        },
+        {
+          "id": "frame-ws",
+          "kind": "arch.frame",
+          "position": [-6.4, 1, 3.2],
+          "rotation": [0, 1.5707963267948966, 0],
+          "props": { "color": "#a8b4c8", "coversPortalId": "door-ws" }
         }
       ],
       "portals": [
+        {
+          "id": "door-ws",
+          "position": [-6.4, 1, 3.2],
+          "yaw": 1.5707963267948966,
+          "size": [2, 2],
+          "destinationId": "door-sw"
+        },
         {
           "id": "door-wc",
           "position": [0, 1, 0],
@@ -363,6 +385,71 @@
           "yaw": 3.141592653589793,
           "size": [2, 2],
           "destinationId": "door-cg"
+        }
+      ]
+    },
+    {
+      "id": "shaft",
+      "title": "White shaft",
+      "tags": ["interior", "cyber"],
+      "origin": [1250, 0, 0],
+      "clearColor": "#10141a",
+      "entities": [
+        { "id": "sky-shaft", "kind": "env.sky", "props": { "color": "#10141a" } },
+        { "id": "light-shaft", "kind": "env.light", "props": { "ambient": "#1a2030", "sun": "#e8eef8", "sunIntensity": 0.3 } },
+        { "id": "floor-shaft", "kind": "env.floor", "props": { "material": "cyber.grid.white" } },
+        {
+          "id": "shell-shaft",
+          "kind": "arch.corridor",
+          "props": {
+            "material": "cyber.grid.white",
+            "color": "#10141a",
+            "halfX": 8,
+            "zMin": -6.2,
+            "zMax": 1,
+            "height": 5.4,
+            "openings": [0]
+          }
+        },
+        {
+          "id": "ledge-low",
+          "kind": "prop.box",
+          "position": [0, 0.45, -2.2],
+          "props": { "size": [2.2, 0.9, 1.4], "color": "#2a3038" }
+        },
+        {
+          "id": "ledge-high",
+          "kind": "prop.box",
+          "position": [0, 1.4, -3.6],
+          "props": { "size": [2.2, 0.9, 1.4], "color": "#343c48" }
+        },
+        {
+          "id": "pad-shaft",
+          "kind": "interact.pad",
+          "position": [0, 0.04, -1.1],
+          "props": { "color": "#e8eef8", "action": "launch", "impulse": [0, 9, 0], "text": "Jump" }
+        },
+        {
+          "id": "plaque-shaft",
+          "kind": "prop.plaque",
+          "position": [2.2, 1.6, -5.9],
+          "props": { "color": "#a8b4c8", "text": "White shaft" }
+        },
+        {
+          "id": "frame-sw",
+          "kind": "arch.frame",
+          "position": [0, 1, 0],
+          "rotation": [0, 3.141592653589793, 0],
+          "props": { "color": "#a8b4c8", "coversPortalId": "door-sw" }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-sw",
+          "position": [0, 1, 0],
+          "yaw": 3.141592653589793,
+          "size": [2, 2],
+          "destinationId": "door-ws"
         }
       ]
     }
