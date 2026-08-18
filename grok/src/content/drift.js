@@ -17,6 +17,7 @@ import {
   generateRoom,
   linkRooms,
   pickExitCount,
+  roomFingerprint,
   worldFromRooms,
 } from './generateRoom.js';
 import { addRoom, dressRooms, relinkPortals } from './loadWorld.js';
@@ -62,6 +63,7 @@ export function openDrift({
   const pool = createOriginPool();
   const startKit = pickOne(rng, kits);
   const startId = `drift-${depth}`;
+  const recent = [];
   const start = generateRoom({
     kit: startKit,
     roomId: startId,
@@ -73,8 +75,10 @@ export function openDrift({
       available: 4,
     }),
     minExits,
+    recent,
     rng,
   });
+  recent.push(roomFingerprint(start));
   const dests = [];
   for (const [index, exit] of start.portals.filter((portal) => portal.role === 'exit').entries()) {
     const destKit = pickOne(rng, kitsForDepth(depth + 1, config));
@@ -87,8 +91,10 @@ export function openDrift({
       branch: index,
       exitCount: pickExitCount(rng, { minExits, maxExits, available: 4 }),
       minExits,
+      recent,
       rng,
     });
+    recent.push(roomFingerprint(dest));
     linkRooms(start, dest, exit.id);
     dests.push(dest);
   }
@@ -96,6 +102,7 @@ export function openDrift({
   world.seed = seed;
   world.depth = depth;
   world.originPool = pool;
+  world.recent = recent.slice(-4);
   return world;
 }
 
@@ -231,8 +238,12 @@ export function spawnLookahead(controller, {
         branch: index,
         exitCount: pickExitCount(rng, { minExits, maxExits, available: 4 }),
         minExits,
+        recent: controller.drift?.recent ?? [],
         rng,
       });
+      if (controller.drift) {
+        controller.drift.recent = [...(controller.drift.recent ?? []), roomFingerprint(dest)].slice(-4);
+      }
     } catch {
       pool.release(destId);
       continue;

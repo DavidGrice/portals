@@ -20,6 +20,7 @@ export function addRoom(controller, roomData, catalog) {
     origin,
   });
   room.kitId = roomData.kitId ?? null;
+  room.topologyId = roomData.topologyId ?? null;
   room.depth = roomData.depth ?? 0;
   room.atmosphere = roomData.atmosphere ?? null;
 

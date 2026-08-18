@@ -37,6 +37,36 @@
       "prefab": "corridor",
       "tags": ["architecture"]
     },
+    "arch.chamber": {
+      "category": "architecture",
+      "prefab": "chamber",
+      "tags": ["architecture"]
+    },
+    "arch.wing": {
+      "category": "architecture",
+      "prefab": "wing",
+      "tags": ["architecture"]
+    },
+    "arch.court": {
+      "category": "architecture",
+      "prefab": "court",
+      "tags": ["architecture"]
+    },
+    "arch.loft": {
+      "category": "architecture",
+      "prefab": "loft",
+      "tags": ["architecture"]
+    },
+    "arch.shaft": {
+      "category": "architecture",
+      "prefab": "shaft",
+      "tags": ["architecture"]
+    },
+    "arch.rotunda": {
+      "category": "architecture",
+      "prefab": "rotunda",
+      "tags": ["architecture"]
+    },
     "prop.plaque": {
       "category": "prop",
       "prefab": "plaque",

@@ -97,5 +97,9 @@
         "color": "#508080"
       }
     }
+  ],
+  "topologies": [
+    "court",
+    "rotunda"
   ]
 }

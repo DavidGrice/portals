@@ -1,0 +1,19 @@
+{
+  "id": "court",
+  "title": "Open court",
+  "kind": "arch.court",
+  "tags": ["open"],
+  "footprint": { "halfX": 11, "zMin": -10, "zMax": 6, "height": 4.4 },
+  "sockets": [
+    { "id": "entry", "role": "entry", "wall": "south", "u": 0 },
+    { "id": "exit-a", "role": "exit", "wall": "north", "u": 0 },
+    { "id": "exit-b", "role": "exit", "wall": "west", "u": -2 },
+    { "id": "exit-c", "role": "exit", "wall": "east", "u": -2 }
+  ],
+  "regions": {
+    "entry-left": [-7.5, 0, 3.5],
+    "center": [7.2, 0, -1],
+    "hearth-wall": [0, 0, 4.2],
+    "far-corner": [-8, 0, -7.5]
+  }
+}

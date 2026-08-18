@@ -1,0 +1,19 @@
+{
+  "id": "alcove",
+  "title": "Alcove cluster",
+  "kind": "arch.chamber",
+  "tags": ["tight"],
+  "footprint": { "halfX": 7, "zMin": -7, "zMax": 4.5, "height": 3.3 },
+  "sockets": [
+    { "id": "entry", "role": "entry", "wall": "south", "u": 0 },
+    { "id": "exit-a", "role": "exit", "wall": "north", "u": -2.4 },
+    { "id": "exit-b", "role": "exit", "wall": "north", "u": 2.4 },
+    { "id": "exit-c", "role": "exit", "wall": "west", "u": -1.2 }
+  ],
+  "regions": {
+    "entry-left": [-4.4, 0, 2.2],
+    "center": [0, 0, -1],
+    "hearth-wall": [4.2, 0, 1.8],
+    "far-corner": [0, 0, -5.4]
+  }
+}

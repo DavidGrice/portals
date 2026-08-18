@@ -1,4 +1,5 @@
 import { pickInt } from './rng.js';
+import { getTopology, holesFromSockets, pickTopology, resolveSocket, roomFingerprint, topologySockets } from './topologies.js';
 
 export const ORIGIN_SPACING = 250;
 
@@ -118,33 +119,48 @@ export function unusedExits(room) {
 
 export function generateRoom({
   kit,
+  topology = null,
   roomId,
   origin = [0, 0, 0],
   depth = 0,
   branch = 0,
   exitCount = 1,
   minExits = 0,
+  recent = [],
   rng = Math.random,
 } = {}) {
   if (!kit?.id) {
     throw new Error('generateRoom requires a kit');
   }
   const id = roomId || `${kit.id}-${depth}-${branch}`;
-  const exitsAvailable = resolveExitSockets(kit);
+  const resolved = topology?.id
+    ? (typeof topology === 'string' ? getTopology(topology) : topology)
+    : pickTopology(rng, { kit, recent });
+  const topo = resolved ?? getTopology('I');
+  const footprint = { ...(kit.shell ?? {}), ...(topo.footprint ?? {}) };
+  const kitExits = resolveExitSockets(kit);
+  const topoExits = topologySockets(topo, 'exit');
+  const declaredOnly = Array.isArray(kit.sockets) && !kit.topologies && kitExits.length === 0;
+  const exitsAvailable = declaredOnly ? [] : (topoExits.length ? topoExits : kitExits);
   if (minExits && exitsAvailable.length < minExits) {
-    throw new Error(`kit ${kit.id} has ${exitsAvailable.length} exits, need ${minExits}`);
+    throw new Error(`kit ${kit.id} / ${topo.id} has ${exitsAvailable.length} exits, need ${minExits}`);
   }
   const maxExits = Math.max(1, exitsAvailable.length);
   const wanted = Math.max(1, Math.min(Number(exitCount) || 1, maxExits));
   if (wanted > exitsAvailable.length) {
     throw new Error(`kit ${kit.id} cannot supply ${wanted} exits`);
   }
-  const entry = listEntrySockets(kit)[0];
+  const entry = (topologySockets(topo, 'entry')[0]
+    ?? listEntrySockets(kit)[0]
+    ?? { id: 'entry', role: 'entry', position: [0, 1, 0], yaw: Math.PI, wall: 'south' });
   const materials = kit.materials ?? {};
-  const shell = kit.shell ?? { halfX: 8, zMin: -6.2, zMax: 5.2 };
-  const chosenExits = chooseExits(exitsAvailable, wanted, rng).map((socket) => snapExitToShell(socket, shell));
+  const chosenExits = chooseExits(exitsAvailable, wanted, rng).map((socket) => (
+    topo.kind === 'arch.corridor' ? snapExitToShell(socket, footprint) : resolveSocket(topo, socket)
+  ));
   const holeSockets = [entry, ...chosenExits];
   const { openings, sideOpenings } = openingsFromSockets(holeSockets);
+  const holes = holesFromSockets(holeSockets);
+  const shellKind = topo.kind ?? 'arch.corridor';
 
   const entities = [
     { id: `sky-${id}`, kind: 'env.sky', props: { color: kit.clearColor ?? '#111111' } },
@@ -161,26 +177,32 @@ export function generateRoom({
     {
       id: `floor-${id}`,
       kind: 'env.floor',
-      props: materials.floor ? { material: materials.floor } : { color: kit.clearColor ?? '#333333' },
+      props: {
+        ...(materials.floor ? { material: materials.floor } : { color: kit.clearColor ?? '#333333' }),
+        size: Math.max(24, (footprint.halfX ?? 8) * 3),
+      },
     },
     {
       id: `shell-${id}`,
-      kind: 'arch.corridor',
+      kind: shellKind,
       props: {
         ...(materials.shell ? { material: materials.shell } : {}),
         color: kit.clearColor ?? '#333333',
-        halfX: shell.halfX ?? 8,
-        zMin: shell.zMin ?? -6.2,
-        zMax: shell.zMax ?? 5.2,
+        halfX: footprint.halfX ?? 8,
+        zMin: footprint.zMin ?? -6.2,
+        zMax: footprint.zMax ?? 5.2,
+        height: footprint.height ?? 3.2,
+        radius: footprint.radius ?? 8,
         openings,
         sideOpenings,
+        holes,
       },
     },
     {
       id: `plaque-${id}`,
       kind: 'prop.plaque',
-      position: [-2.2, 1.6, 4.6],
-      props: { color: materials.accent ?? '#cfd3e5', text: kit.title ?? kit.id },
+      position: [-2.2, 1.6, Math.min((footprint.zMax ?? 5.2) - 0.6, 4.6)],
+      props: { color: materials.accent ?? '#cfd3e5', text: `${kit.title ?? kit.id} · ${topo.title ?? topo.id}` },
     },
   ];
 
@@ -188,27 +210,18 @@ export function generateRoom({
     entities.push({
       id: `strip-l-${id}`,
       kind: 'prop.box',
-      position: [-7.7, 2.35, -0.5],
+      position: [-(footprint.halfX ?? 8) + 0.3, 2.35, -0.5],
       props: { size: [0.08, 0.05, 10.8], material: materials.strip },
     });
     entities.push({
       id: `strip-r-${id}`,
       kind: 'prop.box',
-      position: [7.7, 2.35, -0.5],
+      position: [(footprint.halfX ?? 8) - 0.3, 2.35, -0.5],
       props: { size: [0.08, 0.05, 10.8], material: materials.strip },
     });
   }
 
-  for (const [index, piece] of (kit.dressing ?? []).entries()) {
-    entities.push({
-      ...piece,
-      id: piece.id || `dress-${id}-${index}`,
-      props: {
-        ...(piece.props ?? {}),
-        ...(piece.props?.color || !materials.accent ? {} : { color: materials.accent }),
-      },
-    });
-  }
+  entities.push(...placeLandmarks({ kit, topology: topo, roomId: id, rng, materials }));
 
   const portals = [];
   const entryId = `door-in-${id}`;
@@ -255,16 +268,50 @@ export function generateRoom({
   return {
     id,
     title: kit.title ?? kit.id,
-    tags: [...new Set([...(kit.tags ?? []), 'generated'])],
+    tags: [...new Set([...(kit.tags ?? []), 'generated', ...(topo.tags ?? [])])],
     origin: origin ?? allocateOrigin(depth, branch),
     clearColor: kit.clearColor ?? '#111111',
     kitId: kit.id,
+    topologyId: topo.id,
     atmosphere: kit.atmosphere ?? null,
     depth,
     branch,
     entities,
     portals,
   };
+}
+
+export { roomFingerprint };
+
+function placeLandmarks({ kit, topology, roomId, rng, materials }) {
+  const regions = topology.regions ?? {};
+  const names = Object.keys(regions);
+  const pool = [...(kit.dressing ?? [])];
+  if (!pool.length) {
+    pool.push({
+      kind: 'prop.box',
+      tags: ['landmark'],
+      props: { size: [0.9, 1.1, 0.9], color: materials.accent ?? '#888888' },
+    });
+  }
+  const pieces = [];
+  const count = Math.max(4, Math.min(12, names.length || pool.length));
+  for (let index = 0; index < count; index += 1) {
+    const regionName = names[index % Math.max(names.length, 1)] ?? `slot-${index}`;
+    const region = regions[regionName] ?? [((index % 3) - 1) * 3.2, 0, -index];
+    const template = pool[index % pool.length];
+    pieces.push({
+      ...template,
+      id: template.id || `dress-${roomId}-${regionName}-${index}`,
+      position: template.position && index < pool.length && !names.length ? template.position : region,
+      tags: [...new Set([...(template.tags ?? []), 'landmark', regionName])],
+      props: {
+        ...(template.props ?? {}),
+        ...(template.props?.color || !materials.accent ? {} : { color: materials.accent }),
+      },
+    });
+  }
+  return pieces;
 }
 
 export function linkRooms(fromRoom, toRoom, exitPortalId = null) {

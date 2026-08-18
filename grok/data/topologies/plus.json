@@ -1,0 +1,20 @@
+{
+  "id": "plus",
+  "title": "Cross",
+  "kind": "arch.chamber",
+  "tags": ["branching", "open"],
+  "footprint": { "halfX": 9, "zMin": -9, "zMax": 6, "height": 4 },
+  "sockets": [
+    { "id": "entry", "role": "entry", "wall": "south", "u": 0 },
+    { "id": "exit-a", "role": "exit", "wall": "north", "u": 0 },
+    { "id": "exit-b", "role": "exit", "wall": "west", "u": -1 },
+    { "id": "exit-c", "role": "exit", "wall": "east", "u": -1 },
+    { "id": "exit-d", "role": "exit", "wall": "west", "u": 2.4 }
+  ],
+  "regions": {
+    "entry-left": [-6, 0, 3.4],
+    "center": [0, 0, -1],
+    "hearth-wall": [6.4, 0, 3],
+    "far-corner": [-6.5, 0, -6.5]
+  }
+}

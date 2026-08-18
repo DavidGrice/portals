@@ -96,5 +96,9 @@
         "color": "#b09070"
       }
     }
+  ],
+  "topologies": [
+    "plus",
+    "shaft"
   ]
 }

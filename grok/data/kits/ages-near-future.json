@@ -97,5 +97,9 @@
         "color": "#8ab0c8"
       }
     }
+  ],
+  "topologies": [
+    "loft",
+    "T"
   ]
 }

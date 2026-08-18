@@ -40,9 +40,9 @@ export function listDestViews(controller) {
         portalId: portal.portalId ?? '?',
         enabled: portal.enabled !== false,
         destRoomId: destRoom?.id ?? null,
-        destTitle: destRoom?.depth != null
-          ? `${destRoom.title || destRoom.id} · ${destRoom.depth}`
-          : (destRoom?.title || destRoom?.id || '?'),
+        destTitle: [destRoom?.topologyId, destRoom?.title || destRoom?.id, destRoom?.depth]
+          .filter((part) => part !== undefined && part !== null && part !== '')
+          .join(' · ') || '?',
       };
     });
 }

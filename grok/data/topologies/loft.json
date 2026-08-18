@@ -1,0 +1,19 @@
+{
+  "id": "loft",
+  "title": "Split loft",
+  "kind": "arch.loft",
+  "tags": ["vertical"],
+  "footprint": { "halfX": 8, "zMin": -8, "zMax": 5, "height": 5.6 },
+  "sockets": [
+    { "id": "entry", "role": "entry", "wall": "south", "u": 0 },
+    { "id": "exit-a", "role": "exit", "wall": "north", "u": 0 },
+    { "id": "exit-b", "role": "exit", "wall": "west", "u": 1.4 },
+    { "id": "exit-c", "role": "exit", "wall": "east", "u": 1.4 }
+  ],
+  "regions": {
+    "entry-left": [-5.4, 0, 2.6],
+    "center": [0, 0, 0.4],
+    "hearth-wall": [5, 0, 2.2],
+    "loft-rail": [0, 2.3, -5]
+  }
+}

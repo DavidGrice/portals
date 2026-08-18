@@ -13,6 +13,7 @@ import {
   unusedExits,
   worldFromRooms,
 } from '../src/content/generateRoom.js';
+import { getTopology } from '../src/content/topologies.js';
 import { openDrift, sealArrival, spawnLookahead } from '../src/content/drift.js';
 import { addRoom, relinkPortals } from '../src/content/loadWorld.js';
 import { PortalController } from '../src/engine/index.js';
@@ -32,9 +33,15 @@ describe('room compiler', () => {
     const entry = room.portals.find((portal) => portal.role === 'entry');
     assert.ok(exits.length >= 1);
     assert.equal(entry.oneWay, true);
-    assert.ok(room.entities.some((entity) => entity.kind === 'arch.corridor'));
+    assert.ok(room.entities.some((entity) => String(entity.kind).startsWith('arch.')));
+    assert.ok(room.topologyId);
     assert.deepEqual(allocateOrigin(2, 1), [500, 0, 250]);
-    const snapped = generateRoom({ kit: readJson('data/kits/haunt-hall.json'), roomId: 'snap', exitCount: 3 });
+    const snapped = generateRoom({
+      kit: readJson('data/kits/haunt-hall.json'),
+      topology: getTopology('I'),
+      roomId: 'snap',
+      exitCount: 3,
+    });
     const shell = { halfX: 8, zMin: -6.2 };
     for (const portal of snapped.portals.filter((entry) => entry.role === 'exit')) {
       if (portal.wall === 'north') {

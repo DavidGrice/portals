@@ -85,5 +85,12 @@
         2.4
       ]
     }
+  ],
+  "topologies": [
+    "T",
+    "L",
+    "alcove",
+    "loft",
+    "I"
   ]
 }

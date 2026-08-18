@@ -97,5 +97,12 @@
         "color": "#2ee6ff"
       }
     }
+  ],
+  "topologies": [
+    "I",
+    "plus",
+    "shaft",
+    "loft",
+    "U"
   ]
 }

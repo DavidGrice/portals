@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { buildMaterial, parseColor as parseMaterialColor } from './materials.js';
 import { makeRecipeTexture } from './tiles.js';
+import { addRectVolume, addStairs } from './volumes.js';
 
 export function parseColor(value, fallback = 0xffffff) {
   return parseMaterialColor(value, fallback);
@@ -33,6 +34,15 @@ function standardMaterial(color, extras = {}) {
     emissive: extras.emissive ?? 0x000000,
     emissiveIntensity: extras.emissiveIntensity ?? 0,
   });
+}
+
+function volumeMaterial(entity) {
+  const color = parseColor(entity.props?.color, 0x4a5160);
+  return surfaceMaterial(entity, color, { roughness: 0.9, metalness: 0.04, cells: 4 });
+}
+
+function rotundaWallName(index) {
+  return ['north', 'northeast', 'east', 'southeast', 'south', 'southwest', 'west', 'northwest'][index] ?? 'north';
 }
 
 function surfaceMaterial(entity, fallbackColor, extras = {}) {
@@ -274,6 +284,173 @@ export const prefabs = {
         addBox(group, material, 0, height * 0.5, z, halfX * 2, height, thickness);
       }
     }
+    return group;
+  },
+
+  chamber(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const material = volumeMaterial(entity);
+    const halfX = entity.props?.halfX ?? 10;
+    const zMin = entity.props?.zMin ?? -8;
+    const zMax = entity.props?.zMax ?? 6;
+    addRectVolume(group, material, {
+      minX: -halfX,
+      maxX: halfX,
+      minZ: zMin,
+      maxZ: zMax,
+      height: entity.props?.height ?? 4,
+      thickness: entity.props?.thickness ?? 0.24,
+      holes: entity.props?.holes ?? [],
+    });
+    group.userData.volume = { kind: 'chamber', halfX, zMin, zMax };
+    return group;
+  },
+
+  wing(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const material = volumeMaterial(entity);
+    const height = entity.props?.height ?? 3.4;
+    const thickness = entity.props?.thickness ?? 0.24;
+    const holes = entity.props?.holes ?? [];
+    addRectVolume(group, material, {
+      minX: -4,
+      maxX: 4,
+      minZ: -8,
+      maxZ: 4,
+      height,
+      thickness,
+      holes: holes.filter((hole) => hole.wall !== 'east' || Number(hole.u ?? 0) < -1),
+    });
+    addRectVolume(group, material, {
+      minX: 4,
+      maxX: 12,
+      minZ: -2,
+      maxZ: 4,
+      height,
+      thickness,
+      holes: holes.filter((hole) => hole.wall === 'east' || (hole.wall === 'north' && Number(hole.u ?? 0) > 4)),
+      floor: true,
+      ceiling: true,
+    });
+    group.userData.volume = { kind: 'wing' };
+    return group;
+  },
+
+  court(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const material = volumeMaterial(entity);
+    const halfX = entity.props?.halfX ?? 11;
+    const zMin = entity.props?.zMin ?? -10;
+    const zMax = entity.props?.zMax ?? 6;
+    const height = entity.props?.height ?? 4.4;
+    addRectVolume(group, material, {
+      minX: -halfX,
+      maxX: halfX,
+      minZ: zMin,
+      maxZ: zMax,
+      height,
+      holes: entity.props?.holes ?? [],
+    });
+    const inner = 3.2;
+    addRectVolume(group, material, {
+      minX: -inner,
+      maxX: inner,
+      minZ: -inner - 1,
+      maxZ: inner - 1,
+      height: 0.95,
+      y0: 0,
+      holes: [],
+      floor: false,
+      ceiling: false,
+    });
+    group.userData.volume = { kind: 'court', halfX, zMin, zMax };
+    return group;
+  },
+
+  loft(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const material = volumeMaterial(entity);
+    const halfX = entity.props?.halfX ?? 8;
+    const zMin = entity.props?.zMin ?? -8;
+    const zMax = entity.props?.zMax ?? 5;
+    const height = entity.props?.height ?? 5.6;
+    addRectVolume(group, material, {
+      minX: -halfX,
+      maxX: halfX,
+      minZ: zMin,
+      maxZ: zMax,
+      height,
+      holes: entity.props?.holes ?? [],
+    });
+    addBox(group, material, 0, 2.25, (zMin - 0.4) * 0.5, halfX * 2 - 0.4, 0.16, Math.abs(zMin) - 1.2);
+    addBox(group, material, -halfX + 0.2, 3.1, (zMin - 0.4) * 0.5, 0.12, 0.9, Math.abs(zMin) - 1.2);
+    addBox(group, material, halfX - 0.2, 3.1, (zMin - 0.4) * 0.5, 0.12, 0.9, Math.abs(zMin) - 1.2);
+    addStairs(group, material, { x: 0, z0: 1.2, z1: -2.2, y0: 0.08, y1: 2.2, width: 1.8, steps: 9 });
+    group.userData.volume = { kind: 'loft', halfX, zMin, zMax };
+    return group;
+  },
+
+  shaft(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const material = volumeMaterial(entity);
+    const halfX = entity.props?.halfX ?? 5;
+    const zMin = entity.props?.zMin ?? -5;
+    const zMax = entity.props?.zMax ?? 5;
+    const height = entity.props?.height ?? 10;
+    addRectVolume(group, material, {
+      minX: -halfX,
+      maxX: halfX,
+      minZ: zMin,
+      maxZ: zMax,
+      height,
+      holes: entity.props?.holes ?? [],
+    });
+    addBox(group, material, -halfX + 1.3, 3.05, 0, 2.4, 0.18, 3.4);
+    addBox(group, material, halfX - 1.3, 6.05, -0.6, 2.4, 0.18, 3.4);
+    group.userData.volume = { kind: 'shaft', halfX, zMin, zMax, height };
+    return group;
+  },
+
+  rotunda(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const material = volumeMaterial(entity);
+    const radius = entity.props?.radius ?? 8;
+    const height = entity.props?.height ?? 4.6;
+    const thickness = entity.props?.thickness ?? 0.28;
+    const holes = entity.props?.holes ?? [];
+    addBox(group, material, 0, -thickness * 0.5, 0, radius * 2.1, thickness, radius * 2.1);
+    addBox(group, material, 0, height + thickness * 0.5, 0, radius * 2.1, thickness, radius * 2.1, false);
+    const sides = 8;
+    for (let i = 0; i < sides; i += 1) {
+      const angle = (i / sides) * Math.PI * 2 + Math.PI / sides;
+      const wall = rotundaWallName(i);
+      const hasHole = holes.some((hole) => hole.wall === wall);
+      const x = Math.sin(angle) * radius;
+      const z = -Math.cos(angle) * radius;
+      const span = (2 * Math.PI * radius) / sides + 0.08;
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(span, height, thickness),
+        material,
+      );
+      mesh.position.set(x, height * 0.5, z);
+      mesh.rotation.y = -angle;
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.userData.collider = { type: 'aabb' };
+      if (hasHole) {
+        mesh.scale.x = 0.35;
+        mesh.position.y = height * 0.78;
+        mesh.scale.y = 0.44;
+      }
+      group.add(mesh);
+    }
+    group.userData.volume = { kind: 'rotunda', radius, height };
     return group;
   },
 

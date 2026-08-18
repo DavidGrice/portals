@@ -1,0 +1,14 @@
+{
+  "topologies": [
+    { "id": "I", "file": "I.json" },
+    { "id": "L", "file": "L.json" },
+    { "id": "T", "file": "T.json" },
+    { "id": "plus", "file": "plus.json" },
+    { "id": "U", "file": "U.json" },
+    { "id": "court", "file": "court.json" },
+    { "id": "loft", "file": "loft.json" },
+    { "id": "shaft", "file": "shaft.json" },
+    { "id": "rotunda", "file": "rotunda.json" },
+    { "id": "alcove", "file": "alcove.json" }
+  ]
+}

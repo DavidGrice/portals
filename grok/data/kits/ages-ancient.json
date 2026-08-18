@@ -96,5 +96,9 @@
         "color": "#d4b070"
       }
     }
+  ],
+  "topologies": [
+    "T",
+    "plus"
   ]
 }

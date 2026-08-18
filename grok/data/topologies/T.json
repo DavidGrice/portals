@@ -1,0 +1,19 @@
+{
+  "id": "T",
+  "title": "Three-way",
+  "kind": "arch.chamber",
+  "tags": ["branching"],
+  "footprint": { "halfX": 10, "zMin": -6, "zMax": 4, "height": 3.8 },
+  "sockets": [
+    { "id": "entry", "role": "entry", "wall": "south", "u": 0 },
+    { "id": "exit-a", "role": "exit", "wall": "north", "u": 0 },
+    { "id": "exit-b", "role": "exit", "wall": "west", "u": -0.4 },
+    { "id": "exit-c", "role": "exit", "wall": "east", "u": -0.4 }
+  ],
+  "regions": {
+    "entry-left": [-6, 0, 2],
+    "center": [0, 0, -0.5],
+    "hearth-wall": [0, 0, -4.6],
+    "far-corner": [7, 0, -4]
+  }
+}

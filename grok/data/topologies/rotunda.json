@@ -1,0 +1,19 @@
+{
+  "id": "rotunda",
+  "title": "Round hall",
+  "kind": "arch.rotunda",
+  "tags": ["open"],
+  "footprint": { "halfX": 8, "zMin": -8, "zMax": 8, "height": 4.6, "radius": 8 },
+  "sockets": [
+    { "id": "entry", "role": "entry", "wall": "south", "u": 0 },
+    { "id": "exit-a", "role": "exit", "wall": "north", "u": 0 },
+    { "id": "exit-b", "role": "exit", "wall": "west", "u": 0 },
+    { "id": "exit-c", "role": "exit", "wall": "east", "u": 0 }
+  ],
+  "regions": {
+    "entry-left": [-4.4, 0, 4],
+    "center": [0, 0, 0],
+    "hearth-wall": [4.4, 0, 4],
+    "far-corner": [-3.6, 0, -4.2]
+  }
+}

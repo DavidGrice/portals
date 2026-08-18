@@ -97,5 +97,9 @@
         "color": "#c4a070"
       }
     }
+  ],
+  "topologies": [
+    "L",
+    "alcove"
   ]
 }

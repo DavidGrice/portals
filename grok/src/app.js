@@ -470,6 +470,7 @@ export function createApp({
           depth,
           room: roomId,
           kit: room.kitId ?? null,
+          topology: room.topologyId ?? null,
           liveDests: live.length,
           spawned: firstSpawn.length + refill.length,
           evicted,

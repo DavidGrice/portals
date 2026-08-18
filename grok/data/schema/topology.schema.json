@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://portals-grok.local/schema/topology.json",
+  "title": "Topology",
+  "type": "object",
+  "required": ["id", "kind", "sockets"],
+  "properties": {
+    "id": { "type": "string" },
+    "title": { "type": "string" },
+    "kind": { "type": "string" },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "footprint": { "type": "object" },
+    "sockets": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["id", "role", "wall"],
+        "properties": {
+          "id": { "type": "string" },
+          "role": { "enum": ["entry", "exit"] },
+          "wall": { "type": "string" },
+          "u": { "type": "number" },
+          "y": { "type": "number" },
+          "position": { "type": "array", "items": { "type": "number" } },
+          "yaw": { "type": "number" }
+        }
+      }
+    },
+    "regions": { "type": "object" }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://portals-grok.local/schema/kit.json",
+  "title": "Kit",
+  "type": "object",
+  "required": ["id"],
+  "properties": {
+    "id": { "type": "string" },
+    "title": { "type": "string" },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "clearColor": { "type": "string" },
+    "materials": { "type": "object" },
+    "atmosphere": { "type": "object" },
+    "shell": { "type": "object" },
+    "topologies": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "sockets": { "type": "array" },
+    "dressing": { "type": "array" }
+  }
+}

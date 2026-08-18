@@ -46,6 +46,8 @@ export function createSession({
       seed: resolvedWorld.seed,
       depth: resolvedWorld.depth ?? 0,
       origins: resolvedWorld.originPool ?? createOriginPool(),
+      recent: resolvedWorld.recent ?? [],
+      seq: 0,
     }
     : null;
   if (pose) {
