@@ -6,6 +6,11 @@
   "minExits": 2,
   "maxExits": 4,
   "minLiveDests": 1,
+  "climate": [
+    { "until": 4, "ambientScale": 1, "sunScale": 1, "density": 1, "fog": 0, "emissiveScale": 1 },
+    { "until": 12, "ambientScale": 0.72, "sunScale": 0.68, "density": 1.15, "fog": 0.16, "emissiveScale": 0.75, "tint": "#101820" },
+    { "until": 99, "ambientScale": 0.42, "sunScale": 0.38, "density": 0.7, "fog": 0.34, "emissiveScale": 0.4, "tint": "#070d18" }
+  ],
   "depths": [
     {
       "until": 4,

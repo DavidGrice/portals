@@ -71,6 +71,7 @@ export function kitsForDepth(depth = 0, config = generatorConfig) {
 export function openDrift({
   seed = String(Math.floor(Math.random() * 0xffff).toString(16)),
   depth = 0,
+  kitId = null,
   config = generatorConfig,
 } = {}) {
   const rng = createRng(`${seed}:${depth}`);
@@ -81,7 +82,7 @@ export function openDrift({
   const minExits = Number(config.minExits ?? 2);
   const maxExits = Number(config.maxExits ?? 4);
   const pool = createOriginPool();
-  const startKit = pickOne(rng, kits);
+  const startKit = (kitId && KIT_BY_ID[kitId]) || pickOne(rng, kits);
   const startId = `drift-${depth}`;
   const recent = [];
   const start = generateRoom({
@@ -124,6 +125,28 @@ export function openDrift({
   world.originPool = pool;
   world.recent = recent.slice(-4);
   return world;
+}
+
+export function disposeRejectedSiblings(controller, fromRoom, keepId) {
+  if (!fromRoom) {
+    return [];
+  }
+  const removed = [];
+  for (const portal of fromRoom.portals ?? []) {
+    const role = portal.userData?.role ?? portal.role;
+    if (role !== 'exit') {
+      continue;
+    }
+    const destRoom = roomForPortal(controller, portal.destinationPortal);
+    if (!destRoom || destRoom.id === keepId || destRoom === controller.currentRoom) {
+      continue;
+    }
+    if (controller.removeRoom?.(destRoom.id)) {
+      controller.drift?.origins?.release(destRoom.id);
+      removed.push(destRoom.id);
+    }
+  }
+  return removed;
 }
 
 export function disposeSiblings(controller, keepId) {
@@ -347,16 +370,27 @@ export function logDriftEndRoom(controller, extra = {}) {
   return payload;
 }
 
-export function spawnSealSlab(portal) {
+function sealLook(tags = []) {
+  if (tags.includes('cyber')) {
+    return { color: 0x1a2834, roughness: 0.32, metalness: 0.72 };
+  }
+  if (tags.includes('haunt')) {
+    return { color: 0x3a2a18, roughness: 0.96, metalness: 0.04 };
+  }
+  return { color: 0x2a2420, roughness: 0.9, metalness: 0.08 };
+}
+
+export function spawnSealSlab(portal, tags = []) {
   if (!portal?.scene) {
     return null;
   }
   if (portal.userData.sealSlab) {
     return portal.userData.sealSlab;
   }
+  const look = sealLook(tags);
   const mesh = new Mesh(
-    new BoxGeometry(2.2, 2.2, 0.14),
-    new MeshStandardMaterial({ color: 0x2a2420, roughness: 0.94, metalness: 0.04 }),
+    new BoxGeometry(2.35, 2.35, 0.18),
+    new MeshStandardMaterial(look),
   );
   mesh.position.copy(portal.position);
   mesh.quaternion.copy(portal.quaternion);
@@ -393,7 +427,7 @@ export function killFrameGlow(scene, portalId) {
   return count;
 }
 
-export function sealArrival(portal) {
+export function sealArrival(portal, { tags = [] } = {}) {
   const dest = portal?.destinationPortal;
   if (!dest) {
     return false;
@@ -401,7 +435,7 @@ export function sealArrival(portal) {
   dest.enabled = false;
   dest.oneWay = true;
   dest.userData.sealed = true;
-  spawnSealSlab(dest);
+  spawnSealSlab(dest, tags);
   killFrameGlow(dest.scene, dest.portalId);
   return true;
 }

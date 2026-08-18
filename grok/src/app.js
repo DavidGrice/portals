@@ -9,6 +9,7 @@ import { nearestFireDistance, spawnCrossBurst, tickAtmosphere, tickNpcs } from '
 import { gameAudio } from './engine/audio.js';
 import { tickDestStrip, tickScreens } from './engine/index.js';
 import {
+  disposeRejectedSiblings,
   evictBehind,
   ensureForwardDoors,
   kitsForDepth,
@@ -56,6 +57,7 @@ export function createApp({
   let fpsAcc = 0;
   let unbindSession = () => {};
   let selectedWorldId = worldData?.id ?? 'two-rooms';
+  let driftSeed = '';
   let nearbyInteract = null;
 
   const welcome = document.getElementById('welcome');
@@ -117,9 +119,13 @@ export function createApp({
   refreshContinue();
   bindWorldSelect({
     root: worldsCard,
+    seed: driftSeed,
+    onSeed: (value) => {
+      driftSeed = value;
+    },
     onPick: (id) => {
       selectedWorldId = id;
-      play({ worldId: id });
+      play({ worldId: id, seed: driftSeed });
     },
     onBack: () => showMenuCard('home'),
   });
@@ -270,7 +276,7 @@ export function createApp({
     }
   }
 
-  async function play({ useSave = false, worldId = selectedWorldId } = {}) {
+  async function play({ useSave = false, worldId = selectedWorldId, seed = driftSeed } = {}) {
     if (state === APP_STATES.loading || state === APP_STATES.playing) {
       return state;
     }
@@ -288,11 +294,12 @@ export function createApp({
       const save = useSave ? loadSave() : null;
       const chosen = save && useSave ? save.worldId : selectedWorldId;
       selectedWorldId = chosen || selectedWorldId;
+      const typedSeed = selectedWorldId === 'drift' && seed ? { seed } : null;
       session = createSessionFn({
         settings,
         world: getWorldData(selectedWorldId) ?? worldData,
         catalog: catalogData,
-        pose: save && save.worldId === selectedWorldId ? save : null,
+        pose: save && save.worldId === selectedWorldId ? save : typedSeed,
         width: window.innerWidth,
         height: window.innerHeight,
       });
@@ -515,9 +522,12 @@ export function createApp({
     const offCross = next.controller.on('portal:cross', ({ portal, portalId, from, to }) => {
       lastCross = `${from} → ${to} via ${portalId ?? '?'}`;
       if (next.controller.currentRoom?.tags?.includes('generated') || next.controller.drift) {
-        if (sealArrival(portal ?? next.controller.getPortal(portalId))) {
+        const destRoom = next.controller.rooms.find((entry) => entry.id === to);
+        const fromRoom = next.controller.rooms.find((entry) => entry.id === from);
+        if (sealArrival(portal ?? next.controller.getPortal(portalId), { tags: destRoom?.tags ?? [] })) {
           gameAudio.slam();
         }
+        disposeRejectedSiblings(next.controller, fromRoom, to);
       }
       gameAudio.whoosh();
       const dest = next.controller.rooms.find((entry) => entry.id === to);

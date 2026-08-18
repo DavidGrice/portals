@@ -38,7 +38,7 @@ export function createSession({
     throw new Error('Drift cannot host multiplayer');
   }
   const resolvedWorld = world?.id === 'drift' || world?.generated
-    ? openDrift({ seed: pose?.seed, depth: pose?.depth ?? 0 })
+    ? openDrift({ seed: pose?.seed, depth: pose?.depth ?? 0, kitId: pose?.kitId })
     : world;
   const controller = loadWorld(resolvedWorld, catalog, nextCamera, nextRenderer);
   controller.drift = resolvedWorld?.id === 'drift'

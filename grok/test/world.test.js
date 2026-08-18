@@ -147,6 +147,9 @@ describe('world data', () => {
     assert.equal(index.worlds[0].id, 'two-rooms');
     assert.equal(index.worlds[1].id, 'haunted-house');
     assert.ok(index.worlds[0].preview.startsWith('/worlds/'));
+    const drift = index.worlds.find((entry) => entry.id === 'drift');
+    assert.equal(drift.preview, '/worlds/drift.jpg');
+    assert.match(drift.blurb, /do not come back/i);
     assert.ok(index.worlds[1].preview.startsWith('/worlds/'));
     assert.ok(listWorlds().every((entry) => entry.status !== 'draft'));
     assert.ok(listWorlds().some((entry) => entry.id === 'circuit-grid'));

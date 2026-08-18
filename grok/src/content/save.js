@@ -25,19 +25,31 @@ export function clearSave() {
   globalThis.localStorage?.removeItem(SAVE_KEY);
 }
 
+export function isWorldPose(position = []) {
+  return Math.abs(Number(position[0]) || 0) > 80 || Math.abs(Number(position[2]) || 0) > 80;
+}
+
 export function poseFromSession(session, worldId) {
   const euler = { x: 0, y: 0, z: 0 };
   session.camera.rotation.setFromQuaternion(session.camera.quaternion, 'YXZ');
   euler.x = session.camera.rotation.x;
   euler.y = session.camera.rotation.y;
+  const origin = session.controller.currentRoom?.origin ?? [0, 0, 0];
   return {
     worldId,
     roomId: session.controller.currentRoom.id,
-    position: [session.camera.position.x, session.camera.position.y, session.camera.position.z],
+    position: [
+      session.camera.position.x - origin[0],
+      session.camera.position.y,
+      session.camera.position.z - origin[2],
+    ],
     yaw: euler.y,
     pitch: euler.x,
     seed: session.controller?.drift?.seed,
-    depth: session.controller?.drift?.depth,
+    depth: session.controller?.drift?.depth ?? session.controller.currentRoom?.depth,
+    kitId: session.controller.currentRoom?.kitId ?? session.controller?.drift?.kitId,
+    topologyId: session.controller.currentRoom?.topologyId ?? null,
+    branch: session.controller.currentRoom?.branch ?? 0,
   };
 }
 
@@ -53,7 +65,11 @@ export function applyPose(session, pose) {
     }
   }
   if (pose.position) {
-    session.camera.position.set(...pose.position);
+    const origin = session.controller.currentRoom?.origin ?? [0, 0, 0];
+    const world = isWorldPose(pose.position)
+      ? pose.position
+      : [pose.position[0] + origin[0], pose.position[1], pose.position[2] + origin[2]];
+    session.camera.position.set(...world);
   }
   session.camera.rotation.order = 'YXZ';
   session.camera.rotation.y = pose.yaw ?? 0;

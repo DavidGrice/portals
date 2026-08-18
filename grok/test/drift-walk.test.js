@@ -7,6 +7,7 @@ import { PerspectiveCamera } from 'three';
 import { PortalController } from '../src/engine/index.js';
 import { loadWorld } from '../src/content/loadWorld.js';
 import {
+  disposeRejectedSiblings,
   evictBehind,
   ensureForwardDoors,
   kitsForDepth,
@@ -16,7 +17,10 @@ import {
   sealArrival,
   snapshotDriftRoom,
 } from '../src/content/drift.js';
-import { generateRoom, isForwardSocket, unusedExits } from '../src/content/generateRoom.js';
+import { exitWalls, generateRoom, isForwardSocket, unusedExits } from '../src/content/generateRoom.js';
+import { climateForDepth } from '../src/content/climate.js';
+import { applyPose, poseFromSession } from '../src/content/save.js';
+import { getTopology } from '../src/content/topologies.js';
 import { validateWorld } from '../scripts/validate-world.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -163,6 +167,116 @@ describe('Drift walk harness', () => {
         );
       }
     }
+  });
+
+  it('puts T, plus, and L exits on at least two walls', () => {
+    const kit = readJson('data/kits/haunt-hall.json');
+    for (const id of ['T', 'plus', 'L']) {
+      for (let i = 0; i < 12; i += 1) {
+        const room = generateRoom({
+          kit,
+          topology: getTopology(id),
+          roomId: `${id}-${i}`,
+          exitCount: 2,
+        });
+        assert.ok(exitWalls(room).length >= 2, `${id} ${room.id} walls ${exitWalls(room)}`);
+      }
+    }
+  });
+
+  it('cools the climate at depth 20 versus depth 0', () => {
+    const early = climateForDepth(0);
+    const late = climateForDepth(20);
+    assert.ok(early.sunScale > late.sunScale);
+    assert.ok((late.fog ?? 0) > (early.fog ?? 0));
+    const kit = readJson('data/kits/haunt-hall.json');
+    const a = generateRoom({ kit, topology: getTopology('I'), roomId: 'cl-0', depth: 0 });
+    const b = generateRoom({ kit, topology: getTopology('I'), roomId: 'cl-20', depth: 20 });
+    const sunA = a.entities.find((entity) => entity.kind === 'env.light').props.sunIntensity;
+    const sunB = b.entities.find((entity) => entity.kind === 'env.light').props.sunIntensity;
+    assert.ok(sunA > sunB);
+  });
+
+  it('rebuilds Continue from seed, depth, and kit with a local pose', () => {
+    const first = openDrift({ seed: 'cont-7', depth: 7 });
+    const kitId = first.rooms[0].kitId;
+    const camera = new PerspectiveCamera();
+    camera.position.set(first.rooms[0].origin[0] + 1.2, 1, first.rooms[0].origin[2] + 2.4);
+    const fake = {
+      camera,
+      controller: { currentRoom: first.rooms[0], drift: { seed: 'cont-7', depth: 7 } },
+    };
+    const pose = poseFromSession(fake, 'drift');
+    assert.ok(Math.abs(pose.position[0]) < 20);
+    assert.equal(pose.kitId, kitId);
+    const second = openDrift({ seed: pose.seed, depth: pose.depth, kitId: pose.kitId });
+    assert.equal(second.rooms[0].id, first.rooms[0].id);
+    assert.equal(second.rooms[0].kitId, kitId);
+    camera.position.set(0, 0, 0);
+    applyPose({ camera, controller: { currentRoom: second.rooms[0], drift: { seed: pose.seed } } }, pose);
+    assert.ok(Math.abs(camera.position.x - (second.rooms[0].origin[0] + pose.position[0])) < 0.001);
+  });
+
+  it('disposes rejected sibling dests after a choice', () => {
+    const world = openDrift({ seed: 'sibs', depth: 0 });
+    const start = world.rooms[0];
+    if (start.portals.filter((portal) => portal.role === 'exit').length < 2) {
+      return;
+    }
+    const camera = new PerspectiveCamera(60, 1, 0.05, 280);
+    const controller = loadWorld(world, catalogData, camera, mockRenderer());
+    controller.drift = { seed: 'sibs', depth: 0, origins: world.originPool, seq: 0 };
+    controller.setCurrentScene(start.id);
+    const dests = controller.currentRoom.portals
+      .filter((portal) => portal.userData.role === 'exit' && portal.destinationPortal)
+      .map((portal) => roomForScene(controller, portal.destinationPortal.scene));
+    if (dests.length < 2) {
+      return;
+    }
+    const keep = dests[0];
+    controller.setCurrentScene(keep.id);
+    const removed = disposeRejectedSiblings(controller, controller.rooms.find((room) => room.id === start.id), keep.id);
+    assert.ok(removed.length >= 1);
+    assert.ok(controller.rooms.some((room) => room.id === keep.id));
+    for (const id of removed) {
+      assert.ok(!controller.rooms.some((room) => room.id === id));
+    }
+  });
+
+  it('passes the 40-room fun gate on default weights', () => {
+    const config = readJson('data/generators/drift.json');
+    const seed = 'fun-gate';
+    const world = openDrift({ seed, depth: 0 });
+    const camera = new PerspectiveCamera(60, 1, 0.05, 280);
+    const controller = loadWorld(world, catalogData, camera, mockRenderer());
+    controller.drift = { seed, depth: 0, origins: world.originPool, seq: 0 };
+    controller.setCurrentScene(world.startRoom);
+    ensureForwardDoors(controller, lookArgs(controller, controller.currentRoom, seed));
+    const seen = [];
+    let triple = 0;
+    let setpiece = 0;
+    for (let step = 0; step < 40; step += 1) {
+      const room = controller.currentRoom;
+      const doors = liveDestExits(room, controller);
+      assert.ok(doors.length >= 1, `fun-gate dead at ${step} ${room.id}`);
+      const exits = room.portals.filter((portal) => (portal.userData.role ?? portal.role) === 'exit');
+      if (exits.length >= 3) {
+        triple += 1;
+      }
+      if (String(room.kitId).startsWith('set-') || String(room.kitId).startsWith('mix-')) {
+        setpiece += 1;
+      }
+      const mark = `${room.topologyId}|${room.kitId}`;
+      if (seen.length) {
+        assert.notEqual(mark, seen[seen.length - 1], `repeat ${mark} at ${step}`);
+      }
+      seen.push(mark);
+      const destRoom = roomForScene(controller, doors[0].destinationPortal.scene);
+      enterAndFill(controller, destRoom, seed, config);
+      sealArrival(doors[0], { tags: destRoom.tags ?? [] });
+    }
+    assert.ok(triple / 40 >= 0.35, `only ${triple} rooms had 3+ doors`);
+    assert.ok(setpiece >= 1, 'no setpiece in 40 rooms');
   });
 
   it('dumps an end-room snapshot for the browser console', () => {

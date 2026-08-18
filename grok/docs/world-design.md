@@ -2,6 +2,10 @@
 
 Worlds stay **data**. A hall is JSON plus catalog kinds. Generated Drift rooms pick a **topology** (volume + sockets) then a **kit** (materials, dressing, bed tags). Code loads, draws, and collides — it does not invent a theme function.
 
+### Drift fun gate
+
+A 40-room default-weight run must: keep ≥1 spawnable door every hop; give ≥35% of rooms 3+ exits; never repeat the same topology+kit twice in a row; include at least one setpiece kit (`set-*` or `mix-*`). Fail the gate, fix kits and weights, do not start Circuit/Ages rebuilds.
+
 Topologies live in `data/topologies/` (`I`, `L`, `T`, `plus`, `U`, `court`, `loft`, `shaft`, `rotunda`, `alcove`). Kits list a `topologies` pool. The compiler refuses to reuse the same topology+kit pair in the last four live rooms.
 
 Volume kinds: `arch.corridor` (Four halls), `arch.chamber`, `arch.wing`, `arch.court`, `arch.loft`, `arch.shaft`, `arch.rotunda`. Sockets punch holes in those volumes. Portals sit in the holes.

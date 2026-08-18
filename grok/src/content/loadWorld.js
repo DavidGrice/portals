@@ -2,6 +2,7 @@ import { Scene } from 'three';
 import { PortalController } from '../engine/index.js';
 import { parseColor, spawnEntity } from './prefabs.js';
 import { attachMotes, setMoteDensity, tintGlow } from '../engine/atmosphere.js';
+import { applyClimateToScene, climateForDepth } from './climate.js';
 
 export function withOrigin(vec, origin) {
   const base = vec ?? [0, 0, 0];
@@ -22,6 +23,8 @@ export function addRoom(controller, roomData, catalog) {
   room.kitId = roomData.kitId ?? null;
   room.topologyId = roomData.topologyId ?? null;
   room.depth = roomData.depth ?? 0;
+  room.branch = roomData.branch ?? 0;
+  room.climate = roomData.climate ?? null;
   room.atmosphere = roomData.atmosphere ?? null;
 
   for (const entity of roomData.entities ?? []) {
@@ -93,6 +96,7 @@ export function dressRooms(controller) {
       half: [7.2, 1.35, 5.6],
     });
     setMoteDensity(room, room.atmosphere?.density ?? 1);
+    applyClimateToScene(room, room.climate ?? climateForDepth(room.depth ?? 0));
     room.scene.traverse((object) => {
       if (!object.userData.portalFrame || !object.userData.coversPortalId) {
         return;

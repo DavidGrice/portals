@@ -21,7 +21,7 @@ export function getWorldData(id) {
   return WORLD_DATA[id] ?? WORLD_DATA['two-rooms'];
 }
 
-export function bindWorldSelect({ root, worlds = listWorlds(), onPick, onBack } = {}) {
+export function bindWorldSelect({ root, worlds = listWorlds(), onPick, onBack, seed = '', onSeed } = {}) {
   if (!root) {
     return { worlds };
   }
@@ -31,6 +31,22 @@ export function bindWorldSelect({ root, worlds = listWorlds(), onPick, onBack } 
   const title = document.createElement('h2');
   title.textContent = 'Select a world';
   head.append(title);
+  if (worlds.some((world) => world.id === 'drift')) {
+    const seedRow = document.createElement('label');
+    seedRow.className = 'world-seed';
+    seedRow.append('Drift seed ');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.maxLength = 16;
+    input.placeholder = 'random';
+    input.value = seed;
+    input.autocomplete = 'off';
+    input.spellcheck = false;
+    input.addEventListener('click', (event) => event.stopPropagation());
+    input.addEventListener('input', () => onSeed?.(input.value.trim()));
+    seedRow.append(input);
+    head.append(seedRow);
+  }
   root.append(head);
 
   const grid = document.createElement('div');

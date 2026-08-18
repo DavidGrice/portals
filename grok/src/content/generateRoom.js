@@ -1,4 +1,5 @@
 import { pickInt } from './rng.js';
+import { applyClimateToRoomData, climateForDepth } from './climate.js';
 import { getTopology, holesFromSockets, pickTopology, resolveSocket, roomFingerprint, topologySockets } from './topologies.js';
 
 export const ORIGIN_SPACING = 250;
@@ -154,7 +155,8 @@ export function generateRoom({
     ?? listEntrySockets(kit)[0]
     ?? { id: 'entry', role: 'entry', position: [0, 1, 0], yaw: Math.PI, wall: 'south' });
   const materials = kit.materials ?? {};
-  const chosenExits = chooseExits(exitsAvailable, wanted, rng).map((socket) => (
+  const forceSide = ['T', 'plus', 'L'].includes(topo.id);
+  const chosenExits = chooseExits(exitsAvailable, wanted, rng, { forceSide }).map((socket) => (
     topo.kind === 'arch.corridor' ? snapExitToShell(socket, footprint) : resolveSocket(topo, socket)
   ));
   const holeSockets = [entry, ...chosenExits];
@@ -265,7 +267,7 @@ export function generateRoom({
     });
   }
 
-  return {
+  return applyClimateToRoomData({
     id,
     title: kit.title ?? kit.id,
     tags: [...new Set([...(kit.tags ?? []), 'generated', ...(topo.tags ?? [])])],
@@ -278,7 +280,7 @@ export function generateRoom({
     branch,
     entities,
     portals,
-  };
+  }, climateForDepth(depth));
 }
 
 export { roomFingerprint };
@@ -423,20 +425,46 @@ export function isForwardSocket(socket) {
   return z < -2 && Math.abs(x) < 1.5;
 }
 
-function chooseExits(exits, wanted, rng) {
+function socketWall(socket) {
+  return socket.wall ?? wallFromSocket(socket);
+}
+
+export function exitWalls(room) {
+  return [...new Set(
+    (room?.portals ?? [])
+      .filter((portal) => portal.role === 'exit')
+      .map((portal) => portal.wall ?? wallFromSocket({ position: portal.position })),
+  )];
+}
+
+function chooseExits(exits, wanted, rng, { forceSide = false } = {}) {
   if (!exits.length) {
     return [{ id: 'exit-a', role: 'exit', position: [0, 1, -6.2], yaw: 0, wall: 'north' }];
   }
   const roll = typeof rng === 'function' ? rng : Math.random;
   const chosen = [];
   const pool = [...exits];
-  const forwardIndex = pool.findIndex((socket) => isForwardSocket(socket));
-  if (forwardIndex >= 0) {
-    chosen.push(pool.splice(forwardIndex, 1)[0]);
+  const used = new Set();
+  const take = (match) => {
+    const index = pool.findIndex(match);
+    if (index < 0) {
+      return null;
+    }
+    const socket = pool.splice(index, 1)[0];
+    chosen.push(socket);
+    used.add(socketWall(socket));
+    return socket;
+  };
+  take((socket) => isForwardSocket(socket));
+  if ((forceSide || wanted >= 2) && chosen.length < wanted) {
+    take((socket) => socketWall(socket) !== 'north');
   }
   while (chosen.length < wanted && pool.length) {
-    const index = pickInt(roll, 0, pool.length - 1);
-    chosen.push(pool.splice(index, 1)[0]);
+    const unused = pool.findIndex((socket) => !used.has(socketWall(socket)));
+    const index = unused >= 0 ? unused : pickInt(roll, 0, pool.length - 1);
+    const socket = pool.splice(index, 1)[0];
+    chosen.push(socket);
+    used.add(socketWall(socket));
   }
   if (!chosen.length) {
     chosen.push(exits[0]);
