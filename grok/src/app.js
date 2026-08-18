@@ -417,13 +417,23 @@ export function createApp({
     }, 1500);
   }
 
+  function interactHint(spec) {
+    if (spec?.action === 'unlock') {
+      return 'E  Unseal door';
+    }
+    if (spec?.action === 'launch') {
+      return 'E  Jump';
+    }
+    return spec?.text ? `E  ${spec.text}` : 'E  Look';
+  }
+
   function updateInteractHud() {
     const hintNode = document.getElementById('interact-hint');
     const visible = Boolean(nearbyInteract);
     if (hintNode) {
       hintNode.hidden = !visible;
       if (visible) {
-        hintNode.textContent = nearbyInteract.spec.action === 'unlock' ? 'E  Unseal door' : 'E  Look';
+        hintNode.textContent = interactHint(nearbyInteract.spec);
       }
     }
     touchHud.setInteractVisible?.(visible && state === APP_STATES.playing);
