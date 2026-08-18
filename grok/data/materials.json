@@ -126,6 +126,92 @@
       "roughness": 0.96,
       "metalness": 0
     },
+    "haunt.boards": {
+      "recipe": "tile",
+      "color": "#6a4a28",
+      "line": "#3a2814",
+      "cells": 8,
+      "repeat": [4, 4],
+      "roughness": 0.88,
+      "metalness": 0.02,
+      "surface": "wood",
+      "map": "/assets/textures/haunt/boards.jpg"
+    },
+    "haunt.plaster": {
+      "recipe": "tile",
+      "color": "#8a8074",
+      "line": "#5a5248",
+      "cells": 4,
+      "repeat": [3, 3],
+      "roughness": 0.94,
+      "metalness": 0,
+      "surface": "stone",
+      "map": "/assets/textures/haunt/plaster.jpg"
+    },
+    "haunt.wallpaper": {
+      "recipe": "tile",
+      "color": "#5a3040",
+      "line": "#8a7040",
+      "cells": 6,
+      "repeat": [2, 2],
+      "roughness": 0.86,
+      "metalness": 0,
+      "map": "/assets/textures/haunt/wallpaper.jpg"
+    },
+    "haunt.brick": {
+      "recipe": "speckle",
+      "color": "#4a2824",
+      "line": "#2a1814",
+      "cells": 6,
+      "repeat": [3, 3],
+      "roughness": 0.95,
+      "metalness": 0.02,
+      "surface": "stone",
+      "map": "/assets/textures/haunt/brick.jpg"
+    },
+    "haunt.cellar": {
+      "recipe": "speckle",
+      "color": "#3a4440",
+      "line": "#1c2420",
+      "cells": 5,
+      "repeat": [3, 3],
+      "roughness": 0.96,
+      "metalness": 0.04,
+      "surface": "stone",
+      "map": "/assets/textures/haunt/cellar-stone.jpg"
+    },
+    "haunt.attic": {
+      "recipe": "tile",
+      "color": "#7a6a48",
+      "line": "#4a3a28",
+      "cells": 7,
+      "repeat": [4, 4],
+      "roughness": 0.9,
+      "metalness": 0,
+      "surface": "wood",
+      "map": "/assets/textures/haunt/attic-plank.jpg"
+    },
+    "haunt.iron": {
+      "recipe": "speckle",
+      "color": "#2a2c2e",
+      "line": "#101214",
+      "cells": 8,
+      "repeat": [2, 2],
+      "roughness": 0.45,
+      "metalness": 0.7,
+      "surface": "metal",
+      "map": "/assets/textures/haunt/iron.jpg"
+    },
+    "haunt.velvet": {
+      "recipe": "speckle",
+      "color": "#4a1828",
+      "line": "#2a1018",
+      "cells": 4,
+      "repeat": [2, 2],
+      "roughness": 0.92,
+      "metalness": 0,
+      "map": "/assets/textures/haunt/velvet.jpg"
+    },
     "ages.hull": {
       "recipe": "stripe",
       "color": "#2a3038",

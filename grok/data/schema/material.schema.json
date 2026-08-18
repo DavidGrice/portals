@@ -30,7 +30,10 @@
         "metalness": { "type": "number" },
         "emissive": { "type": ["string", "number"] },
         "emissiveIntensity": { "type": "number" },
-        "map": { "type": "string" }
+        "map": { "type": "string" },
+        "roughnessMap": { "type": "string" },
+        "normalMap": { "type": "string" },
+        "surface": { "type": "string" }
       }
     }
   }

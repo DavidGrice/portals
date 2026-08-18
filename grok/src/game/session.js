@@ -2,6 +2,7 @@ import { PerspectiveCamera } from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { Flashlight, GraphicsSettings, Player, PostAA, attachGadgets, createPortalRenderer } from '../engine/index.js';
 import { loadWorld } from '../content/loadWorld.js';
+import { hydrateRoomMaterials } from '../content/materials.js';
 import { openDrift } from '../content/drift.js';
 import { createOriginPool } from '../content/generateRoom.js';
 import { applyPose } from '../content/save.js';
@@ -41,6 +42,14 @@ export function createSession({
     ? openDrift({ seed: pose?.seed, depth: pose?.depth ?? 0, kitId: pose?.kitId })
     : world;
   const controller = loadWorld(resolvedWorld, catalog, nextCamera, nextRenderer);
+  if (typeof document !== 'undefined') {
+    import('three').then(({ TextureLoader }) => {
+      hydrateRoomMaterials(controller.rooms, {
+        loader: new TextureLoader(),
+        anisotropy: nextSettings.anisotropy ?? 4,
+      });
+    }).catch(() => {});
+  }
   controller.drift = resolvedWorld?.id === 'drift'
     ? {
       seed: resolvedWorld.seed,

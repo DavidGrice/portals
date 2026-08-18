@@ -454,6 +454,128 @@ export const prefabs = {
     return group;
   },
 
+  chair(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const wood = entity.props?.material
+      ? buildMaterial(entity.props.material)
+      : standardMaterial(parseColor(entity.props?.color, 0x3a2818), { roughness: 0.86 });
+    const cloth = entity.props?.upholstery
+      ? buildMaterial(entity.props.upholstery)
+      : standardMaterial(parseColor(entity.props?.cloth, 0x4a1828), { roughness: 0.9 });
+    addBox(group, wood, 0, 0.24, 0, 0.48, 0.06, 0.48);
+    addBox(group, wood, -0.2, 0.12, -0.2, 0.06, 0.24, 0.06);
+    addBox(group, wood, 0.2, 0.12, -0.2, 0.06, 0.24, 0.06);
+    addBox(group, wood, -0.2, 0.12, 0.2, 0.06, 0.24, 0.06);
+    addBox(group, wood, 0.2, 0.12, 0.2, 0.06, 0.24, 0.06);
+    addBox(group, cloth, 0, 0.58, -0.2, 0.46, 0.62, 0.07);
+    addBox(group, cloth, 0, 0.28, 0, 0.44, 0.05, 0.42);
+    group.userData.collider = { type: 'aabb' };
+    return group;
+  },
+
+  table(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const wood = entity.props?.material
+      ? buildMaterial(entity.props.material)
+      : standardMaterial(parseColor(entity.props?.color, 0x3a2818), { roughness: 0.84 });
+    const w = entity.props?.width ?? 2.4;
+    const d = entity.props?.depth ?? 1.05;
+    const h = entity.props?.height ?? 0.76;
+    addBox(group, wood, 0, h, 0, w, 0.07, d);
+    addBox(group, wood, -w * 0.42, h * 0.48, -d * 0.38, 0.08, h * 0.96, 0.08);
+    addBox(group, wood, w * 0.42, h * 0.48, -d * 0.38, 0.08, h * 0.96, 0.08);
+    addBox(group, wood, -w * 0.42, h * 0.48, d * 0.38, 0.08, h * 0.96, 0.08);
+    addBox(group, wood, w * 0.42, h * 0.48, d * 0.38, 0.08, h * 0.96, 0.08);
+    group.userData.collider = { type: 'aabb' };
+    return group;
+  },
+
+  sideboard(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const wood = entity.props?.material
+      ? buildMaterial(entity.props.material)
+      : standardMaterial(parseColor(entity.props?.color, 0x322418), { roughness: 0.86 });
+    addBox(group, wood, 0, 0.48, 0, 1.8, 0.96, 0.46);
+    addBox(group, wood, 0, 1.02, 0, 1.86, 0.08, 0.5);
+    group.userData.collider = { type: 'aabb' };
+    return group;
+  },
+
+  portrait(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const frame = standardMaterial(parseColor(entity.props?.frame, 0x4a3820), { roughness: 0.5, metalness: 0.2 });
+    const canvas = standardMaterial(parseColor(entity.props?.color, 0x3a2a28), { roughness: 0.8 });
+    addBox(group, frame, 0, 1.45, 0, 0.86, 1.05, 0.06);
+    addBox(group, canvas, 0, 1.45, 0.02, 0.68, 0.86, 0.02, false);
+    return group;
+  },
+
+  curtain(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const cloth = entity.props?.material
+      ? buildMaterial(entity.props.material)
+      : standardMaterial(parseColor(entity.props?.color, 0x4a1828), { roughness: 0.92 });
+    addBox(group, cloth, -0.28, 1.15, 0, 0.34, 2.2, 0.08);
+    addBox(group, cloth, 0.28, 1.15, 0, 0.34, 2.2, 0.08);
+    addBox(group, cloth, 0, 2.28, 0, 0.9, 0.08, 0.1);
+    return group;
+  },
+
+  window(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const frame = standardMaterial(parseColor(entity.props?.frame, 0x3a2a1c), { roughness: 0.6, metalness: 0.08 });
+    const night = standardMaterial(parseColor(entity.props?.color, 0x6a88a8), { roughness: 0.15, metalness: 0.05 });
+    addBox(group, frame, 0, 1.35, 0, 1.15, 1.5, 0.08);
+    addBox(group, night, 0, 1.35, 0.02, 0.92, 1.26, 0.02, false);
+    addBox(group, frame, 0, 1.35, 0.03, 0.05, 1.26, 0.03, false);
+    addBox(group, frame, 0, 1.35, 0.03, 0.92, 0.05, 0.03, false);
+    group.userData.window = true;
+    return group;
+  },
+
+  rug(entity) {
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(entity.props?.width ?? 2.8, 0.03, entity.props?.depth ?? 1.4),
+      entity.props?.material
+        ? buildMaterial(entity.props.material)
+        : standardMaterial(parseColor(entity.props?.color, 0x4a1824), { roughness: 0.95 }),
+    );
+    applyPose(mesh, entity);
+    mesh.position.y = entity.position?.[1] ?? 0.02;
+    mesh.receiveShadow = true;
+    mesh.userData.collider = { type: 'aabb' };
+    return mesh;
+  },
+
+  books(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const colors = [0x3a2030, 0x2a3040, 0x4a3820, 0x203028];
+    for (let i = 0; i < 5; i += 1) {
+      addBox(group, standardMaterial(colors[i % colors.length], { roughness: 0.88 }), (i - 2) * 0.09, 0.16, 0, 0.08, 0.32, 0.22);
+    }
+    return group;
+  },
+
+  trunk(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const wood = entity.props?.material
+      ? buildMaterial(entity.props.material)
+      : standardMaterial(parseColor(entity.props?.color, 0x4a3420), { roughness: 0.88 });
+    const iron = buildMaterial('haunt.iron');
+    addBox(group, wood, 0, 0.32, 0, 1.15, 0.64, 0.62);
+    addBox(group, iron, 0, 0.64, 0, 1.18, 0.05, 0.64);
+    group.userData.collider = { type: 'aabb' };
+    return group;
+  },
+
   plaque(entity) {
     const color = parseColor(entity.props?.color, 0xcfd3e5);
     const mesh = new THREE.Mesh(

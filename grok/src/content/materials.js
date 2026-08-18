@@ -1,4 +1,4 @@
-import { MeshStandardMaterial } from 'three';
+import { MeshStandardMaterial, RepeatWrapping } from 'three';
 import materials from '../../data/materials.json' with { type: 'json' };
 import { makeRecipeTexture } from './tiles.js';
 
@@ -28,6 +28,9 @@ export function resolveMaterial(id, { color, library = materials } = {}) {
     emissive: parseColor(def?.emissive, 0x000000),
     emissiveIntensity: def?.emissiveIntensity ?? 0,
     mapPath: def?.map ?? null,
+    roughnessMapPath: def?.roughnessMap ?? null,
+    normalMapPath: def?.normalMap ?? null,
+    surface: def?.surface ?? null,
   };
 }
 
@@ -39,7 +42,7 @@ export function buildMaterial(id, extras = {}) {
     cells: spec.cells,
     repeat: spec.repeat,
   });
-  return new MeshStandardMaterial({
+  const material = new MeshStandardMaterial({
     color: spec.color,
     map,
     roughness: extras.roughness ?? spec.roughness,
@@ -47,6 +50,55 @@ export function buildMaterial(id, extras = {}) {
     emissive: spec.emissive,
     emissiveIntensity: spec.emissiveIntensity,
   });
+  material.userData.materialSpec = spec;
+  if (extras.loader && spec.mapPath) {
+    hydrateMaterialMaps(material, spec, extras);
+  }
+  return material;
+}
+
+export function hydrateMaterialMaps(material, spec, { loader, anisotropy = 4 } = {}) {
+  const path = spec?.mapPath;
+  if (!material || !path || !loader?.load) {
+    return material;
+  }
+  try {
+    const texture = loader.load(path);
+    if (!texture) {
+      return material;
+    }
+    if ('wrapS' in texture) {
+      texture.wrapS = RepeatWrapping;
+      texture.wrapT = RepeatWrapping;
+    }
+    if (texture.repeat?.set) {
+      texture.repeat.set(spec.repeat?.[0] ?? 1, spec.repeat?.[1] ?? 1);
+    }
+    texture.anisotropy = anisotropy;
+    material.map = texture;
+    material.needsUpdate = true;
+  } catch {
+    // recipe map stays
+  }
+  return material;
+}
+
+export function hydrateRoomMaterials(rooms, { loader = null, anisotropy = 4 } = {}) {
+  if (!loader) {
+    return 0;
+  }
+  let count = 0;
+  for (const room of rooms ?? []) {
+    room.scene?.traverse((object) => {
+      const spec = object.material?.userData?.materialSpec;
+      if (!spec?.mapPath) {
+        return;
+      }
+      hydrateMaterialMaps(object.material, spec, { loader, anisotropy });
+      count += 1;
+    });
+  }
+  return count;
 }
 
 export function parseColor(value, fallback = 0xffffff) {

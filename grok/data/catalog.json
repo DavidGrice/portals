@@ -111,6 +111,51 @@
       "category": "prop",
       "prefab": "npc",
       "tags": ["prop", "npc"]
+    },
+    "prop.chair": {
+      "category": "prop",
+      "prefab": "chair",
+      "tags": ["prop", "furniture"]
+    },
+    "prop.table": {
+      "category": "prop",
+      "prefab": "table",
+      "tags": ["prop", "furniture"]
+    },
+    "prop.sideboard": {
+      "category": "prop",
+      "prefab": "sideboard",
+      "tags": ["prop", "furniture"]
+    },
+    "prop.portrait": {
+      "category": "prop",
+      "prefab": "portrait",
+      "tags": ["prop", "furniture"]
+    },
+    "prop.curtain": {
+      "category": "prop",
+      "prefab": "curtain",
+      "tags": ["prop", "furniture"]
+    },
+    "prop.window": {
+      "category": "prop",
+      "prefab": "window",
+      "tags": ["prop", "glass"]
+    },
+    "prop.rug": {
+      "category": "prop",
+      "prefab": "rug",
+      "tags": ["prop", "furniture"]
+    },
+    "prop.books": {
+      "category": "prop",
+      "prefab": "books",
+      "tags": ["prop", "furniture"]
+    },
+    "prop.trunk": {
+      "category": "prop",
+      "prefab": "trunk",
+      "tags": ["prop", "furniture"]
     }
   }
 }
