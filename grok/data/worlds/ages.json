@@ -366,6 +366,13 @@
           }
         },
         {
+          "id": "hearth-stone",
+          "kind": "prop.hearth",
+          "position": [3.4, 0, 4.6],
+          "rotation": [0, 3.141592653589793, 0],
+          "props": { "color": "#3a2c22", "ember": "#ff6a22", "intensity": 1.4 }
+        },
+        {
           "id": "frame-stone-back",
           "kind": "arch.frame",
           "position": [
@@ -955,6 +962,25 @@
           "props": {
             "color": "#9aa8b8",
             "text": "Present"
+          }
+        },
+        {
+          "id": "glass-present",
+          "kind": "prop.glass",
+          "position": [-4, 1.05, 1.8],
+          "rotation": [0, 1.5707963267948966, 0],
+          "props": { "color": "#9ecfff", "frame": "#6a8090" }
+        },
+        {
+          "id": "tv-present",
+          "kind": "prop.screen",
+          "position": [7.92, 1.35, -2.4],
+          "rotation": [0, -1.5707963267948966, 0],
+          "props": {
+            "stand": false,
+            "frame": "#1a2430",
+            "cameraPosition": [0, 2.2, 4],
+            "lookAt": [0, 1.05, 0]
           }
         },
         {
