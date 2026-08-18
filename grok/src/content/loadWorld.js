@@ -47,10 +47,14 @@ export function addRoom(controller, roomData, catalog) {
 
 export function relinkPortals(controller, { strict = true } = {}) {
   for (const portal of controller.allPortals) {
-    const destination = controller.getPortal(portal.userData.destinationId);
+    const destinationId = portal.userData.destinationId;
+    if (!destinationId) {
+      continue;
+    }
+    const destination = controller.getPortal(destinationId);
     if (!destination) {
       if (strict) {
-        throw new Error(`Missing destination portal: ${portal.userData.destinationId}`);
+        throw new Error(`Missing destination portal: ${destinationId}`);
       }
       continue;
     }

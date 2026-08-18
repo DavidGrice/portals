@@ -3,6 +3,7 @@ import { PointerLockControls } from 'three/addons/controls/PointerLockControls.j
 import { GraphicsSettings, Player, PostAA, attachGadgets, createPortalRenderer } from '../engine/index.js';
 import { loadWorld } from '../content/loadWorld.js';
 import { openDrift } from '../content/drift.js';
+import { createOriginPool } from '../content/generateRoom.js';
 import { applyPose } from '../content/save.js';
 
 const TEXTURE_KEYS = ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap'];
@@ -40,7 +41,13 @@ export function createSession({
     ? openDrift({ seed: pose?.seed, depth: pose?.depth ?? 0 })
     : world;
   const controller = loadWorld(resolvedWorld, catalog, nextCamera, nextRenderer);
-  controller.drift = resolvedWorld?.id === 'drift' ? { seed: resolvedWorld.seed, depth: resolvedWorld.depth ?? 0 } : null;
+  controller.drift = resolvedWorld?.id === 'drift'
+    ? {
+      seed: resolvedWorld.seed,
+      depth: resolvedWorld.depth ?? 0,
+      origins: resolvedWorld.originPool ?? createOriginPool(),
+    }
+    : null;
   if (pose) {
     applyPose({ camera: nextCamera, controller }, pose);
   }

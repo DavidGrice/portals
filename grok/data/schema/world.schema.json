@@ -50,15 +50,18 @@
     },
     "portal": {
       "type": "object",
-      "required": ["id", "destinationId"],
+      "required": ["id"],
       "properties": {
         "id": { "type": "string" },
         "position": { "$ref": "#/$defs/vec3" },
         "yaw": { "type": "number" },
         "size": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
-        "destinationId": { "type": "string" },
+        "destinationId": { "type": ["string", "null"] },
         "enabled": { "type": "boolean" },
         "oneWay": { "type": "boolean" },
+        "role": { "enum": ["entry", "exit"] },
+        "reserved": { "type": "boolean" },
+        "wall": { "type": "string" },
         "tags": { "type": "array", "items": { "type": "string" } }
       }
     },

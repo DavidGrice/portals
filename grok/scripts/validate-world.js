@@ -43,7 +43,19 @@ export function validateWorld(world, catalog, materials = null) {
       }
     }
     for (const portal of room.portals ?? []) {
-      if (!portal.id || !portal.destinationId) {
+      if (!portal.id) {
+        errors.push(`room ${room.id} has a portal without id`);
+        continue;
+      }
+      if (!portal.destinationId) {
+        if (world.generated) {
+          if (portalIds.has(portal.id)) {
+            errors.push(`duplicate portal id: ${portal.id}`);
+          } else {
+            portalIds.set(portal.id, null);
+          }
+          continue;
+        }
         errors.push(`room ${room.id} has a portal without id/destinationId`);
         continue;
       }
@@ -59,6 +71,9 @@ export function validateWorld(world, catalog, materials = null) {
   }
 
   for (const [id, destinationId] of portalIds) {
+    if (!destinationId) {
+      continue;
+    }
     if (!portalIds.has(destinationId)) {
       errors.push(`portal ${id} points at missing ${destinationId}`);
     }

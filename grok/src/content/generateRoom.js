@@ -1,7 +1,85 @@
 import { pickInt } from './rng.js';
 
+export const ORIGIN_SPACING = 250;
+
+export const DEFAULT_EXIT_SOCKETS = [
+  { id: 'exit-a', role: 'exit', position: [0, 1, -5], yaw: 0, wall: 'north' },
+  { id: 'exit-b', role: 'exit', position: [-6.4, 1, 1.2], yaw: Math.PI / 2, wall: 'west' },
+  { id: 'exit-c', role: 'exit', position: [6.4, 1, 1.2], yaw: -Math.PI / 2, wall: 'east' },
+  { id: 'exit-d', role: 'exit', position: [-6.4, 1, -3.2], yaw: Math.PI / 2, wall: 'west' },
+];
+
+export function originFromCell(col = 0, row = 0, spacing = ORIGIN_SPACING) {
+  return [Number(col) * spacing, 0, Number(row) * spacing];
+}
+
 export function allocateOrigin(depth = 0, branch = 0) {
-  return [Number(depth) * 250 + Number(branch) * 10000, 0, 0];
+  return originFromCell(Number(depth) || 0, Number(branch) || 0);
+}
+
+export function createOriginPool({ spacing = ORIGIN_SPACING } = {}) {
+  const live = new Map();
+  const liveCells = new Set();
+  const free = [];
+  let cursor = 0;
+
+  function cellKey(cell) {
+    return `${cell.col},${cell.row}`;
+  }
+
+  function nextFreshCell() {
+    let cell;
+    do {
+      cell = {
+        col: cursor % 64,
+        row: Math.floor(cursor / 64),
+      };
+      cursor += 1;
+    } while (liveCells.has(cellKey(cell)));
+    return cell;
+  }
+
+  return {
+    acquire(id) {
+      if (!id) {
+        throw new Error('origin pool acquire needs an id');
+      }
+      if (live.has(id)) {
+        const cell = live.get(id);
+        return originFromCell(cell.col, cell.row, spacing);
+      }
+      const cell = free.pop() ?? nextFreshCell();
+      live.set(id, cell);
+      liveCells.add(cellKey(cell));
+      return originFromCell(cell.col, cell.row, spacing);
+    },
+    release(id) {
+      const cell = live.get(id);
+      if (!cell) {
+        return false;
+      }
+      live.delete(id);
+      liveCells.delete(cellKey(cell));
+      free.push(cell);
+      return true;
+    },
+    originOf(id) {
+      const cell = live.get(id);
+      return cell ? originFromCell(cell.col, cell.row, spacing) : null;
+    },
+    has(id) {
+      return live.has(id);
+    },
+    isCellLive(col, row) {
+      return liveCells.has(`${col},${row}`);
+    },
+    liveCount() {
+      return live.size;
+    },
+    liveIds() {
+      return [...live.keys()];
+    },
+  };
 }
 
 export function listExitSockets(kit) {
@@ -10,7 +88,32 @@ export function listExitSockets(kit) {
 
 export function listEntrySockets(kit) {
   const entries = (kit?.sockets ?? []).filter((socket) => socket.role === 'entry');
-  return entries.length ? entries : [{ id: 'entry', role: 'entry', position: [0, 1, 0], yaw: Math.PI }];
+  return entries.length ? entries : [{ id: 'entry', role: 'entry', position: [0, 1, 0], yaw: Math.PI, wall: 'south' }];
+}
+
+export function resolveExitSockets(kit) {
+  const declared = listExitSockets(kit);
+  if (declared.length) {
+    return declared;
+  }
+  if ((kit?.sockets ?? []).some((socket) => socket.role === 'entry')) {
+    return [];
+  }
+  return DEFAULT_EXIT_SOCKETS.map((socket) => ({ ...socket, position: [...socket.position] }));
+}
+
+export function pickExitCount(rng, { minExits = 2, maxExits = 4, available = 4 } = {}) {
+  const floor = Math.max(1, Math.min(Number(minExits) || 1, available));
+  const ceil = Math.max(floor, Math.min(Number(maxExits) || floor, available));
+  return pickInt(typeof rng === 'function' ? rng : Math.random, floor, ceil);
+}
+
+export function isReservedPortal(portal) {
+  return Boolean(portal?.reserved) || portal?.role === 'exit';
+}
+
+export function unusedExits(room) {
+  return (room?.portals ?? []).filter((portal) => portal.role === 'exit' && !portal.destinationId);
 }
 
 export function generateRoom({
@@ -20,23 +123,28 @@ export function generateRoom({
   depth = 0,
   branch = 0,
   exitCount = 1,
+  minExits = 0,
   rng = Math.random,
 } = {}) {
   if (!kit?.id) {
     throw new Error('generateRoom requires a kit');
   }
   const id = roomId || `${kit.id}-${depth}-${branch}`;
-  const exitsAvailable = listExitSockets(kit);
-  const maxExits = Math.max(1, exitsAvailable.length || 1);
+  const exitsAvailable = resolveExitSockets(kit);
+  if (minExits && exitsAvailable.length < minExits) {
+    throw new Error(`kit ${kit.id} has ${exitsAvailable.length} exits, need ${minExits}`);
+  }
+  const maxExits = Math.max(1, exitsAvailable.length);
   const wanted = Math.max(1, Math.min(Number(exitCount) || 1, maxExits));
+  if (wanted > exitsAvailable.length) {
+    throw new Error(`kit ${kit.id} cannot supply ${wanted} exits`);
+  }
   const chosenExits = chooseExits(exitsAvailable, wanted, rng);
   const entry = listEntrySockets(kit)[0];
   const materials = kit.materials ?? {};
   const shell = kit.shell ?? { halfX: 8, zMin: -6.2, zMax: 5.2 };
-  const openings = [0];
-  if (chosenExits.some((socket) => Number(socket.position?.[2]) < -2 && Math.abs(socket.position?.[0] ?? 0) < 1)) {
-    openings.push(-5);
-  }
+  const holeSockets = [entry, ...chosenExits];
+  const { openings, sideOpenings } = openingsFromSockets(holeSockets);
 
   const entities = [
     { id: `sky-${id}`, kind: 'env.sky', props: { color: kit.clearColor ?? '#111111' } },
@@ -65,9 +173,7 @@ export function generateRoom({
         zMin: shell.zMin ?? -6.2,
         zMax: shell.zMax ?? 5.2,
         openings,
-        sideOpenings: chosenExits
-          .filter((socket) => Math.abs(socket.position?.[0] ?? 0) > 4)
-          .map((socket) => ({ side: socket.position[0] < 0 ? -1 : 1, z: socket.position[2] })),
+        sideOpenings,
       },
     },
     {
@@ -121,6 +227,7 @@ export function generateRoom({
     destinationId: null,
     oneWay: true,
     role: 'entry',
+    reserved: false,
   });
 
   for (const [index, socket] of chosenExits.entries()) {
@@ -140,6 +247,8 @@ export function generateRoom({
       destinationId: null,
       oneWay: false,
       role: 'exit',
+      reserved: true,
+      wall: socket.wall ?? wallFromSocket(socket),
     });
   }
 
@@ -166,29 +275,41 @@ export function linkRooms(fromRoom, toRoom, exitPortalId = null) {
     throw new Error('linkRooms needs an exit and an entry');
   }
   exit.destinationId = entry.id;
+  exit.reserved = false;
   entry.destinationId = exit.id;
   return { exit, entry };
 }
 
-export function pruneUnlinkedPortals(room) {
-  const linked = new Set((room.portals ?? []).filter((portal) => portal.destinationId).map((portal) => portal.id));
-  room.portals = (room.portals ?? []).filter((portal) => linked.has(portal.id));
+export function pruneUnlinkedPortals(room, { keepReserved = true } = {}) {
+  room.portals = (room.portals ?? []).filter((portal) => {
+    if (portal.destinationId) {
+      return true;
+    }
+    return keepReserved && isReservedPortal(portal);
+  });
+  const keepIds = new Set((room.portals ?? []).map((portal) => portal.id));
   room.entities = (room.entities ?? []).filter((entity) => {
     const cover = entity.props?.coversPortalId;
-    return !cover || linked.has(cover);
+    return !cover || keepIds.has(cover);
   });
   return room;
 }
 
-export function worldFromRooms(rooms, { id = 'drift', startRoom = rooms[0]?.id, theme = 'drift' } = {}) {
+export function worldFromRooms(rooms, {
+  id = 'drift',
+  startRoom = rooms[0]?.id,
+  theme = 'drift',
+  generated = true,
+} = {}) {
   if (!rooms?.length) {
     throw new Error('worldFromRooms needs rooms');
   }
-  const next = rooms.map((room) => pruneUnlinkedPortals(room));
+  const next = rooms.map((room) => pruneUnlinkedPortals(room, { keepReserved: generated }));
   return {
     id,
     title: 'Drift',
     theme,
+    generated,
     startRoom: startRoom || next[0].id,
     startSpawn: [next[0].origin[0], 1, 4],
     lookAt: [next[0].origin[0], 1, 0],
@@ -196,14 +317,39 @@ export function worldFromRooms(rooms, { id = 'drift', startRoom = rooms[0]?.id, 
   };
 }
 
+function openingsFromSockets(sockets) {
+  const openings = [];
+  const sideOpenings = [];
+  for (const socket of sockets) {
+    const x = Number(socket.position?.[0] ?? 0);
+    const z = Number(socket.position?.[2] ?? 0);
+    if (Math.abs(x) > 4) {
+      sideOpenings.push({ side: x < 0 ? -1 : 1, z });
+    } else {
+      openings.push(z);
+    }
+  }
+  return { openings, sideOpenings };
+}
+
+function wallFromSocket(socket) {
+  const x = Number(socket.position?.[0] ?? 0);
+  const z = Number(socket.position?.[2] ?? 0);
+  if (Math.abs(x) > Math.abs(z)) {
+    return x < 0 ? 'west' : 'east';
+  }
+  return z < 0 ? 'north' : 'south';
+}
+
 function chooseExits(exits, wanted, rng) {
   if (!exits.length) {
-    return [{ id: 'exit-a', role: 'exit', position: [0, 1, -5], yaw: 0 }];
+    return [{ id: 'exit-a', role: 'exit', position: [0, 1, -5], yaw: 0, wall: 'north' }];
   }
   const pool = [...exits];
   const chosen = [];
+  const roll = typeof rng === 'function' ? rng : Math.random;
   while (chosen.length < wanted && pool.length) {
-    const index = pickInt(typeof rng === 'function' ? rng : Math.random, 0, pool.length - 1);
+    const index = pickInt(roll, 0, pool.length - 1);
     chosen.push(pool.splice(index, 1)[0]);
   }
   if (!chosen.length) {
