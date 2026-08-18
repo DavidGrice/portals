@@ -3,10 +3,10 @@ import { pickInt } from './rng.js';
 export const ORIGIN_SPACING = 250;
 
 export const DEFAULT_EXIT_SOCKETS = [
-  { id: 'exit-a', role: 'exit', position: [0, 1, -5], yaw: 0, wall: 'north' },
-  { id: 'exit-b', role: 'exit', position: [-6.4, 1, 1.2], yaw: Math.PI / 2, wall: 'west' },
-  { id: 'exit-c', role: 'exit', position: [6.4, 1, 1.2], yaw: -Math.PI / 2, wall: 'east' },
-  { id: 'exit-d', role: 'exit', position: [-6.4, 1, -3.2], yaw: Math.PI / 2, wall: 'west' },
+  { id: 'exit-a', role: 'exit', position: [0, 1, -6.2], yaw: 0, wall: 'north' },
+  { id: 'exit-b', role: 'exit', position: [-8, 1, 1.2], yaw: Math.PI / 2, wall: 'west' },
+  { id: 'exit-c', role: 'exit', position: [8, 1, 1.2], yaw: -Math.PI / 2, wall: 'east' },
+  { id: 'exit-d', role: 'exit', position: [8, 1, -3.2], yaw: -Math.PI / 2, wall: 'east' },
 ];
 
 export function originFromCell(col = 0, row = 0, spacing = ORIGIN_SPACING) {
@@ -139,10 +139,10 @@ export function generateRoom({
   if (wanted > exitsAvailable.length) {
     throw new Error(`kit ${kit.id} cannot supply ${wanted} exits`);
   }
-  const chosenExits = chooseExits(exitsAvailable, wanted, rng);
   const entry = listEntrySockets(kit)[0];
   const materials = kit.materials ?? {};
   const shell = kit.shell ?? { halfX: 8, zMin: -6.2, zMax: 5.2 };
+  const chosenExits = chooseExits(exitsAvailable, wanted, rng).map((socket) => snapExitToShell(socket, shell));
   const holeSockets = [entry, ...chosenExits];
   const { openings, sideOpenings } = openingsFromSockets(holeSockets);
 
@@ -341,6 +341,29 @@ function wallFromSocket(socket) {
   return z < 0 ? 'north' : 'south';
 }
 
+export function snapExitToShell(socket, shell = {}) {
+  const halfX = Number(shell.halfX ?? 8);
+  const zMin = Number(shell.zMin ?? -6.2);
+  const next = {
+    ...socket,
+    position: [...(socket.position ?? [0, 1, 0])],
+  };
+  const wall = next.wall ?? wallFromSocket(next);
+  next.wall = wall;
+  if (wall === 'west') {
+    next.position[0] = -halfX;
+    next.yaw = Math.PI / 2;
+  } else if (wall === 'east') {
+    next.position[0] = halfX;
+    next.yaw = -Math.PI / 2;
+  } else if (wall === 'north') {
+    next.position[0] = 0;
+    next.position[2] = zMin;
+    next.yaw = 0;
+  }
+  return next;
+}
+
 export function isForwardSocket(socket) {
   if (!socket) {
     return false;
@@ -355,7 +378,7 @@ export function isForwardSocket(socket) {
 
 function chooseExits(exits, wanted, rng) {
   if (!exits.length) {
-    return [{ id: 'exit-a', role: 'exit', position: [0, 1, -5], yaw: 0, wall: 'north' }];
+    return [{ id: 'exit-a', role: 'exit', position: [0, 1, -6.2], yaw: 0, wall: 'north' }];
   }
   const roll = typeof rng === 'function' ? rng : Math.random;
   const chosen = [];

@@ -34,6 +34,18 @@ describe('room compiler', () => {
     assert.equal(entry.oneWay, true);
     assert.ok(room.entities.some((entity) => entity.kind === 'arch.corridor'));
     assert.deepEqual(allocateOrigin(2, 1), [500, 0, 250]);
+    const snapped = generateRoom({ kit: readJson('data/kits/haunt-hall.json'), roomId: 'snap', exitCount: 3 });
+    const shell = { halfX: 8, zMin: -6.2 };
+    for (const portal of snapped.portals.filter((entry) => entry.role === 'exit')) {
+      if (portal.wall === 'north') {
+        assert.equal(portal.position[2], shell.zMin);
+        assert.equal(portal.position[0], 0);
+      } else if (portal.wall === 'west') {
+        assert.equal(portal.position[0], -shell.halfX);
+      } else if (portal.wall === 'east') {
+        assert.equal(portal.position[0], shell.halfX);
+      }
+    }
   });
 
   it('keeps reserved dest exits after worldFromRooms', () => {

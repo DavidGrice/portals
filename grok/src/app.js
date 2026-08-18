@@ -473,6 +473,12 @@ export function createApp({
           liveDests: live.length,
           spawned: firstSpawn.length + refill.length,
           evicted,
+          doors: live.map((portal) => ({
+            id: portal.portalId,
+            dest: portal.destinationPortal?.portalId ?? null,
+            x: Number(portal.position.x.toFixed(2)),
+            z: Number(portal.position.z.toFixed(2)),
+          })),
         });
         if (live.length < 1) {
           logDriftEndRoom(next.controller, {
