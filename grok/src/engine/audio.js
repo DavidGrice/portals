@@ -216,6 +216,11 @@ export class GameAudio {
     this._tone(70, 28, 0.22, 0.14);
   }
 
+  click() {
+    this._noise(0.04, 1800, 0.08, 400);
+    this._tone(420, 180, 0.05, 0.06);
+  }
+
   footstep() {
     this._noise(0.045, 220, 0.1);
   }

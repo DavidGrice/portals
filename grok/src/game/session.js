@@ -1,6 +1,6 @@
 import { PerspectiveCamera } from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
-import { GraphicsSettings, Player, PostAA, attachGadgets, createPortalRenderer } from '../engine/index.js';
+import { Flashlight, GraphicsSettings, Player, PostAA, attachGadgets, createPortalRenderer } from '../engine/index.js';
 import { loadWorld } from '../content/loadWorld.js';
 import { openDrift } from '../content/drift.js';
 import { createOriginPool } from '../content/generateRoom.js';
@@ -63,6 +63,9 @@ export function createSession({
     jumpSpeed: nextSettings.jumpSpeed,
   });
   const gadgets = attachGadgets(controller);
+  const flashlight = new Flashlight(nextCamera);
+  flashlight.applyProfile(nextSettings.profile);
+  flashlight.attach(controller.currentRoom?.scene);
 
   nextSettings.apply({
     camera: nextCamera,
@@ -71,6 +74,7 @@ export function createSession({
     player,
     postAA,
     controls,
+    flashlight,
   });
   controller.setSize(width, height);
   postAA.setSize(width, height, typeof nextRenderer.getPixelRatio === 'function' ? nextRenderer.getPixelRatio() : 1);
@@ -84,6 +88,7 @@ export function createSession({
     postAA,
     controls,
     gadgets,
+    flashlight,
     ownsRenderer,
     dispose() {
       disposeSession(this);
@@ -103,6 +108,7 @@ export function disposeSession(session) {
   }
   session.controls?.dispose?.();
   session.postAA?.dispose?.();
+  session.flashlight?.detach?.();
   session.gadgets?.dispose?.();
 
   for (const room of session.controller?.rooms ?? []) {
@@ -122,6 +128,7 @@ export function disposeSession(session) {
   session.postAA = null;
   session.controls = null;
   session.gadgets = null;
+  session.flashlight = null;
 }
 
 function stubPostAA() {

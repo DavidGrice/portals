@@ -70,6 +70,7 @@ export const KEYBIND_GROUPS = [
       { id: 'right', label: 'Move Right' },
       { id: 'jump', label: 'Jump' },
       { id: 'interact', label: 'Interact' },
+      { id: 'flashlight', label: 'Flashlight' },
     ],
   },
   {
@@ -90,6 +91,7 @@ export const DEFAULT_KEYBINDS = {
   right: 'KeyD',
   jump: 'Space',
   interact: 'KeyE',
+  flashlight: 'KeyT',
   lookLeft: 'ArrowLeft',
   lookRight: 'ArrowRight',
   lookUp: 'ArrowUp',
@@ -261,7 +263,7 @@ export class GraphicsSettings {
     };
   }
 
-  apply({ camera, renderer, controller, player, postAA, controls } = {}) {
+  apply({ camera, renderer, controller, player, postAA, controls, flashlight } = {}) {
     if (typeof document !== 'undefined') {
       document.documentElement.dataset.colorblind = this.colorblindMode ? 'on' : 'off';
       applyFullscreenSetting(this.fullscreen);
@@ -294,6 +296,8 @@ export class GraphicsSettings {
       renderer.setPixelRatio(resolvePixelRatio(this.pixelRatio));
       renderer.shadowMap.enabled = this.shadows;
     }
+
+    flashlight?.applyProfile?.(this.profile);
 
     if (postAA) {
       postAA.setMode(this.aaMode);

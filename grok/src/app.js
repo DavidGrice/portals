@@ -401,6 +401,15 @@ export function createApp({
     return true;
   }
 
+  function toggleFlashlight() {
+    if (!session?.flashlight) {
+      return false;
+    }
+    const on = session.flashlight.toggle();
+    gameAudio.click();
+    return on;
+  }
+
   function doJump() {
     if (session?.player.jump()) {
       gameAudio.jump();
@@ -495,6 +504,7 @@ export function createApp({
           banner.textContent = `${room?.title || roomId} · ${depth} · ${next.controller.drift.seed}`;
         }
       }
+      next.flashlight?.attach(room?.scene);
       if (next.gadgets && next.renderer) {
         tickScreens(next.gadgets, { controller: next.controller, renderer: next.renderer, force: true });
       }
@@ -574,6 +584,7 @@ export function createApp({
         pause();
       }
       session.player.step(dt, move, session.controls, session.controller.currentRoom);
+      session.flashlight?.tick();
       const moving = Boolean(move.forward || move.back || move.left || move.right);
       const haunt = session.controller.currentRoom?.tags?.includes('haunt');
       gameAudio.tick(dt, {
@@ -682,6 +693,10 @@ export function createApp({
     } else if (code === bindCode('interact')) {
       if (down) {
         tryInteract();
+      }
+    } else if (code === bindCode('flashlight')) {
+      if (down) {
+        toggleFlashlight();
       }
     } else if (code === bindCode('lookLeft')) {
       lookHeld.left = down;
