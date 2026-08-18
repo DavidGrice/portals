@@ -2,98 +2,1291 @@
   "id": "ages",
   "title": "The Ages",
   "theme": "ages",
-  "startRoom": "mesozoic",
-  "startSpawn": [0, 1, 4],
-  "lookAt": [0, 1, 0],
+  "startRoom": "primordial",
+  "startSpawn": [
+    0,
+    1,
+    4
+  ],
+  "lookAt": [
+    0,
+    1,
+    0
+  ],
   "rooms": [
     {
-      "id": "mesozoic",
-      "title": "Mesozoic",
-      "tags": ["interior", "ages", "prehistoric"],
-      "origin": [0, 0, 0],
-      "clearColor": "#2a2010",
+      "id": "primordial",
+      "title": "Primordial",
+      "tags": [
+        "interior",
+        "ages",
+        "prehistoric"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "clearColor": "#0c1418",
       "entities": [
-        { "id": "sky-mesozoic", "kind": "env.sky", "props": { "color": "#2a2010" } },
-        { "id": "light-mesozoic", "kind": "env.light", "props": { "ambient": "#3a2818", "sun": "#d4a060", "sunIntensity": 0.55 } },
-        { "id": "floor-mesozoic", "kind": "env.floor", "props": { "material": "ages.dirt" } },
         {
-          "id": "shell-mesozoic",
+          "id": "sky-primordial",
+          "kind": "env.sky",
+          "props": {
+            "color": "#0c1418"
+          }
+        },
+        {
+          "id": "light-primordial",
+          "kind": "env.light",
+          "props": {
+            "ambient": "#0c1418",
+            "sun": "#508080",
+            "sunIntensity": 0.4
+          }
+        },
+        {
+          "id": "floor-primordial",
+          "kind": "env.floor",
+          "props": {
+            "material": "shared.stone"
+          }
+        },
+        {
+          "id": "shell-primordial",
           "kind": "arch.corridor",
-          "props": { "material": "ages.dirt", "color": "#4a3420", "halfX": 8, "zMin": 0, "zMax": 6.2, "openings": [0] }
+          "props": {
+            "material": "shared.stone",
+            "color": "#0c1418",
+            "halfX": 8,
+            "zMin": 0,
+            "zMax": 5.2,
+            "openings": [
+              0
+            ]
+          }
         },
         {
-          "id": "cube-mesozoic",
+          "id": "cube-primordial",
           "kind": "prop.box",
-          "position": [7, 0.4, 3.2],
-          "tags": ["landmark"],
-          "props": { "size": [0.8, 0.8, 0.8], "color": "#8a6030" }
+          "position": [
+            7,
+            0.4,
+            3.2
+          ],
+          "tags": [
+            "landmark"
+          ],
+          "props": {
+            "size": [
+              0.8,
+              0.8,
+              0.8
+            ],
+            "color": "#508080"
+          }
         },
         {
-          "id": "plaque-mesozoic",
+          "id": "plaque-primordial",
           "kind": "prop.plaque",
-          "position": [-2.2, 1.6, 5.9],
-          "props": { "color": "#c48840", "text": "Mesozoic" }
+          "position": [
+            -2.2,
+            1.6,
+            5.9
+          ],
+          "props": {
+            "color": "#508080",
+            "text": "Primordial"
+          }
         },
         {
-          "id": "frame-mo",
+          "id": "frame-primordial-fwd",
           "kind": "arch.frame",
-          "position": [0, 1, 0],
-          "props": { "color": "#8a9aaa", "coversPortalId": "door-mo" }
+          "position": [
+            0,
+            1,
+            0
+          ],
+          "props": {
+            "color": "#508080",
+            "coversPortalId": "door-primordial-mesozoic"
+          }
         }
       ],
       "portals": [
         {
-          "id": "door-mo",
-          "position": [0, 1, 0],
+          "id": "door-primordial-mesozoic",
+          "position": [
+            0,
+            1,
+            0
+          ],
           "yaw": 0,
-          "size": [2, 2],
-          "destinationId": "door-om"
+          "size": [
+            2,
+            2
+          ],
+          "destinationId": "door-mesozoic-primordial"
+        }
+      ]
+    },
+    {
+      "id": "mesozoic",
+      "title": "Mesozoic",
+      "tags": [
+        "interior",
+        "ages",
+        "prehistoric"
+      ],
+      "origin": [
+        250,
+        0,
+        0
+      ],
+      "clearColor": "#2a2010",
+      "entities": [
+        {
+          "id": "sky-mesozoic",
+          "kind": "env.sky",
+          "props": {
+            "color": "#2a2010"
+          }
+        },
+        {
+          "id": "light-mesozoic",
+          "kind": "env.light",
+          "props": {
+            "ambient": "#2a2010",
+            "sun": "#c48840",
+            "sunIntensity": 0.4
+          }
+        },
+        {
+          "id": "floor-mesozoic",
+          "kind": "env.floor",
+          "props": {
+            "material": "ages.dirt"
+          }
+        },
+        {
+          "id": "shell-mesozoic",
+          "kind": "arch.corridor",
+          "props": {
+            "material": "ages.dirt",
+            "color": "#2a2010",
+            "halfX": 8,
+            "zMin": -6.2,
+            "zMax": 5.2,
+            "openings": [
+              0,
+              -5
+            ]
+          }
+        },
+        {
+          "id": "cube-mesozoic",
+          "kind": "prop.box",
+          "position": [
+            7,
+            0.4,
+            -3
+          ],
+          "tags": [
+            "landmark"
+          ],
+          "props": {
+            "size": [
+              0.8,
+              0.8,
+              0.8
+            ],
+            "color": "#c48840"
+          }
+        },
+        {
+          "id": "plaque-mesozoic",
+          "kind": "prop.plaque",
+          "position": [
+            2.2,
+            1.6,
+            -5.9
+          ],
+          "props": {
+            "color": "#c48840",
+            "text": "Mesozoic"
+          }
+        },
+        {
+          "id": "frame-mesozoic-back",
+          "kind": "arch.frame",
+          "position": [
+            0,
+            1,
+            0
+          ],
+          "rotation": [
+            0,
+            3.141592653589793,
+            0
+          ],
+          "props": {
+            "color": "#c48840",
+            "coversPortalId": "door-mesozoic-primordial"
+          }
+        },
+        {
+          "id": "frame-mesozoic-fwd",
+          "kind": "arch.frame",
+          "position": [
+            0,
+            1,
+            -5
+          ],
+          "props": {
+            "color": "#c48840",
+            "coversPortalId": "door-mesozoic-stone"
+          }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-mesozoic-primordial",
+          "position": [
+            0,
+            1,
+            0
+          ],
+          "yaw": 3.141592653589793,
+          "size": [
+            2,
+            2
+          ],
+          "destinationId": "door-primordial-mesozoic"
+        },
+        {
+          "id": "door-mesozoic-stone",
+          "position": [
+            0,
+            1,
+            -5
+          ],
+          "yaw": 0,
+          "size": [
+            2,
+            2
+          ],
+          "destinationId": "door-stone-mesozoic"
+        }
+      ]
+    },
+    {
+      "id": "stone",
+      "title": "Stone",
+      "tags": [
+        "interior",
+        "ages",
+        "prehistoric"
+      ],
+      "origin": [
+        500,
+        0,
+        0
+      ],
+      "clearColor": "#2a2218",
+      "entities": [
+        {
+          "id": "sky-stone",
+          "kind": "env.sky",
+          "props": {
+            "color": "#2a2218"
+          }
+        },
+        {
+          "id": "light-stone",
+          "kind": "env.light",
+          "props": {
+            "ambient": "#2a2218",
+            "sun": "#c4a070",
+            "sunIntensity": 0.4
+          }
+        },
+        {
+          "id": "floor-stone",
+          "kind": "env.floor",
+          "props": {
+            "material": "ages.dirt"
+          }
+        },
+        {
+          "id": "shell-stone",
+          "kind": "arch.corridor",
+          "props": {
+            "material": "ages.dirt",
+            "color": "#2a2218",
+            "halfX": 8,
+            "zMin": -6.2,
+            "zMax": 5.2,
+            "openings": [
+              0,
+              -5
+            ]
+          }
+        },
+        {
+          "id": "cube-stone",
+          "kind": "prop.box",
+          "position": [
+            7,
+            0.4,
+            -3
+          ],
+          "tags": [
+            "landmark"
+          ],
+          "props": {
+            "size": [
+              0.8,
+              0.8,
+              0.8
+            ],
+            "color": "#c4a070"
+          }
+        },
+        {
+          "id": "plaque-stone",
+          "kind": "prop.plaque",
+          "position": [
+            2.2,
+            1.6,
+            -5.9
+          ],
+          "props": {
+            "color": "#c4a070",
+            "text": "Stone"
+          }
+        },
+        {
+          "id": "frame-stone-back",
+          "kind": "arch.frame",
+          "position": [
+            0,
+            1,
+            0
+          ],
+          "rotation": [
+            0,
+            3.141592653589793,
+            0
+          ],
+          "props": {
+            "color": "#c4a070",
+            "coversPortalId": "door-stone-mesozoic"
+          }
+        },
+        {
+          "id": "frame-stone-fwd",
+          "kind": "arch.frame",
+          "position": [
+            0,
+            1,
+            -5
+          ],
+          "props": {
+            "color": "#c4a070",
+            "coversPortalId": "door-stone-ancient"
+          }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-stone-mesozoic",
+          "position": [
+            0,
+            1,
+            0
+          ],
+          "yaw": 3.141592653589793,
+          "size": [
+            2,
+            2
+          ],
+          "destinationId": "door-mesozoic-stone"
+        },
+        {
+          "id": "door-stone-ancient",
+          "position": [
+            0,
+            1,
+            -5
+          ],
+          "yaw": 0,
+          "size": [
+            2,
+            2
+          ],
+          "destinationId": "door-ancient-stone"
+        }
+      ]
+    },
+    {
+      "id": "ancient",
+      "title": "Ancient",
+      "tags": [
+        "interior",
+        "ages"
+      ],
+      "origin": [
+        750,
+        0,
+        0
+      ],
+      "clearColor": "#3a2a18",
+      "entities": [
+        {
+          "id": "sky-ancient",
+          "kind": "env.sky",
+          "props": {
+            "color": "#3a2a18"
+          }
+        },
+        {
+          "id": "light-ancient",
+          "kind": "env.light",
+          "props": {
+            "ambient": "#3a2a18",
+            "sun": "#d4b070",
+            "sunIntensity": 0.4
+          }
+        },
+        {
+          "id": "floor-ancient",
+          "kind": "env.floor",
+          "props": {
+            "material": "shared.stone"
+          }
+        },
+        {
+          "id": "shell-ancient",
+          "kind": "arch.corridor",
+          "props": {
+            "material": "shared.stone",
+            "color": "#3a2a18",
+            "halfX": 8,
+            "zMin": -6.2,
+            "zMax": 5.2,
+            "openings": [
+              0,
+              -5
+            ]
+          }
+        },
+        {
+          "id": "cube-ancient",
+          "kind": "prop.box",
+          "position": [
+            7,
+            0.4,
+            -3
+          ],
+          "tags": [
+            "landmark"
+          ],
+          "props": {
+            "size": [
+              0.8,
+              0.8,
+              0.8
+            ],
+            "color": "#d4b070"
+          }
+        },
+        {
+          "id": "plaque-ancient",
+          "kind": "prop.plaque",
+          "position": [
+            2.2,
+            1.6,
+            -5.9
+          ],
+          "props": {
+            "color": "#d4b070",
+            "text": "Ancient"
+          }
+        },
+        {
+          "id": "frame-ancient-back",
+          "kind": "arch.frame",
+          "position": [
+            0,
+            1,
+            0
+          ],
+          "rotation": [
+            0,
+            3.141592653589793,
+            0
+          ],
+          "props": {
+            "color": "#d4b070",
+            "coversPortalId": "door-ancient-stone"
+          }
+        },
+        {
+          "id": "frame-ancient-fwd",
+          "kind": "arch.frame",
+          "position": [
+            0,
+            1,
+            -5
+          ],
+          "props": {
+            "color": "#d4b070",
+            "coversPortalId": "door-ancient-medieval"
+          }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-ancient-stone",
+          "position": [
+            0,
+            1,
+            0
+          ],
+          "yaw": 3.141592653589793,
+          "size": [
+            2,
+            2
+          ],
+          "destinationId": "door-stone-ancient"
+        },
+        {
+          "id": "door-ancient-medieval",
+          "position": [
+            0,
+            1,
+            -5
+          ],
+          "yaw": 0,
+          "size": [
+            2,
+            2
+          ],
+          "destinationId": "door-medieval-ancient"
+        }
+      ]
+    },
+    {
+      "id": "medieval",
+      "title": "Medieval",
+      "tags": [
+        "interior",
+        "ages"
+      ],
+      "origin": [
+        1000,
+        0,
+        0
+      ],
+      "clearColor": "#1c1814",
+      "entities": [
+        {
+          "id": "sky-medieval",
+          "kind": "env.sky",
+          "props": {
+            "color": "#1c1814"
+          }
+        },
+        {
+          "id": "light-medieval",
+          "kind": "env.light",
+          "props": {
+            "ambient": "#1c1814",
+            "sun": "#8a7050",
+            "sunIntensity": 0.4
+          }
+        },
+        {
+          "id": "floor-medieval",
+          "kind": "env.floor",
+          "props": {
+            "material": "shared.stone"
+          }
+        },
+        {
+          "id": "shell-medieval",
+          "kind": "arch.corridor",
+          "props": {
+            "material": "shared.stone",
+            "color": "#1c1814",
+            "halfX": 8,
+            "zMin": -6.2,
+            "zMax": 5.2,
+            "openings": [
+              0,
+              -5
+            ]
+          }
+        },
+        {
+          "id": "cube-medieval",
+          "kind": "prop.box",
+          "position": [
+            7,
+            0.4,
+            -3
+          ],
+          "tags": [
+            "landmark"
+          ],
+          "props": {
+            "size": [
+              0.8,
+              0.8,
+              0.8
+            ],
+            "color": "#8a7050"
+          }
+        },
+        {
+          "id": "plaque-medieval",
+          "kind": "prop.plaque",
+          "position": [
+            2.2,
+            1.6,
+            -5.9
+          ],
+          "props": {
+            "color": "#8a7050",
+            "text": "Medieval"
+          }
+        },
+        {
+          "id": "frame-medieval-back",
+          "kind": "arch.frame",
+          "position": [
+            0,
+            1,
+            0
+          ],
+          "rotation": [
+            0,
+            3.141592653589793,
+            0
+          ],
+          "props": {
+            "color": "#8a7050",
+            "coversPortalId": "door-medieval-ancient"
+          }
+        },
+        {
+          "id": "frame-medieval-fwd",
+          "kind": "arch.frame",
+          "position": [
+            0,
+            1,
+            -5
+          ],
+          "props": {
+            "color": "#8a7050",
+            "coversPortalId": "door-medieval-industrial"
+          }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-medieval-ancient",
+          "position": [
+            0,
+            1,
+            0
+          ],
+          "yaw": 3.141592653589793,
+          "size": [
+            2,
+            2
+          ],
+          "destinationId": "door-ancient-medieval"
+        },
+        {
+          "id": "door-medieval-industrial",
+          "position": [
+            0,
+            1,
+            -5
+          ],
+          "yaw": 0,
+          "size": [
+            2,
+            2
+          ],
+          "destinationId": "door-industrial-medieval"
+        }
+      ]
+    },
+    {
+      "id": "industrial",
+      "title": "Industrial",
+      "tags": [
+        "interior",
+        "ages"
+      ],
+      "origin": [
+        1250,
+        0,
+        0
+      ],
+      "clearColor": "#1a1816",
+      "entities": [
+        {
+          "id": "sky-industrial",
+          "kind": "env.sky",
+          "props": {
+            "color": "#1a1816"
+          }
+        },
+        {
+          "id": "light-industrial",
+          "kind": "env.light",
+          "props": {
+            "ambient": "#1a1816",
+            "sun": "#b09070",
+            "sunIntensity": 0.4
+          }
+        },
+        {
+          "id": "floor-industrial",
+          "kind": "env.floor",
+          "props": {
+            "material": "shared.plaster"
+          }
+        },
+        {
+          "id": "shell-industrial",
+          "kind": "arch.corridor",
+          "props": {
+            "material": "shared.plaster",
+            "color": "#1a1816",
+            "halfX": 8,
+            "zMin": -6.2,
+            "zMax": 5.2,
+            "openings": [
+              0,
+              -5
+            ]
+          }
+        },
+        {
+          "id": "cube-industrial",
+          "kind": "prop.box",
+          "position": [
+            7,
+            0.4,
+            -3
+          ],
+          "tags": [
+            "landmark"
+          ],
+          "props": {
+            "size": [
+              0.8,
+              0.8,
+              0.8
+            ],
+            "color": "#b09070"
+          }
+        },
+        {
+          "id": "plaque-industrial",
+          "kind": "prop.plaque",
+          "position": [
+            2.2,
+            1.6,
+            -5.9
+          ],
+          "props": {
+            "color": "#b09070",
+            "text": "Industrial"
+          }
+        },
+        {
+          "id": "frame-industrial-back",
+          "kind": "arch.frame",
+          "position": [
+            0,
+            1,
+            0
+          ],
+          "rotation": [
+            0,
+            3.141592653589793,
+            0
+          ],
+          "props": {
+            "color": "#b09070",
+            "coversPortalId": "door-industrial-medieval"
+          }
+        },
+        {
+          "id": "frame-industrial-fwd",
+          "kind": "arch.frame",
+          "position": [
+            0,
+            1,
+            -5
+          ],
+          "props": {
+            "color": "#b09070",
+            "coversPortalId": "door-industrial-present"
+          }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-industrial-medieval",
+          "position": [
+            0,
+            1,
+            0
+          ],
+          "yaw": 3.141592653589793,
+          "size": [
+            2,
+            2
+          ],
+          "destinationId": "door-medieval-industrial"
+        },
+        {
+          "id": "door-industrial-present",
+          "position": [
+            0,
+            1,
+            -5
+          ],
+          "yaw": 0,
+          "size": [
+            2,
+            2
+          ],
+          "destinationId": "door-present-industrial"
+        }
+      ]
+    },
+    {
+      "id": "present",
+      "title": "Present",
+      "tags": [
+        "interior",
+        "ages"
+      ],
+      "origin": [
+        1500,
+        0,
+        0
+      ],
+      "clearColor": "#2a3038",
+      "entities": [
+        {
+          "id": "sky-present",
+          "kind": "env.sky",
+          "props": {
+            "color": "#2a3038"
+          }
+        },
+        {
+          "id": "light-present",
+          "kind": "env.light",
+          "props": {
+            "ambient": "#2a3038",
+            "sun": "#9aa8b8",
+            "sunIntensity": 0.4
+          }
+        },
+        {
+          "id": "floor-present",
+          "kind": "env.floor",
+          "props": {
+            "material": "shared.plaster"
+          }
+        },
+        {
+          "id": "shell-present",
+          "kind": "arch.corridor",
+          "props": {
+            "material": "shared.plaster",
+            "color": "#2a3038",
+            "halfX": 8,
+            "zMin": -6.2,
+            "zMax": 5.2,
+            "openings": [
+              0,
+              -5
+            ]
+          }
+        },
+        {
+          "id": "cube-present",
+          "kind": "prop.box",
+          "position": [
+            7,
+            0.4,
+            -3
+          ],
+          "tags": [
+            "landmark"
+          ],
+          "props": {
+            "size": [
+              0.8,
+              0.8,
+              0.8
+            ],
+            "color": "#9aa8b8"
+          }
+        },
+        {
+          "id": "plaque-present",
+          "kind": "prop.plaque",
+          "position": [
+            2.2,
+            1.6,
+            -5.9
+          ],
+          "props": {
+            "color": "#9aa8b8",
+            "text": "Present"
+          }
+        },
+        {
+          "id": "frame-present-back",
+          "kind": "arch.frame",
+          "position": [
+            0,
+            1,
+            0
+          ],
+          "rotation": [
+            0,
+            3.141592653589793,
+            0
+          ],
+          "props": {
+            "color": "#9aa8b8",
+            "coversPortalId": "door-present-industrial"
+          }
+        },
+        {
+          "id": "frame-present-fwd",
+          "kind": "arch.frame",
+          "position": [
+            0,
+            1,
+            -5
+          ],
+          "props": {
+            "color": "#9aa8b8",
+            "coversPortalId": "door-present-near-future"
+          }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-present-industrial",
+          "position": [
+            0,
+            1,
+            0
+          ],
+          "yaw": 3.141592653589793,
+          "size": [
+            2,
+            2
+          ],
+          "destinationId": "door-industrial-present"
+        },
+        {
+          "id": "door-present-near-future",
+          "position": [
+            0,
+            1,
+            -5
+          ],
+          "yaw": 0,
+          "size": [
+            2,
+            2
+          ],
+          "destinationId": "door-near-future-present"
+        }
+      ]
+    },
+    {
+      "id": "near-future",
+      "title": "Near future",
+      "tags": [
+        "interior",
+        "ages",
+        "future"
+      ],
+      "origin": [
+        1750,
+        0,
+        0
+      ],
+      "clearColor": "#141820",
+      "entities": [
+        {
+          "id": "sky-near-future",
+          "kind": "env.sky",
+          "props": {
+            "color": "#141820"
+          }
+        },
+        {
+          "id": "light-near-future",
+          "kind": "env.light",
+          "props": {
+            "ambient": "#141820",
+            "sun": "#8ab0c8",
+            "sunIntensity": 0.4
+          }
+        },
+        {
+          "id": "floor-near-future",
+          "kind": "env.floor",
+          "props": {
+            "material": "ages.hull"
+          }
+        },
+        {
+          "id": "shell-near-future",
+          "kind": "arch.corridor",
+          "props": {
+            "material": "ages.hull",
+            "color": "#141820",
+            "halfX": 8,
+            "zMin": -6.2,
+            "zMax": 5.2,
+            "openings": [
+              0,
+              -5
+            ]
+          }
+        },
+        {
+          "id": "cube-near-future",
+          "kind": "prop.box",
+          "position": [
+            7,
+            0.4,
+            -3
+          ],
+          "tags": [
+            "landmark"
+          ],
+          "props": {
+            "size": [
+              0.8,
+              0.8,
+              0.8
+            ],
+            "color": "#8ab0c8"
+          }
+        },
+        {
+          "id": "plaque-near-future",
+          "kind": "prop.plaque",
+          "position": [
+            2.2,
+            1.6,
+            -5.9
+          ],
+          "props": {
+            "color": "#8ab0c8",
+            "text": "Near future"
+          }
+        },
+        {
+          "id": "frame-near-future-back",
+          "kind": "arch.frame",
+          "position": [
+            0,
+            1,
+            0
+          ],
+          "rotation": [
+            0,
+            3.141592653589793,
+            0
+          ],
+          "props": {
+            "color": "#8ab0c8",
+            "coversPortalId": "door-near-future-present"
+          }
+        },
+        {
+          "id": "frame-near-future-fwd",
+          "kind": "arch.frame",
+          "position": [
+            0,
+            1,
+            -5
+          ],
+          "props": {
+            "color": "#8ab0c8",
+            "coversPortalId": "door-near-future-orbital"
+          }
+        }
+      ],
+      "portals": [
+        {
+          "id": "door-near-future-present",
+          "position": [
+            0,
+            1,
+            0
+          ],
+          "yaw": 3.141592653589793,
+          "size": [
+            2,
+            2
+          ],
+          "destinationId": "door-present-near-future"
+        },
+        {
+          "id": "door-near-future-orbital",
+          "position": [
+            0,
+            1,
+            -5
+          ],
+          "yaw": 0,
+          "size": [
+            2,
+            2
+          ],
+          "destinationId": "door-orbital-near-future"
         }
       ]
     },
     {
       "id": "orbital",
       "title": "Orbital",
-      "tags": ["interior", "ages", "future"],
-      "origin": [250, 0, 0],
+      "tags": [
+        "interior",
+        "ages",
+        "future"
+      ],
+      "origin": [
+        2000,
+        0,
+        0
+      ],
       "clearColor": "#080c12",
       "entities": [
-        { "id": "sky-orbital", "kind": "env.sky", "props": { "color": "#080c12" } },
-        { "id": "light-orbital", "kind": "env.light", "props": { "ambient": "#101820", "sun": "#8ab0c8", "sunIntensity": 0.4 } },
-        { "id": "floor-orbital", "kind": "env.floor", "props": { "material": "ages.hull" } },
+        {
+          "id": "sky-orbital",
+          "kind": "env.sky",
+          "props": {
+            "color": "#080c12"
+          }
+        },
+        {
+          "id": "light-orbital",
+          "kind": "env.light",
+          "props": {
+            "ambient": "#080c12",
+            "sun": "#8ab0c8",
+            "sunIntensity": 0.4
+          }
+        },
+        {
+          "id": "floor-orbital",
+          "kind": "env.floor",
+          "props": {
+            "material": "ages.hull"
+          }
+        },
         {
           "id": "shell-orbital",
           "kind": "arch.corridor",
-          "props": { "material": "ages.hull", "color": "#1a2228", "halfX": 8, "zMin": -6.2, "zMax": 1, "openings": [0] }
+          "props": {
+            "material": "ages.hull",
+            "color": "#080c12",
+            "halfX": 8,
+            "zMin": -6.2,
+            "zMax": 1,
+            "openings": [
+              0
+            ]
+          }
         },
         {
           "id": "cube-orbital",
           "kind": "prop.box",
-          "position": [-3, 0.4, -3],
-          "tags": ["landmark"],
-          "props": { "size": [0.8, 0.8, 0.8], "color": "#8ab0c8" }
+          "position": [
+            7,
+            0.4,
+            -3
+          ],
+          "tags": [
+            "landmark"
+          ],
+          "props": {
+            "size": [
+              0.8,
+              0.8,
+              0.8
+            ],
+            "color": "#8ab0c8"
+          }
         },
         {
           "id": "plaque-orbital",
           "kind": "prop.plaque",
-          "position": [2.2, 1.6, -5.9],
-          "props": { "color": "#8ab0c8", "text": "Orbital" }
+          "position": [
+            2.2,
+            1.6,
+            -5.9
+          ],
+          "props": {
+            "color": "#8ab0c8",
+            "text": "Orbital"
+          }
         },
         {
-          "id": "frame-om",
+          "id": "frame-orbital-back",
           "kind": "arch.frame",
-          "position": [0, 1, 0],
-          "rotation": [0, 3.141592653589793, 0],
-          "props": { "color": "#8a6030", "coversPortalId": "door-om" }
+          "position": [
+            0,
+            1,
+            0
+          ],
+          "rotation": [
+            0,
+            3.141592653589793,
+            0
+          ],
+          "props": {
+            "color": "#8ab0c8",
+            "coversPortalId": "door-orbital-near-future"
+          }
         }
       ],
       "portals": [
         {
-          "id": "door-om",
-          "position": [0, 1, 0],
+          "id": "door-orbital-near-future",
+          "position": [
+            0,
+            1,
+            0
+          ],
           "yaw": 3.141592653589793,
-          "size": [2, 2],
-          "destinationId": "door-mo"
+          "size": [
+            2,
+            2
+          ],
+          "destinationId": "door-near-future-orbital"
         }
       ]
     }

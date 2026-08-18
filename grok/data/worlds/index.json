@@ -24,10 +24,9 @@
     {
       "id": "ages",
       "title": "The Ages",
-      "blurb": "Prehistory to orbit. Seed rooms only — still being built.",
+      "blurb": "Walk nine eras, primordial to orbit.",
       "preview": "/worlds/ages.jpg",
-      "file": "ages.json",
-      "status": "draft"
+      "file": "ages.json"
     }
   ]
 }
