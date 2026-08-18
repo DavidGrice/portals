@@ -1,0 +1,65 @@
+{
+  "id": "ages-ancient",
+  "title": "Ancient",
+  "tags": [
+    "interior",
+    "ages"
+  ],
+  "clearColor": "#3a2a18",
+  "materials": {
+    "floor": "shared.stone",
+    "shell": "#5a4030",
+    "accent": "#d4b070"
+  },
+  "atmosphere": {
+    "density": 1
+  },
+  "shell": {
+    "halfX": 8,
+    "zMin": -6.2,
+    "zMax": 5.2
+  },
+  "sockets": [
+    {
+      "id": "entry",
+      "role": "entry",
+      "position": [
+        0,
+        1,
+        0
+      ],
+      "yaw": 3.141592653589793
+    },
+    {
+      "id": "exit-a",
+      "role": "exit",
+      "position": [
+        0,
+        1,
+        -5
+      ],
+      "yaw": 0
+    }
+  ],
+  "dressing": [
+    {
+      "kind": "prop.box",
+      "position": [
+        7,
+        0.4,
+        3.2
+      ],
+      "tags": [
+        "landmark"
+      ],
+      "props": {
+        "size": [
+          0.8,
+          0.8,
+          0.8
+        ],
+        "color": "#d4b070"
+      }
+    }
+  ]
+}

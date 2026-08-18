@@ -1,6 +1,59 @@
 {
   "kits": [
-    { "id": "cyber-cyan", "file": "cyber-cyan.json", "weight": 1 },
-    { "id": "haunt-hall", "file": "haunt-hall.json", "weight": 1 }
+    {
+      "id": "cyber-cyan",
+      "file": "cyber-cyan.json",
+      "weight": 1
+    },
+    {
+      "id": "haunt-hall",
+      "file": "haunt-hall.json",
+      "weight": 1
+    },
+    {
+      "id": "ages-primordial",
+      "file": "ages-primordial.json",
+      "weight": 1
+    },
+    {
+      "id": "ages-mesozoic",
+      "file": "ages-mesozoic.json",
+      "weight": 1
+    },
+    {
+      "id": "ages-stone",
+      "file": "ages-stone.json",
+      "weight": 1
+    },
+    {
+      "id": "ages-ancient",
+      "file": "ages-ancient.json",
+      "weight": 1
+    },
+    {
+      "id": "ages-medieval",
+      "file": "ages-medieval.json",
+      "weight": 1
+    },
+    {
+      "id": "ages-industrial",
+      "file": "ages-industrial.json",
+      "weight": 1
+    },
+    {
+      "id": "ages-present",
+      "file": "ages-present.json",
+      "weight": 1
+    },
+    {
+      "id": "ages-near-future",
+      "file": "ages-near-future.json",
+      "weight": 1
+    },
+    {
+      "id": "ages-orbital",
+      "file": "ages-orbital.json",
+      "weight": 1
+    }
   ]
 }

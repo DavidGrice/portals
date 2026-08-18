@@ -1,0 +1,66 @@
+{
+  "id": "ages-stone",
+  "title": "Stone",
+  "tags": [
+    "interior",
+    "ages",
+    "prehistoric"
+  ],
+  "clearColor": "#2a2218",
+  "materials": {
+    "floor": "ages.dirt",
+    "shell": "#3a2e22",
+    "accent": "#c4a070"
+  },
+  "atmosphere": {
+    "density": 1
+  },
+  "shell": {
+    "halfX": 8,
+    "zMin": -6.2,
+    "zMax": 5.2
+  },
+  "sockets": [
+    {
+      "id": "entry",
+      "role": "entry",
+      "position": [
+        0,
+        1,
+        0
+      ],
+      "yaw": 3.141592653589793
+    },
+    {
+      "id": "exit-a",
+      "role": "exit",
+      "position": [
+        0,
+        1,
+        -5
+      ],
+      "yaw": 0
+    }
+  ],
+  "dressing": [
+    {
+      "kind": "prop.box",
+      "position": [
+        7,
+        0.4,
+        3.2
+      ],
+      "tags": [
+        "landmark"
+      ],
+      "props": {
+        "size": [
+          0.8,
+          0.8,
+          0.8
+        ],
+        "color": "#c4a070"
+      }
+    }
+  ]
+}
