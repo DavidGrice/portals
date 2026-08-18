@@ -200,6 +200,23 @@ function tickBursts(room, dt) {
   room.bursts = keep;
 }
 
+export function tickNpcs(rooms, camera) {
+  if (!camera) {
+    return 0;
+  }
+  let count = 0;
+  for (const room of rooms ?? []) {
+    room.scene?.traverse((object) => {
+      if (!object.userData?.npc?.lookAtPlayer) {
+        return;
+      }
+      object.lookAt(camera.position.x, object.position.y, camera.position.z);
+      count += 1;
+    });
+  }
+  return count;
+}
+
 export function tintGlow(object, color) {
   object?.traverse((child) => {
     if (child.userData.portalGlow && child.material) {

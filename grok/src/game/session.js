@@ -33,6 +33,9 @@ export function createSession({
     document.body.insertBefore(nextRenderer.domElement, document.body.firstChild);
   }
 
+  if (world?.multiplayer && (world.id === 'drift' || world.generated)) {
+    throw new Error('Drift cannot host multiplayer');
+  }
   const resolvedWorld = world?.id === 'drift' || world?.generated
     ? openDrift({ seed: pose?.seed, depth: pose?.depth ?? 0 })
     : world;

@@ -15,7 +15,7 @@ export { applyLook } from './look.js';
 export { applyDeadzone, applyFullscreen, firstGamepad, readGamepad } from './gamepad.js';
 export { PostAA } from './PostAA.js';
 export { BEDS, GameAudio, bedForRoom, gameAudio, mixGain } from './audio.js';
-export { attachMotes, nearestFireDistance, profileMoteDensity, setMoteDensity, spawnCrossBurst } from './atmosphere.js';
+export { attachMotes, nearestFireDistance, profileMoteDensity, setMoteDensity, spawnCrossBurst, tickNpcs } from './atmosphere.js';
 export { findInteract, runInteract } from './interact.js';
 export { attachGadgets, collectScreens, listDestViews, tickDestStrip, tickScreens } from './gadgets.js';
 export { Player } from './Player.js';

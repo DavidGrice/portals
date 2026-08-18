@@ -5,7 +5,7 @@ import { GraphicsSettings, probeCapabilities } from './engine/index.js';
 import { applyLook } from './engine/look.js';
 import { emptyPadButtons, firstGamepad, readGamepad } from './engine/gamepad.js';
 import { findInteract, runInteract } from './engine/interact.js';
-import { nearestFireDistance, spawnCrossBurst, tickAtmosphere } from './engine/atmosphere.js';
+import { nearestFireDistance, spawnCrossBurst, tickAtmosphere, tickNpcs } from './engine/atmosphere.js';
 import { gameAudio } from './engine/audio.js';
 import { tickDestStrip, tickScreens } from './engine/index.js';
 import { evictBehind, kitsForDepth, sealArrival, spawnLookahead } from './content/drift.js';
@@ -553,6 +553,7 @@ export function createApp({
     }
     tickAtmosphere(session.controller.rooms, { elapsed: clock.elapsedTime, dt });
     tickMaterials(session.controller.rooms, dt);
+    tickNpcs(session.controller.rooms, session.camera);
 
     session.postAA.begin();
     session.controller.render();
