@@ -146,10 +146,9 @@ describe('world data', () => {
     assert.equal(index.worlds[1].id, 'haunted-house');
     assert.ok(index.worlds[0].preview.startsWith('/worlds/'));
     assert.ok(index.worlds[1].preview.startsWith('/worlds/'));
-    assert.equal(index.worlds.find((entry) => entry.id === 'ages')?.status, 'draft');
     assert.ok(listWorlds().every((entry) => entry.status !== 'draft'));
     assert.ok(listWorlds().some((entry) => entry.id === 'circuit-grid'));
-    assert.ok(!listWorlds().some((entry) => entry.id === 'ages'));
+    assert.ok(listWorlds().some((entry) => entry.id === 'ages'));
   });
 
   it('resolves named materials and validates every listed world', () => {
