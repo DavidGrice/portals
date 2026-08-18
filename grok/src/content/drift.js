@@ -1,6 +1,12 @@
 import { BoxGeometry, Mesh, MeshStandardMaterial } from 'three';
 import cyberCyan from '../../data/kits/cyber-cyan.json' with { type: 'json' };
+import cyberHub from '../../data/kits/cyber-hub.json' with { type: 'json' };
+import cyberVault from '../../data/kits/cyber-vault.json' with { type: 'json' };
+import cyberWell from '../../data/kits/cyber-well.json' with { type: 'json' };
 import hauntHall from '../../data/kits/haunt-hall.json' with { type: 'json' };
+import hauntParlor from '../../data/kits/haunt-parlor.json' with { type: 'json' };
+import hauntCrypt from '../../data/kits/haunt-crypt.json' with { type: 'json' };
+import hauntAttic from '../../data/kits/haunt-attic.json' with { type: 'json' };
 import agesMesozoic from '../../data/kits/ages-mesozoic.json' with { type: 'json' };
 import agesStone from '../../data/kits/ages-stone.json' with { type: 'json' };
 import agesPresent from '../../data/kits/ages-present.json' with { type: 'json' };
@@ -10,6 +16,10 @@ import agesPrimordial from '../../data/kits/ages-primordial.json' with { type: '
 import agesAncient from '../../data/kits/ages-ancient.json' with { type: 'json' };
 import agesMedieval from '../../data/kits/ages-medieval.json' with { type: 'json' };
 import agesNearFuture from '../../data/kits/ages-near-future.json' with { type: 'json' };
+import mixPlasterStrip from '../../data/kits/mix-plaster-strip.json' with { type: 'json' };
+import mixDirtGold from '../../data/kits/mix-dirt-gold.json' with { type: 'json' };
+import setBanquet from '../../data/kits/set-banquet.json' with { type: 'json' };
+import setObservatory from '../../data/kits/set-observatory.json' with { type: 'json' };
 import generatorConfig from '../../data/generators/drift.json' with { type: 'json' };
 import { createRng, pickOne } from './rng.js';
 import {
@@ -24,7 +34,13 @@ import { addRoom, dressRooms, relinkPortals } from './loadWorld.js';
 
 const KIT_BY_ID = {
   'cyber-cyan': cyberCyan,
+  'cyber-hub': cyberHub,
+  'cyber-vault': cyberVault,
+  'cyber-well': cyberWell,
   'haunt-hall': hauntHall,
+  'haunt-parlor': hauntParlor,
+  'haunt-crypt': hauntCrypt,
+  'haunt-attic': hauntAttic,
   'ages-mesozoic': agesMesozoic,
   'ages-stone': agesStone,
   'ages-present': agesPresent,
@@ -34,6 +50,10 @@ const KIT_BY_ID = {
   'ages-ancient': agesAncient,
   'ages-medieval': agesMedieval,
   'ages-near-future': agesNearFuture,
+  'mix-plaster-strip': mixPlasterStrip,
+  'mix-dirt-gold': mixDirtGold,
+  'set-banquet': setBanquet,
+  'set-observatory': setObservatory,
 };
 
 export function allKits() {

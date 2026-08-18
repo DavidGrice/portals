@@ -7,8 +7,17 @@
   "maxExits": 4,
   "minLiveDests": 1,
   "depths": [
-    { "until": 4, "kits": ["cyber-cyan", "haunt-hall"] },
-    { "until": 12, "kits": ["cyber-cyan", "haunt-hall", "ages-mesozoic", "ages-stone"] },
-    { "until": 99, "kits": ["cyber-cyan", "haunt-hall", "ages-present", "ages-orbital", "ages-industrial"] }
+    {
+      "until": 4,
+      "kits": ["cyber-cyan", "cyber-hub", "haunt-hall", "haunt-parlor"]
+    },
+    {
+      "until": 12,
+      "kits": ["cyber-cyan", "cyber-well", "haunt-hall", "haunt-crypt", "haunt-attic", "ages-mesozoic", "ages-stone", "mix-plaster-strip"]
+    },
+    {
+      "until": 99,
+      "kits": ["cyber-hub", "cyber-vault", "cyber-well", "haunt-parlor", "haunt-crypt", "ages-present", "ages-orbital", "ages-industrial", "mix-dirt-gold", "set-banquet", "set-observatory"]
+    }
   ]
 }

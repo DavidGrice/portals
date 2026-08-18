@@ -1,0 +1,61 @@
+{
+  "id": "cyber-well",
+  "title": "Light well",
+  "tags": [
+    "interior",
+    "cyber"
+  ],
+  "clearColor": "#040814",
+  "materials": {
+    "floor": "cyber.grid.blue",
+    "shell": "cyber.grid.blue",
+    "strip": "cyber.strip.blue",
+    "accent": "#3b7cff"
+  },
+  "atmosphere": {
+    "density": 1
+  },
+  "topologies": [
+    "shaft",
+    "loft"
+  ],
+  "dressing": [
+    {
+      "kind": "interact.pad",
+      "tags": [
+        "landmark"
+      ],
+      "props": {
+        "action": "launch",
+        "color": "#3b7cff",
+        "text": "Jump"
+      }
+    },
+    {
+      "kind": "prop.box",
+      "props": {
+        "size": [
+          0.08,
+          0.08,
+          5
+        ],
+        "material": "cyber.strip.blue",
+        "scroll": [
+          0,
+          0.4
+        ]
+      }
+    },
+    {
+      "kind": "prop.box",
+      "props": {
+        "size": [
+          1.8,
+          0.2,
+          1.8
+        ],
+        "color": "#3b7cff"
+      }
+    }
+  ]
+}

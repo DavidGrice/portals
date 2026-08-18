@@ -1,0 +1,48 @@
+{
+  "id": "set-observatory",
+  "title": "Observatory",
+  "tags": [
+    "interior",
+    "ages",
+    "future"
+  ],
+  "clearColor": "#040810",
+  "materials": {
+    "floor": "ages.hull",
+    "shell": "ages.hull",
+    "accent": "#8ab0ff"
+  },
+  "atmosphere": {
+    "density": 0.4
+  },
+  "topologies": [
+    "shaft",
+    "rotunda"
+  ],
+  "dressing": [
+    {
+      "kind": "prop.glass",
+      "tags": [
+        "landmark"
+      ],
+      "props": {
+        "color": "#8ab0ff",
+        "frame": "#2a3038"
+      }
+    },
+    {
+      "kind": "prop.screen"
+    },
+    {
+      "kind": "prop.box",
+      "props": {
+        "size": [
+          1.4,
+          0.4,
+          1.4
+        ],
+        "color": "#2a3038"
+      }
+    }
+  ]
+}

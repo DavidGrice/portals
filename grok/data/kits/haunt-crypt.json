@@ -1,0 +1,63 @@
+{
+  "id": "haunt-crypt",
+  "title": "Crypt",
+  "tags": [
+    "interior",
+    "haunt"
+  ],
+  "clearColor": "#0c100e",
+  "materials": {
+    "floor": "shared.stone",
+    "shell": "shared.stone",
+    "accent": "#508070"
+  },
+  "atmosphere": {
+    "density": 0.7
+  },
+  "topologies": [
+    "rotunda",
+    "alcove"
+  ],
+  "dressing": [
+    {
+      "kind": "prop.hearth",
+      "props": {
+        "width": 1.1,
+        "height": 1.1,
+        "intensity": 1.1,
+        "ember": "#ff7030"
+      }
+    },
+    {
+      "kind": "prop.box",
+      "tags": [
+        "landmark"
+      ],
+      "props": {
+        "size": [
+          1.4,
+          0.6,
+          2.2
+        ],
+        "color": "#2a3830"
+      }
+    },
+    {
+      "kind": "prop.box",
+      "props": {
+        "size": [
+          0.5,
+          1.8,
+          0.5
+        ],
+        "color": "#1c2820"
+      }
+    },
+    {
+      "kind": "prop.candle",
+      "props": {
+        "intensity": 0.18
+      }
+    }
+  ]
+}

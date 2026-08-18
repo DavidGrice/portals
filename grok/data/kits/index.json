@@ -6,8 +6,38 @@
       "weight": 1
     },
     {
+      "id": "cyber-hub",
+      "file": "cyber-hub.json",
+      "weight": 1
+    },
+    {
+      "id": "cyber-vault",
+      "file": "cyber-vault.json",
+      "weight": 1
+    },
+    {
+      "id": "cyber-well",
+      "file": "cyber-well.json",
+      "weight": 1
+    },
+    {
       "id": "haunt-hall",
       "file": "haunt-hall.json",
+      "weight": 1
+    },
+    {
+      "id": "haunt-parlor",
+      "file": "haunt-parlor.json",
+      "weight": 1
+    },
+    {
+      "id": "haunt-crypt",
+      "file": "haunt-crypt.json",
+      "weight": 1
+    },
+    {
+      "id": "haunt-attic",
+      "file": "haunt-attic.json",
       "weight": 1
     },
     {
@@ -54,6 +84,26 @@
       "id": "ages-orbital",
       "file": "ages-orbital.json",
       "weight": 1
+    },
+    {
+      "id": "mix-plaster-strip",
+      "file": "mix-plaster-strip.json",
+      "weight": 0.35
+    },
+    {
+      "id": "mix-dirt-gold",
+      "file": "mix-dirt-gold.json",
+      "weight": 0.35
+    },
+    {
+      "id": "set-banquet",
+      "file": "set-banquet.json",
+      "weight": 0.35
+    },
+    {
+      "id": "set-observatory",
+      "file": "set-observatory.json",
+      "weight": 0.35
     }
   ]
 }

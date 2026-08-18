@@ -1,0 +1,53 @@
+{
+  "id": "mix-plaster-strip",
+  "title": "Corrupted plaster",
+  "tags": [
+    "interior",
+    "haunt",
+    "cyber"
+  ],
+  "clearColor": "#141018",
+  "materials": {
+    "floor": "shared.plaster",
+    "shell": "shared.plaster",
+    "strip": "cyber.strip.cyan",
+    "accent": "#2ee6ff"
+  },
+  "atmosphere": {
+    "density": 1.15
+  },
+  "topologies": [
+    "T",
+    "alcove",
+    "I"
+  ],
+  "dressing": [
+    {
+      "kind": "prop.candle"
+    },
+    {
+      "kind": "prop.box",
+      "tags": [
+        "landmark"
+      ],
+      "props": {
+        "size": [
+          0.7,
+          2.1,
+          0.2
+        ],
+        "material": "cyber.strip.cyan",
+        "scroll": [
+          0,
+          0.2
+        ]
+      }
+    },
+    {
+      "kind": "prop.hearth",
+      "props": {
+        "intensity": 0.9
+      }
+    }
+  ]
+}

@@ -88,6 +88,28 @@ describe('topologies', () => {
     assert.equal(different, true);
   });
 
+  it('loads every indexed kit with a topology pool and dressing', () => {
+    const index = readJson('data/kits/index.json');
+    const catalog = readJson('data/catalog.json');
+    const materials = readJson('data/materials.json');
+    for (const entry of index.kits) {
+      const kit = readJson(`data/kits/${entry.file}`);
+      assert.equal(kit.id, entry.id);
+      assert.ok((kit.topologies ?? []).length >= 1, `${kit.id} has no topologies`);
+      for (const topologyId of kit.topologies) {
+        assert.ok(getTopology(topologyId), `${kit.id} unknown topology ${topologyId}`);
+      }
+      assert.ok((kit.dressing ?? []).length >= 1, `${kit.id} has no dressing`);
+      for (const piece of kit.dressing) {
+        assert.ok(catalog.kinds[piece.kind], `${kit.id} unknown kind ${piece.kind}`);
+        const materialId = piece.props?.material;
+        if (materialId) {
+          assert.ok(materials.materials[materialId], `${kit.id} unknown material ${materialId}`);
+        }
+      }
+    }
+  });
+
   it('places at least four landmarks away from portal AABBs', () => {
     const kit = readJson('data/kits/haunt-hall.json');
     const room = generateRoom({ kit, topology: getTopology('T'), roomId: 'marks', exitCount: 3 });

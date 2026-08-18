@@ -1,0 +1,61 @@
+{
+  "id": "cyber-vault",
+  "title": "Gold vault",
+  "tags": [
+    "interior",
+    "cyber"
+  ],
+  "clearColor": "#181204",
+  "materials": {
+    "floor": "cyber.grid.gold",
+    "shell": "cyber.grid.gold",
+    "strip": "cyber.strip.gold",
+    "accent": "#f0c040"
+  },
+  "atmosphere": {
+    "density": 0.6
+  },
+  "topologies": [
+    "U",
+    "plus"
+  ],
+  "dressing": [
+    {
+      "kind": "interact.pad",
+      "tags": [
+        "landmark"
+      ],
+      "props": {
+        "action": "unlock",
+        "color": "#f0c040",
+        "text": "The vault lock clicks."
+      }
+    },
+    {
+      "kind": "prop.box",
+      "props": {
+        "size": [
+          1.1,
+          1.1,
+          1.1
+        ],
+        "color": "#f0c040"
+      }
+    },
+    {
+      "kind": "prop.box",
+      "props": {
+        "size": [
+          0.1,
+          0.08,
+          6
+        ],
+        "material": "cyber.strip.gold",
+        "scroll": [
+          0.2,
+          0
+        ]
+      }
+    }
+  ]
+}

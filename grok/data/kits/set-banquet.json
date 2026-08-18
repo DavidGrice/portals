@@ -1,0 +1,65 @@
+{
+  "id": "set-banquet",
+  "title": "Banquet",
+  "tags": [
+    "interior",
+    "haunt"
+  ],
+  "clearColor": "#18120e",
+  "materials": {
+    "floor": "shared.stone",
+    "shell": "shared.plaster",
+    "accent": "#c48850"
+  },
+  "atmosphere": {
+    "density": 1
+  },
+  "topologies": [
+    "T",
+    "plus"
+  ],
+  "dressing": [
+    {
+      "kind": "prop.box",
+      "tags": [
+        "landmark"
+      ],
+      "props": {
+        "size": [
+          2.6,
+          0.76,
+          1.1
+        ],
+        "color": "#3a2818"
+      }
+    },
+    {
+      "kind": "prop.box",
+      "props": {
+        "size": [
+          2.2,
+          0.44,
+          0.32
+        ],
+        "color": "#2a1c12"
+      }
+    },
+    {
+      "kind": "prop.hearth",
+      "props": {
+        "intensity": 1.55,
+        "width": 1.95
+      }
+    },
+    {
+      "kind": "prop.candle"
+    },
+    {
+      "kind": "prop.glass",
+      "props": {
+        "color": "#c4b090",
+        "frame": "#4a3828"
+      }
+    }
+  ]
+}

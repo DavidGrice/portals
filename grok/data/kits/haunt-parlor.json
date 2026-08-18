@@ -1,0 +1,66 @@
+{
+  "id": "haunt-parlor",
+  "title": "Parlor",
+  "tags": [
+    "interior",
+    "haunt"
+  ],
+  "clearColor": "#1c1014",
+  "materials": {
+    "floor": "shared.stone",
+    "shell": "shared.plaster",
+    "accent": "#b07070"
+  },
+  "atmosphere": {
+    "density": 1.2
+  },
+  "topologies": [
+    "L",
+    "T"
+  ],
+  "dressing": [
+    {
+      "kind": "prop.hearth",
+      "tags": [
+        "landmark"
+      ],
+      "props": {
+        "ember": "#ff5520",
+        "intensity": 1.6,
+        "width": 2
+      }
+    },
+    {
+      "kind": "prop.candle"
+    },
+    {
+      "kind": "prop.box",
+      "props": {
+        "size": [
+          1.6,
+          0.7,
+          0.7
+        ],
+        "color": "#3a2420"
+      }
+    },
+    {
+      "kind": "prop.box",
+      "props": {
+        "size": [
+          0.7,
+          1.1,
+          0.7
+        ],
+        "color": "#4a3030"
+      }
+    },
+    {
+      "kind": "prop.glass",
+      "props": {
+        "color": "#c4b090",
+        "frame": "#4a3828"
+      }
+    }
+  ]
+}

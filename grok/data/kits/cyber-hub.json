@@ -1,0 +1,60 @@
+{
+  "id": "cyber-hub",
+  "title": "White hub",
+  "tags": [
+    "interior",
+    "cyber"
+  ],
+  "clearColor": "#0c1014",
+  "materials": {
+    "floor": "cyber.grid.white",
+    "shell": "cyber.grid.white",
+    "strip": "cyber.strip.white",
+    "accent": "#e8eef8"
+  },
+  "atmosphere": {
+    "density": 0.8
+  },
+  "topologies": [
+    "plus",
+    "rotunda"
+  ],
+  "dressing": [
+    {
+      "kind": "prop.box",
+      "tags": [
+        "landmark"
+      ],
+      "props": {
+        "size": [
+          1.2,
+          1.2,
+          1.2
+        ],
+        "color": "#e8eef8"
+      }
+    },
+    {
+      "kind": "prop.screen",
+      "props": {
+        "width": 1.4,
+        "height": 0.9
+      }
+    },
+    {
+      "kind": "prop.box",
+      "props": {
+        "size": [
+          0.12,
+          2.2,
+          3.4
+        ],
+        "material": "cyber.strip.white",
+        "scroll": [
+          0,
+          0.15
+        ]
+      }
+    }
+  ]
+}
