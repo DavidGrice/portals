@@ -173,6 +173,7 @@ export function bindOptions({
       lookKeySpeed: Number(field('opt-look-keys')?.value),
       masterVolume: Number(field('opt-vol-master')?.value),
       musicVolume: Number(field('opt-vol-music')?.value),
+      ambienceVolume: Number(field('opt-vol-ambience')?.value),
       sfxVolume: Number(field('opt-vol-sfx')?.value),
       showFps: isOn('opt-fps'),
       showDebug: isOn('opt-debug'),
@@ -197,6 +198,7 @@ export function bindOptions({
     setRange('opt-look-keys', next.lookKeySpeed, next.lookKeySpeed.toFixed(1));
     setRange('opt-vol-master', next.masterVolume, `${Math.round(next.masterVolume * 100)}%`);
     setRange('opt-vol-music', next.musicVolume, `${Math.round(next.musicVolume * 100)}%`);
+    setRange('opt-vol-ambience', next.ambienceVolume ?? 0.55, `${Math.round((next.ambienceVolume ?? 0.55) * 100)}%`);
     setRange('opt-vol-sfx', next.sfxVolume, `${Math.round(next.sfxVolume * 100)}%`);
     setSelect('opt-hardware-aa', next.hardwareAa ? 'on' : 'off');
     setSelect('opt-shadows', next.shadows ? 'on' : 'off');

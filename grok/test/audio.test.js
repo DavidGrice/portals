@@ -4,8 +4,21 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PerspectiveCamera } from 'three';
-import { BEDS, GameAudio, bedForRoom, mixGain } from '../src/engine/audio.js';
+import {
+  BEDS,
+  GameAudio,
+  bedForRoom,
+  clipForSurface,
+  doorVocab,
+  duckTarget,
+  eventAllowed,
+  fireAttenuation,
+  mixGain,
+  pickHauntEvent,
+  surfaceForRoom,
+} from '../src/engine/audio.js';
 import { loadWorld } from '../src/content/loadWorld.js';
+import { validateAudio } from '../scripts/validate-audio.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -83,5 +96,56 @@ describe('audio', () => {
       });
     }
     assert.ok(hearths >= 4);
+  });
+
+  it('validates the baked audio manifest and four mixer buses', () => {
+    const manifest = readJson('data/audio.json');
+    assert.deepEqual(validateAudio(manifest), []);
+    assert.ok(manifest.buses.includes('ambience'));
+    assert.equal(duckTarget(0.5).toFixed(2), '0.11');
+    const audio = new GameAudio(manifest);
+    audio.applyVolumes({ masterVolume: 0.8, musicVolume: 0.5, ambienceVolume: 0.4, sfxVolume: 0.9 });
+    audio.slam('haunt');
+    assert.ok(audio._duckUntil > 0);
+    assert.equal(audio._lastDoor, 'slam-haunt');
+    audio.whoosh('cyber');
+    assert.equal(audio._lastDoor, 'whoosh-cyber');
+    assert.ok(Math.abs(mixGain(0.8, 0.4, false) - 0.32) < 1e-9);
+  });
+
+  it('picks surface footsteps and never haunts Circuit', () => {
+    assert.equal(clipForSurface('wood').clip, 'step-wood');
+    assert.equal(clipForSurface('metal').clip, 'step-metal');
+    assert.equal(doorVocab('haunt', 'slam'), 'slam-haunt');
+    const cyber = { tags: ['cyber', 'interior'] };
+    assert.equal(eventAllowed({ tags: ['haunt'], excludeTags: ['cyber'] }, cyber), false);
+    assert.equal(pickHauntEvent(['cyber'], 'white-core'), null);
+    const parlor = pickHauntEvent(['haunt'], 'parlor', undefined, 0.01);
+    assert.ok(parlor);
+    assert.notEqual(parlor.id, null);
+    const audio = new GameAudio();
+    audio.tick(0.5, { moving: true, onGround: true, surface: 'wood', tags: ['cyber'], roomId: 'white-core' });
+    assert.equal(audio._lastHaunt, null);
+    audio.footstep('wood');
+    assert.equal(audio._lastSurface, 'wood');
+  });
+
+  it('reads floor surfaces from Hollow House and Circuit and attenuates fire', () => {
+    const catalog = readJson('data/catalog.json');
+    const camera = new PerspectiveCamera(60, 1, 0.05, 280);
+    const house = loadWorld(readJson('data/worlds/haunted-house.json'), catalog, camera, mockRenderer());
+    const foyer = house.rooms.find((room) => room.id === 'foyer');
+    const crypt = house.rooms.find((room) => room.id === 'crypt');
+    assert.equal(surfaceForRoom(foyer), 'wood');
+    assert.equal(surfaceForRoom(crypt), 'stone');
+    const circuit = loadWorld(readJson('data/worlds/circuit-grid.json'), catalog, camera, mockRenderer());
+    assert.equal(surfaceForRoom(circuit.currentRoom), 'grate');
+    assert.equal(fireAttenuation(Infinity), 0);
+    assert.ok(fireAttenuation(1.5) > 0.7);
+    const audio = new GameAudio();
+    audio.tick(1, { nearFire: false, fireDistance: Infinity });
+    assert.equal(audio._fireNodes.length, 0);
+    audio.tick(1, { nearFire: true, fireDistance: 1.2, tags: ['haunt'], roomId: 'parlor' });
+    assert.ok(['crackle', 'creak', 'whisper', 'note', 'shutter', 'drip', null].includes(audio._lastHaunt));
   });
 });

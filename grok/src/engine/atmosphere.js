@@ -23,7 +23,7 @@ export function profileMoteDensity(profileId) {
   return PROFILE_DENSITY[profileId] ?? 1;
 }
 
-export function attachMotes(room, { color = 0xffffff, origin = [0, 0, 0], half = [7.2, 1.4, 5.4] } = {}) {
+export function attachMotes(room, { color = 0xffffff, origin = [0, 0, 0], half = [7.2, 1.4, 5.4], weather = 'dust' } = {}) {
   const geometry = new BufferGeometry();
   const positions = new Float32Array(MOTE_BUDGET * 3);
   const seeds = new Float32Array(MOTE_BUDGET);
@@ -46,7 +46,7 @@ export function attachMotes(room, { color = 0xffffff, origin = [0, 0, 0], half =
   });
   const points = new Points(geometry, material);
   points.frustumCulled = false;
-  points.userData.motes = { seeds, origin, half };
+  points.userData.motes = { seeds, origin, half, weather };
   points.userData.noCollider = true;
   room.scene.add(points);
   room.motes = points;
@@ -164,9 +164,25 @@ function tickMotes(room, elapsed) {
   }
   const positions = points.geometry.attributes.position.array;
   const count = points.geometry.drawRange.count;
+  const weather = spec.weather ?? 'dust';
   for (let i = 0; i < count; i += 1) {
     const seed = spec.seeds[i];
-    positions[i * 3 + 1] += Math.sin(elapsed * 0.7 + seed) * 0.002;
+    if (weather === 'rain') {
+      positions[i * 3 + 1] -= 2.8 * 0.016;
+      if (positions[i * 3 + 1] < 0.1) {
+        positions[i * 3 + 1] = spec.half[1] * 2;
+        positions[i * 3] = spec.origin[0] + (Math.sin(seed + elapsed) * spec.half[0]);
+        positions[i * 3 + 2] = spec.origin[2] + (Math.cos(seed + elapsed) * spec.half[2]);
+      }
+    } else if (weather === 'ash') {
+      positions[i * 3 + 1] += 0.01 + Math.sin(elapsed * 0.4 + seed) * 0.003;
+      positions[i * 3] += Math.sin(elapsed * 0.2 + seed) * 0.004;
+      if (positions[i * 3 + 1] > spec.half[1] * 2.4) {
+        positions[i * 3 + 1] = 0.2;
+      }
+    } else {
+      positions[i * 3 + 1] += Math.sin(elapsed * 0.7 + seed) * 0.002;
+    }
   }
   points.geometry.attributes.position.needsUpdate = true;
 }

@@ -188,6 +188,7 @@ export class GraphicsSettings {
     this.lookKeySpeed = clamp(number(migrated.lookKeySpeed, 1.4), 0.4, 3);
     this.masterVolume = clamp(number(migrated.masterVolume, 0.8), 0, 1);
     this.musicVolume = clamp(number(migrated.musicVolume, 0.5), 0, 1);
+    this.ambienceVolume = clamp(number(migrated.ambienceVolume, 0.55), 0, 1);
     this.sfxVolume = clamp(number(migrated.sfxVolume, 0.9), 0, 1);
     this.showFps = Boolean(migrated.showFps);
     this.showDebug = Boolean(migrated.showDebug);
@@ -253,6 +254,7 @@ export class GraphicsSettings {
       lookKeySpeed: this.lookKeySpeed,
       masterVolume: this.masterVolume,
       musicVolume: this.musicVolume,
+      ambienceVolume: this.ambienceVolume,
       sfxVolume: this.sfxVolume,
       showFps: this.showFps,
       showDebug: this.showDebug,
@@ -324,6 +326,9 @@ export class GraphicsSettings {
       room.scene.traverse((object) => {
         if (object.userData.isFillLight) {
           fill = object;
+        }
+        if (object.userData.localLight) {
+          object.visible = this.profile !== 'performance';
         }
         if (object.isDirectionalLight && !object.userData.isFillLight) {
           object.castShadow = this.shadows;

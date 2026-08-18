@@ -6,7 +6,7 @@ import { applyLook } from './engine/look.js';
 import { emptyPadButtons, firstGamepad, readGamepad } from './engine/gamepad.js';
 import { findInteract, runInteract } from './engine/interact.js';
 import { nearestFireDistance, spawnCrossBurst, tickAtmosphere, tickNpcs } from './engine/atmosphere.js';
-import { gameAudio } from './engine/audio.js';
+import { doorTheme, gameAudio, surfaceForRoom } from './engine/audio.js';
 import { tickDestStrip, tickScreens } from './engine/index.js';
 import {
   disposeRejectedSiblings,
@@ -402,6 +402,11 @@ export function createApp({
     const result = runInteract(target, { controller: session.controller });
     if (result?.type === 'launch') {
       session.player.launch(result.impulse);
+      gameAudio.launch();
+    } else if (result?.type === 'unlock') {
+      gameAudio.unlock();
+    } else if (result?.type === 'stoke' || result?.type === 'toggle' || result?.type === 'read') {
+      gameAudio.click();
     }
     nearbyInteract = findInteract(session.controller.currentRoom, session.camera.position);
     updateInteractHud();
@@ -446,6 +451,15 @@ export function createApp({
     }
     if (spec?.action === 'launch') {
       return 'E  Jump';
+    }
+    if (spec?.action === 'read') {
+      return 'E  Read';
+    }
+    if (spec?.action === 'stoke') {
+      return 'E  Stoke';
+    }
+    if (spec?.action === 'toggle') {
+      return 'E  Toggle';
     }
     return spec?.text ? `E  ${spec.text}` : 'E  Look';
   }
@@ -525,11 +539,11 @@ export function createApp({
         const destRoom = next.controller.rooms.find((entry) => entry.id === to);
         const fromRoom = next.controller.rooms.find((entry) => entry.id === from);
         if (sealArrival(portal ?? next.controller.getPortal(portalId), { tags: destRoom?.tags ?? [] })) {
-          gameAudio.slam();
+          gameAudio.slam(doorTheme(destRoom));
         }
         disposeRejectedSiblings(next.controller, fromRoom, to);
       }
-      gameAudio.whoosh();
+      gameAudio.whoosh(doorTheme(next.controller.rooms.find((entry) => entry.id === to)));
       const dest = next.controller.rooms.find((entry) => entry.id === to);
       if (dest) {
         spawnCrossBurst(dest, next.camera.position, dest.clearColor);
@@ -596,12 +610,20 @@ export function createApp({
       session.player.step(dt, move, session.controls, session.controller.currentRoom);
       session.flashlight?.tick();
       const moving = Boolean(move.forward || move.back || move.left || move.right);
-      const haunt = session.controller.currentRoom?.tags?.includes('haunt');
+      const room = session.controller.currentRoom;
+      const tags = room?.tags ?? [];
+      const haunt = tags.includes('haunt') && !tags.includes('cyber');
+      const fireDistance = nearestFireDistance(room, session.camera.position);
       gameAudio.tick(dt, {
         moving,
         onGround: session.player.onGround,
         haunt,
-        nearFire: haunt && nearestFireDistance(session.controller.currentRoom, session.camera.position) < 6.5,
+        tags,
+        roomId: room?.id ?? null,
+        surface: surfaceForRoom(room),
+        fireDistance,
+        nearFire: fireDistance < 6.5,
+        speed: settings.moveSpeed,
       });
       nearbyInteract = findInteract(session.controller.currentRoom, session.camera.position);
       updateInteractHud();

@@ -147,4 +147,29 @@ describe('player', () => {
     assert.equal(result.type, 'unlock');
     assert.equal(portal.enabled, true);
   });
+
+  it('holds a two-pad unlock behind a flag and stokes a hearth', () => {
+    const portal = { enabled: false, portalId: 'door-cg' };
+    const controller = {
+      flags: {},
+      getPortal(id) {
+        return id === 'door-cg' ? portal : null;
+      },
+    };
+    const blocked = runInteract({
+      spec: { action: 'unlock', portalId: 'door-cg', require: 'gold-core' },
+    }, { controller });
+    assert.equal(blocked.ok, false);
+    assert.equal(portal.enabled, false);
+    runInteract({ spec: { action: 'look', setFlag: 'gold-core' } }, { controller });
+    const opened = runInteract({
+      spec: { action: 'unlock', portalId: 'door-cg', require: 'gold-core' },
+    }, { controller });
+    assert.equal(opened.ok, true);
+    assert.equal(portal.enabled, true);
+    const hearth = { userData: { fire: { base: 1.2 } } };
+    const stoked = runInteract({ object: hearth, spec: { action: 'stoke' } }, { controller });
+    assert.equal(stoked.type, 'stoke');
+    assert.ok(hearth.userData.fire.base > 1.2);
+  });
 });

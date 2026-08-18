@@ -8,7 +8,9 @@ A 40-room default-weight run must: keep ≥1 spawnable door every hop; give ≥3
 
 Topologies live in `data/topologies/` (`I`, `L`, `T`, `plus`, `U`, `court`, `loft`, `shaft`, `rotunda`, `alcove`). Kits list a `topologies` pool. The compiler refuses to reuse the same topology+kit pair in the last four live rooms.
 
-Volume kinds: `arch.corridor` (Four halls), `arch.chamber`, `arch.wing`, `arch.court`, `arch.loft`, `arch.shaft`, `arch.rotunda`. Sockets punch holes in those volumes. Portals sit in the holes.
+Volume kinds: `arch.corridor` (Four halls only), `arch.chamber`, `arch.wing`, `arch.court`, `arch.loft`, `arch.shaft`, `arch.rotunda`, `arch.plus`. Sockets punch holes in those volumes. Portals sit in the holes.
+
+Authored Circuit Grid is a plus hub with a wide cyan runway, a tight red throat, a blue loft, a shaft well, a race-ribbon court, and a locked gold vault (core pad arms key A, cyan pad unseals). The Ages is a two-way chain of nine distinct volumes: primordial court + water, mesozoic court + fauna, stone L + hearth, ancient colonnade, medieval nave, industrial plus + pipes, present glass office, near-future loft, orbital rotunda.
 
 ## Principles
 
@@ -38,7 +40,7 @@ grok/
     textures/ages/         era ground and stone
     textures/shared/       generic metal, plaster
     video/                 future in-world loops (not portal views)
-    audio/                 future sampled beds (procedural is default)
+    audio/beds|oneshot|steps|fire|haunt/  baked original WAVs (`data/audio.json`)
     models/                future GLTF
     hdr/                   future environment maps
   docs/world-design.md     this plan
@@ -72,7 +74,7 @@ A room is authored as stacked layers. They are tags on entities today; later a l
 | `openings` | `arch.frame` + `portals[]` | Frames cover a `coversPortalId` |
 | `dressing` | `prop.*` | Furniture, landmarks, glass, screens |
 | `vfx` | motes, fire, future video planes | Driven from tags / atmosphere |
-| `audio` | room tags + `bed` | Procedural beds; samples later in `/assets/audio` |
+| `audio` | room tags + `data/audio.json` | File loop + synth underlay; missing file → live synth |
 
 Do **not** put a live portal view on a video plane. Screens are in-room camera-to-texture. Video files are decoration or cutscenes only.
 

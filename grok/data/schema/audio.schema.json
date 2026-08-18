@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://portals-grok.local/schema/audio.json",
+  "title": "Audio manifest",
+  "type": "object",
+  "required": ["id", "clips", "beds", "buses"],
+  "additionalProperties": true,
+  "properties": {
+    "id": { "type": "string" },
+    "title": { "type": "string" },
+    "sampleRate": { "type": "integer" },
+    "buses": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["master", "music", "ambience", "sfx"] }
+    },
+    "duck": { "type": "object" },
+    "surfaces": { "type": "object" },
+    "clips": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["url", "bus"],
+        "properties": {
+          "url": { "type": "string" },
+          "bus": { "type": "string", "enum": ["master", "music", "ambience", "sfx"] },
+          "loop": { "type": "boolean" },
+          "gain": { "type": "number" }
+        }
+      }
+    },
+    "beds": { "type": "object" },
+    "rooms": { "type": "object" },
+    "events": { "type": "array" },
+    "doors": { "type": "object" },
+    "interact": { "type": "object" }
+  }
+}

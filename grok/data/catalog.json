@@ -67,6 +67,11 @@
       "prefab": "rotunda",
       "tags": ["architecture"]
     },
+    "arch.plus": {
+      "category": "architecture",
+      "prefab": "plus",
+      "tags": ["architecture"]
+    },
     "prop.plaque": {
       "category": "prop",
       "prefab": "plaque",
@@ -101,6 +106,31 @@
       "category": "environment",
       "prefab": "light",
       "tags": ["environment", "light"]
+    },
+    "env.point": {
+      "category": "environment",
+      "prefab": "point",
+      "tags": ["environment", "light"]
+    },
+    "env.spot": {
+      "category": "environment",
+      "prefab": "spot",
+      "tags": ["environment", "light"]
+    },
+    "prop.water": {
+      "category": "prop",
+      "prefab": "water",
+      "tags": ["prop"]
+    },
+    "prop.column": {
+      "category": "prop",
+      "prefab": "column",
+      "tags": ["prop", "architecture"]
+    },
+    "prop.pipe": {
+      "category": "prop",
+      "prefab": "pipe",
+      "tags": ["prop"]
     },
     "prop.model": {
       "category": "prop",

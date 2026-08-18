@@ -17,14 +17,14 @@
     {
       "id": "circuit-grid",
       "title": "Circuit Grid",
-      "blurb": "White core to cyan, red, and blue lanes. Run the light.",
+      "blurb": "A plus hub. Wide cyan, tight red, blue catwalk, a ribbon you can see, a locked gold vault.",
       "preview": "/worlds/circuit-grid.jpg",
       "file": "circuit-grid.json"
     },
     {
       "id": "ages",
       "title": "The Ages",
-      "blurb": "Walk nine eras, primordial to orbit.",
+      "blurb": "Nine rooms, nine centuries. Court, cave, nave, bay, glass, loft, hull.",
       "preview": "/worlds/ages.jpg",
       "file": "ages.json"
     },

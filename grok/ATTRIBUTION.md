@@ -6,7 +6,7 @@ Those zips need an itch account to download, so this repo does **not** ship Juli
 
 If you drop CC-BY or CC0 maps into `public/assets/textures/`, point `materials.json` `map` / `roughnessMap` / `normalMap` at them and credit the author here.
 
-Haunt albedo JPGs under `public/assets/textures/haunt/` were authored for this project.
+Haunt albedo JPGs under `public/assets/textures/haunt/` and Circuit Grid tiles under `public/assets/textures/cyber/` were authored for this project. Audio under `public/assets/audio/` is baked from our own synth (`npm run bake-audio`); there are no licensed tracks.
 
 [don1138/blender-materials](https://github.com/don1138/blender-materials) Chaos Metals (from [Christopher Nichols, Understanding Metalness](https://www.chaos.com/blog/understanding-metalness)) supplies the measured metal F0 colors in `metal.gold`, `metal.copper`, `metal.iron`, `metal.silver`, `metal.aluminum`, `metal.chrome`. We did not copy `.blend` files.
 

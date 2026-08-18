@@ -38,7 +38,8 @@ Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/). The start menu is HTML on
 | `npm run build` | Production bundle in `grok/dist/` |
 | `npm run preview` | Serve the production bundle |
 | `npm test` | Node unit tests (no GPU) |
-| `npm run validate-data` | Check world JSON ids, kinds, and portal links |
+| `npm run validate-data` | Check world JSON, kinds, portal links, and audio files |
+| `npm run bake-audio` | Rebuild original WAV beds and oneshots from the synth |
 
 ## Play
 
@@ -49,12 +50,13 @@ Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/). The start menu is HTML on
 | **WASD** | Move (rebindable) |
 | **Arrows** | Look (rebindable) |
 | **Mouse** / drag | Look |
+| **T** | Flashlight (rebindable) |
 | **Space** | Jump (rebindable) |
 | Touch | Left stick move, right-side drag look, Jump button |
 | Gamepad | Left stick move, right stick look, A jump, Start pause / Play |
 | **Options** | Graphics, controls, interface, sound, keybinds |
 
-Play opens a world gallery. **Four halls** is blue → rose; glass panes and hallway monitors are furniture in those rooms (the TV is a camera-to-texture of the hall you are in, not a portal). **The Hollow House** is a foyer, hall, dining room, parlor, cellar, crypt, and a sealed attic — stand on the parlor pad and press **E** to unseal it. **Circuit Grid** is a neon run (white → cyan → red → blue). Worlds and looks are JSON: kinds in `data/catalog.json`, materials in `data/materials.json`. See `docs/world-design.md` for the ages chain and how to add a hall. Quit to menu writes a **Continue** save.
+Play opens a world gallery. **Four halls** is blue → rose; glass panes and hallway monitors are furniture (the TV is a camera-to-texture of the hall you are in, not a portal). **The Hollow House** is a foyer, gallery, dining room, parlor, cellar, crypt, and a sealed attic — stand on the parlor pad and press **E** to unseal it. **Circuit Grid** is a plus hub: cyan runway, red throat, blue catwalk, shaft well, race ribbon, locked gold vault. **The Ages** walks nine distinct volumes from primordial court to orbital hull. **Drift** is one-way generated rooms — doors do not come back; enter a seed on Play. Worlds and looks are JSON: kinds in `data/catalog.json`, materials in `data/materials.json`, beds in `data/audio.json`. See `docs/world-design.md` and `docs/qa-walk.md`. Quit to menu writes a **Continue** save.
 
 Query flags:
 

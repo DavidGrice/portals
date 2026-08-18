@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { buildMaterial, parseColor as parseMaterialColor } from './materials.js';
+import { buildMaterial, parseColor as parseMaterialColor, resolveMaterial } from './materials.js';
 import { makeRecipeTexture } from './tiles.js';
-import { addRectVolume, addStairs } from './volumes.js';
+import { addRectVolume, addStairs, addWallWithHoles } from './volumes.js';
 
 export function parseColor(value, fallback = 0xffffff) {
   return parseMaterialColor(value, fallback);
@@ -84,6 +84,8 @@ export const prefabs = {
     mesh.receiveShadow = true;
     applyPose(mesh, entity);
     mesh.userData.collider = { type: 'bounds', half: size * 0.5 };
+    mesh.userData.materialId = entity.props?.material ?? null;
+    mesh.userData.surface = entity.props?.surface ?? resolveMaterial(entity.props?.material)?.surface ?? null;
     return mesh;
   },
 
@@ -467,6 +469,135 @@ export const prefabs = {
     return group;
   },
 
+  plus(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const material = volumeMaterial(entity);
+    const arm = entity.props?.arm ?? 3.6;
+    const zMin = entity.props?.zMin ?? -10;
+    const zMax = entity.props?.zMax ?? 8;
+    const minX = entity.props?.minX ?? -10;
+    const maxX = entity.props?.maxX ?? 10;
+    const height = entity.props?.height ?? 4.2;
+    const thickness = entity.props?.thickness ?? 0.24;
+    const holes = entity.props?.holes ?? [
+      { wall: 'north', u: 0 },
+      { wall: 'south', u: 0 },
+      { wall: 'west', u: 0 },
+      { wall: 'east', u: 0 },
+    ];
+    addBox(group, material, 0, -thickness * 0.5, (zMin + zMax) * 0.5, arm * 2, thickness, zMax - zMin);
+    addBox(group, material, (minX + maxX) * 0.5, -thickness * 0.5, 0, maxX - minX, thickness, arm * 2);
+    addBox(group, material, 0, height + thickness * 0.5, (zMin + zMax) * 0.5, arm * 2, thickness, zMax - zMin, false);
+    addBox(group, material, (minX + maxX) * 0.5, height + thickness * 0.5, 0, maxX - minX, thickness, arm * 2, false);
+    addWallWithHoles(group, material, {
+      wall: 'north', minX: -arm, maxX: arm, minZ: zMin, maxZ: zMax, height, thickness, holes,
+    });
+    addWallWithHoles(group, material, {
+      wall: 'south', minX: -arm, maxX: arm, minZ: zMin, maxZ: zMax, height, thickness, holes,
+    });
+    addWallWithHoles(group, material, {
+      wall: 'west', minX, maxX, minZ: -arm, maxZ: arm, height, thickness, holes,
+    });
+    addWallWithHoles(group, material, {
+      wall: 'east', minX, maxX, minZ: -arm, maxZ: arm, height, thickness, holes,
+    });
+    addBox(group, material, -arm, height * 0.5, (zMin - arm) * 0.5, thickness, height, Math.max(0.2, -arm - zMin));
+    addBox(group, material, arm, height * 0.5, (zMin - arm) * 0.5, thickness, height, Math.max(0.2, -arm - zMin));
+    addBox(group, material, -arm, height * 0.5, (zMax + arm) * 0.5, thickness, height, Math.max(0.2, zMax - arm));
+    addBox(group, material, arm, height * 0.5, (zMax + arm) * 0.5, thickness, height, Math.max(0.2, zMax - arm));
+    addBox(group, material, (minX - arm) * 0.5, height * 0.5, -arm, Math.max(0.2, -arm - minX), height, thickness);
+    addBox(group, material, (minX - arm) * 0.5, height * 0.5, arm, Math.max(0.2, -arm - minX), height, thickness);
+    addBox(group, material, (maxX + arm) * 0.5, height * 0.5, -arm, Math.max(0.2, maxX - arm), height, thickness);
+    addBox(group, material, (maxX + arm) * 0.5, height * 0.5, arm, Math.max(0.2, maxX - arm), height, thickness);
+    group.userData.volume = { kind: 'plus', arm, zMin, zMax, minX, maxX, height };
+    return group;
+  },
+
+  point(entity) {
+    const light = new THREE.PointLight(
+      parseColor(entity.props?.color, 0xffcc88),
+      entity.props?.intensity ?? 1.1,
+      entity.props?.distance ?? 8,
+      entity.props?.decay ?? 2,
+    );
+    applyPose(light, entity);
+    light.userData.localLight = true;
+    light.castShadow = entity.props?.shadow === true;
+    return light;
+  },
+
+  spot(entity) {
+    const light = new THREE.SpotLight(
+      parseColor(entity.props?.color, 0xc8d8ff),
+      entity.props?.intensity ?? 1.4,
+      entity.props?.distance ?? 14,
+      entity.props?.angle ?? 0.55,
+      entity.props?.penumbra ?? 0.4,
+      entity.props?.decay ?? 2,
+    );
+    applyPose(light, entity);
+    light.target.position.set(...(entity.props?.target ?? [0, 0, -2]));
+    light.add(light.target);
+    light.userData.localLight = true;
+    light.castShadow = entity.props?.shadow === true;
+    return light;
+  },
+
+  water(entity) {
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(entity.props?.width ?? 8, 0.08, entity.props?.depth ?? 8),
+      new THREE.MeshPhysicalMaterial({
+        color: parseColor(entity.props?.color, 0x143038),
+        roughness: 0.08,
+        metalness: 0.04,
+        transmission: 0.55,
+        thickness: 0.2,
+        ior: 1.33,
+        transparent: true,
+        opacity: 0.82,
+      }),
+    );
+    applyPose(mesh, entity);
+    mesh.userData.water = true;
+    mesh.userData.collider = { type: 'aabb' };
+    return mesh;
+  },
+
+  column(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const material = entity.props?.material
+      ? buildMaterial(entity.props.material)
+      : standardMaterial(parseColor(entity.props?.color, 0xc8b898), { roughness: 0.72 });
+    const h = entity.props?.height ?? 3.4;
+    const r = entity.props?.radius ?? 0.22;
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(r, r * 1.08, h, 10), material);
+    shaft.position.y = h * 0.5;
+    shaft.castShadow = true;
+    shaft.userData.collider = { type: 'aabb' };
+    group.add(shaft);
+    addBox(group, material, 0, 0.08, 0, r * 2.4, 0.16, r * 2.4);
+    addBox(group, material, 0, h, 0, r * 2.2, 0.12, r * 2.2);
+    return group;
+  },
+
+  pipe(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const material = entity.props?.material
+      ? buildMaterial(entity.props.material)
+      : standardMaterial(parseColor(entity.props?.color, 0x6a7068), { roughness: 0.4, metalness: 0.65 });
+    const length = entity.props?.length ?? 3.2;
+    const r = entity.props?.radius ?? 0.12;
+    const tube = new THREE.Mesh(new THREE.CylinderGeometry(r, r, length, 8), material);
+    tube.rotation.z = Math.PI / 2;
+    tube.position.y = entity.props?.lift ?? 2.4;
+    tube.castShadow = true;
+    group.add(tube);
+    return group;
+  },
+
   chair(entity) {
     const group = new THREE.Group();
     applyPose(group, entity);
@@ -613,6 +744,9 @@ export const prefabs = {
       action: entity.props?.action ?? 'look',
       portalId: entity.props?.portalId ?? null,
       text: entity.props?.text ?? '',
+      impulse: entity.props?.impulse ?? null,
+      setFlag: entity.props?.setFlag ?? null,
+      require: entity.props?.require ?? null,
     };
     return mesh;
   },
@@ -818,12 +952,13 @@ export const prefabs = {
   },
 
   npc(entity) {
+    const size = entity.props?.size ?? [0.5, 1.6, 0.4];
     const mesh = new THREE.Mesh(
-      new THREE.BoxGeometry(0.5, 1.6, 0.4),
+      new THREE.BoxGeometry(...size),
       standardMaterial(parseColor(entity.props?.color, 0x3a3030), { roughness: 0.8, metalness: 0.04 }),
     );
-    mesh.position.y = 0.8;
     applyPose(mesh, entity);
+    mesh.position.y = (entity.position?.[1] ?? 0) + size[1] * 0.5;
     mesh.userData.collider = { type: 'aabb' };
     mesh.userData.npc = { lookAtPlayer: entity.props?.lookAtPlayer !== false };
     return mesh;
@@ -890,5 +1025,15 @@ export function spawnEntity(entity, catalog) {
   object.userData.kind = entity.kind;
   object.userData.tags = entity.tags ?? kind.tags ?? [];
   object.userData.category = kind.category;
+  if (entity.props?.action && !object.userData.interact) {
+    object.userData.interact = {
+      action: entity.props.action,
+      portalId: entity.props.portalId ?? null,
+      text: entity.props.text ?? '',
+      impulse: entity.props.impulse ?? null,
+      setFlag: entity.props.setFlag ?? null,
+      require: entity.props.require ?? null,
+    };
+  }
   return object;
 }

@@ -3,8 +3,8 @@
   "title": "Circuit Grid",
   "theme": "cyber",
   "startRoom": "white-core",
-  "startSpawn": [0, 1, 4],
-  "lookAt": [0, 1, 0],
+  "startSpawn": [0, 1, 3],
+  "lookAt": [0, 1, -4],
   "rooms": [
     {
       "id": "white-core",
@@ -14,482 +14,252 @@
       "clearColor": "#0c1014",
       "entities": [
         { "id": "sky-white", "kind": "env.sky", "props": { "color": "#0c1014" } },
-        { "id": "light-white", "kind": "env.light", "props": { "ambient": "#1a2030", "sun": "#e8eef8", "sunIntensity": 0.35, "ambientIntensity": 0.28 } },
-        { "id": "floor-white", "kind": "env.floor", "props": { "material": "cyber.grid.white" } },
+        { "id": "light-white", "kind": "env.light", "props": { "ambient": "#1a2030", "sun": "#e8eef8", "sunIntensity": 0.28, "ambientIntensity": 0.24 } },
+        { "id": "floor-white", "kind": "env.floor", "props": { "material": "cyber.grid.white", "size": 28 } },
         {
           "id": "shell-white",
-          "kind": "arch.corridor",
+          "kind": "arch.plus",
           "props": {
-            "material": "cyber.grid.white",
-            "color": "#0c1014",
-            "halfX": 8,
-            "zMin": 0,
-            "zMax": 6.2,
-            "openings": [0],
-            "sideOpenings": [
-              { "side": -1, "z": 3.2 },
-              { "side": 1, "z": 3.2 }
+            "material": "cyber.wall",
+            "arm": 3.8,
+            "zMin": -10,
+            "zMax": 8,
+            "minX": -10,
+            "maxX": 10,
+            "height": 4.4,
+            "holes": [
+              { "wall": "north", "u": 0 },
+              { "wall": "south", "u": 0 },
+              { "wall": "west", "u": 0 },
+              { "wall": "east", "u": 0 }
             ]
           }
         },
-        {
-          "id": "strip-white-l",
-          "kind": "prop.box",
-          "position": [-7.7, 2.35, 3.1],
-          "props": { "size": [0.08, 0.05, 5.6], "material": "cyber.strip.white" }
-        },
-        {
-          "id": "strip-white-r",
-          "kind": "prop.box",
-          "position": [7.7, 2.35, 3.1],
-          "props": { "size": [0.08, 0.05, 5.6], "material": "cyber.strip.white" }
-        },
-        {
-          "id": "cube-white",
-          "kind": "prop.box",
-          "position": [7, 0.4, 3.2],
-          "tags": ["landmark"],
-          "props": { "size": [0.8, 0.8, 0.8], "color": "#e8eef8" }
-        },
-        {
-          "id": "pad-launch-white",
-          "kind": "interact.pad",
-          "position": [2.2, 0.04, 3.2],
-          "props": {
-            "color": "#e8eef8",
-            "action": "launch",
-            "impulse": [0, 8.5, 0],
-            "text": "Launch"
-          }
-        },
-        {
-          "id": "plaque-white",
-          "kind": "prop.plaque",
-          "position": [-2.2, 1.6, 5.9],
-          "props": { "color": "#e8eef8", "text": "White core" }
-        },
-        {
-          "id": "frame-wc",
-          "kind": "arch.frame",
-          "position": [0, 1, 0],
-          "props": { "color": "#e8eef8", "coversPortalId": "door-wc" }
-        },
-        {
-          "id": "frame-ws",
-          "kind": "arch.frame",
-          "position": [-6.4, 1, 3.2],
-          "rotation": [0, 1.5707963267948966, 0],
-          "props": { "color": "#a8b4c8", "coversPortalId": "door-ws" }
-        },
-        {
-          "id": "frame-wb",
-          "kind": "arch.frame",
-          "position": [6.4, 1, 3.2],
-          "rotation": [0, -1.5707963267948966, 0],
-          "props": { "color": "#3b7cff", "coversPortalId": "door-wb" }
-        }
+        { "id": "strip-white-n", "kind": "prop.box", "position": [0, 2.6, -6.4], "props": { "size": [0.1, 0.06, 6.2], "material": "cyber.strip.white", "scroll": [0, 0.2] } },
+        { "id": "strip-white-e", "kind": "prop.box", "position": [6.4, 2.6, 0], "props": { "size": [6.2, 0.06, 0.1], "material": "cyber.strip.white", "scroll": [0.2, 0] } },
+        { "id": "cube-white", "kind": "prop.box", "position": [2.4, 0.45, 2.2], "tags": ["landmark"], "props": { "size": [0.9, 0.9, 0.9], "color": "#e8eef8" } },
+        { "id": "screen-white", "kind": "prop.screen", "position": [-2.6, 1.5, 3.2], "props": { "width": 1.5, "height": 0.9, "stand": false } },
+        { "id": "spot-white", "kind": "env.spot", "position": [0, 3.8, 0], "props": { "color": "#d8e4ff", "intensity": 1.3, "distance": 16, "angle": 0.7, "target": [0, -3.6, 0] } },
+        { "id": "pad-launch-white", "kind": "interact.pad", "position": [2.2, 0.04, -1.4], "props": { "color": "#e8eef8", "action": "launch", "impulse": [0, 8.5, 0], "text": "Launch" } },
+        { "id": "pad-gold-core", "kind": "interact.pad", "position": [-2.4, 0.04, -1.4], "props": { "color": "#f0c040", "action": "look", "setFlag": "gold-core", "text": "Vault key A armed." } },
+        { "id": "plaque-white", "kind": "prop.plaque", "position": [-2.4, 1.7, 7.4], "props": { "color": "#e8eef8", "text": "White core" } },
+        { "id": "frame-wc", "kind": "arch.frame", "position": [0, 1, -10], "props": { "color": "#2ee6ff", "coversPortalId": "door-wc" } },
+        { "id": "frame-ws", "kind": "arch.frame", "position": [-10, 1, 0], "rotation": [0, 1.5707963267948966, 0], "props": { "color": "#a8b4c8", "coversPortalId": "door-ws" } },
+        { "id": "frame-wb", "kind": "arch.frame", "position": [10, 1, 0], "rotation": [0, -1.5707963267948966, 0], "props": { "color": "#3b7cff", "coversPortalId": "door-wb" } },
+        { "id": "frame-wx", "kind": "arch.frame", "position": [0, 1, 8], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#8af4ff", "coversPortalId": "door-wx" } }
       ],
       "portals": [
-        {
-          "id": "door-wb",
-          "position": [6.4, 1, 3.2],
-          "yaw": -1.5707963267948966,
-          "size": [2, 2],
-          "destinationId": "door-bw"
-        },
-        {
-          "id": "door-ws",
-          "position": [-6.4, 1, 3.2],
-          "yaw": 1.5707963267948966,
-          "size": [2, 2],
-          "destinationId": "door-sw"
-        },
-        {
-          "id": "door-wc",
-          "position": [0, 1, 0],
-          "yaw": 0,
-          "size": [2, 2],
-          "destinationId": "door-cw"
-        }
+        { "id": "door-wc", "position": [0, 1, -10], "yaw": 0, "size": [2, 2], "destinationId": "door-cw" },
+        { "id": "door-ws", "position": [-10, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-sw" },
+        { "id": "door-wb", "position": [10, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-bw" },
+        { "id": "door-wx", "position": [0, 1, 8], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-xw" }
       ]
     },
     {
       "id": "cyan-lane",
-      "title": "Cyan lane",
+      "title": "Cyan runway",
       "tags": ["interior", "cyber"],
       "origin": [250, 0, 0],
       "clearColor": "#041018",
       "entities": [
         { "id": "sky-cyan", "kind": "env.sky", "props": { "color": "#041018" } },
-        { "id": "light-cyan", "kind": "env.light", "props": { "ambient": "#082028", "sun": "#2ee6ff", "sunIntensity": 0.32, "ambientIntensity": 0.3 } },
-        { "id": "floor-cyan", "kind": "env.floor", "props": { "material": "cyber.grid.cyan" } },
+        { "id": "light-cyan", "kind": "env.light", "props": { "ambient": "#082028", "sun": "#2ee6ff", "sunIntensity": 0.3, "ambientIntensity": 0.28 } },
+        { "id": "floor-cyan", "kind": "env.floor", "props": { "material": "cyber.grid.cyan", "size": 32 } },
         {
           "id": "shell-cyan",
-          "kind": "arch.corridor",
+          "kind": "arch.chamber",
           "props": {
             "material": "cyber.grid.cyan",
-            "color": "#041018",
-            "halfX": 8,
-            "zMin": -6.2,
-            "zMax": 5.2,
-            "openings": [0, -5],
-            "sideOpenings": [{ "side": 1, "z": 1.2 }]
+            "halfX": 12,
+            "zMin": -10,
+            "zMax": 6,
+            "height": 3.6,
+            "holes": [
+              { "wall": "south", "u": 0 },
+              { "wall": "north", "u": 0 },
+              { "wall": "east", "u": -1 }
+            ]
           }
         },
-        {
-          "id": "strip-cyan-l",
-          "kind": "prop.box",
-          "position": [-7.7, 2.35, -0.5],
-          "props": { "size": [0.08, 0.05, 10.8], "material": "cyber.strip.cyan", "scroll": [0.15, 0] }
-        },
-        {
-          "id": "strip-cyan-r",
-          "kind": "prop.box",
-          "position": [7.7, 2.35, -0.5],
-          "props": { "size": [0.08, 0.05, 10.8], "material": "cyber.strip.cyan", "scroll": [0.15, 0] }
-        },
-        {
-          "id": "cube-cyan",
-          "kind": "prop.box",
-          "position": [7, 0.4, 3.2],
-          "tags": ["landmark"],
-          "props": { "size": [0.8, 0.8, 0.8], "color": "#2ee6ff" }
-        },
-        {
-          "id": "plaque-cyan",
-          "kind": "prop.plaque",
-          "position": [-2.2, 1.6, 4.9],
-          "props": { "color": "#2ee6ff", "text": "Cyan lane" }
-        },
-        {
-          "id": "frame-cw",
-          "kind": "arch.frame",
-          "position": [0, 1, 0],
-          "rotation": [0, 3.141592653589793, 0],
-          "props": { "color": "#e8eef8", "coversPortalId": "door-cw" }
-        },
-        {
-          "id": "frame-cr",
-          "kind": "arch.frame",
-          "position": [0, 1, -5],
-          "props": { "color": "#ff3b4a", "coversPortalId": "door-cr" }
-        },
-        {
-          "id": "frame-cg",
-          "kind": "arch.frame",
-          "position": [6.4, 1, 1.2],
-          "rotation": [0, -1.5707963267948966, 0],
-          "props": { "color": "#f0c040", "coversPortalId": "door-cg" }
-        },
-        {
-          "id": "pad-gold",
-          "kind": "interact.pad",
-          "position": [4.6, 0.04, 1.2],
-          "props": {
-            "color": "#f0c040",
-            "action": "unlock",
-            "portalId": "door-cg",
-            "text": "The gold lane unseals."
-          }
-        }
+        { "id": "strip-cyan-l", "kind": "prop.box", "position": [-11.4, 2.2, -2], "props": { "size": [0.1, 0.06, 14], "material": "cyber.strip.cyan", "scroll": [0, 0.22] } },
+        { "id": "strip-cyan-r", "kind": "prop.box", "position": [11.4, 2.2, -2], "props": { "size": [0.1, 0.06, 14], "material": "cyber.strip.cyan", "scroll": [0, 0.22] } },
+        { "id": "cube-cyan", "kind": "prop.box", "position": [8.6, 0.4, 2.4], "tags": ["landmark"], "props": { "size": [1.1, 0.8, 1.1], "color": "#2ee6ff" } },
+        { "id": "point-cyan", "kind": "env.point", "position": [0, 2.8, -2], "props": { "color": "#2ee6ff", "intensity": 0.9, "distance": 14 } },
+        { "id": "plaque-cyan", "kind": "prop.plaque", "position": [-4.2, 1.6, 5.4], "props": { "color": "#2ee6ff", "text": "Cyan runway" } },
+        { "id": "pad-gold", "kind": "interact.pad", "position": [8.4, 0.04, -1], "props": { "color": "#f0c040", "action": "unlock", "portalId": "door-cg", "require": "gold-core", "text": "The gold vault unseals." } },
+        { "id": "frame-cw", "kind": "arch.frame", "position": [0, 1, 6], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#e8eef8", "coversPortalId": "door-cw" } },
+        { "id": "frame-cr", "kind": "arch.frame", "position": [0, 1, -10], "props": { "color": "#ff3b4a", "coversPortalId": "door-cr" } },
+        { "id": "frame-cg", "kind": "arch.frame", "position": [12, 1, -1], "rotation": [0, -1.5707963267948966, 0], "props": { "color": "#f0c040", "coversPortalId": "door-cg" } }
       ],
       "portals": [
-        {
-          "id": "door-cw",
-          "position": [0, 1, 0],
-          "yaw": 3.141592653589793,
-          "size": [2, 2],
-          "destinationId": "door-wc"
-        },
-        {
-          "id": "door-cr",
-          "position": [0, 1, -5],
-          "yaw": 0,
-          "size": [2, 2],
-          "destinationId": "door-rc"
-        },
-        {
-          "id": "door-cg",
-          "position": [6.4, 1, 1.2],
-          "yaw": -1.5707963267948966,
-          "size": [2, 2],
-          "destinationId": "door-gc",
-          "enabled": false
-        }
+        { "id": "door-cw", "position": [0, 1, 6], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-wc" },
+        { "id": "door-cr", "position": [0, 1, -10], "yaw": 0, "size": [2, 2], "destinationId": "door-rc" },
+        { "id": "door-cg", "position": [12, 1, -1], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-gc", "enabled": false }
       ]
     },
     {
       "id": "red-lane",
-      "title": "Red lane",
+      "title": "Red throat",
       "tags": ["interior", "cyber"],
       "origin": [500, 0, 0],
       "clearColor": "#140408",
       "entities": [
         { "id": "sky-red", "kind": "env.sky", "props": { "color": "#140408" } },
-        { "id": "light-red", "kind": "env.light", "props": { "ambient": "#281018", "sun": "#ff3b4a", "sunIntensity": 0.32, "ambientIntensity": 0.3 } },
-        { "id": "floor-red", "kind": "env.floor", "props": { "material": "cyber.grid.red" } },
+        { "id": "light-red", "kind": "env.light", "props": { "ambient": "#281018", "sun": "#ff3b4a", "sunIntensity": 0.34, "ambientIntensity": 0.22 } },
+        { "id": "floor-red", "kind": "env.floor", "props": { "material": "cyber.grid.red", "size": 18 } },
         {
           "id": "shell-red",
-          "kind": "arch.corridor",
-          "props": { "material": "cyber.grid.red", "color": "#140408", "halfX": 8, "zMin": -6.2, "zMax": 5.2, "openings": [0, -5] }
+          "kind": "arch.chamber",
+          "props": {
+            "material": "cyber.grid.red",
+            "halfX": 3.2,
+            "zMin": -8,
+            "zMax": 6,
+            "height": 3.1,
+            "holes": [{ "wall": "south", "u": 0 }, { "wall": "north", "u": 0 }]
+          }
         },
-        {
-          "id": "strip-red-l",
-          "kind": "prop.box",
-          "position": [-7.7, 2.35, -0.5],
-          "props": { "size": [0.08, 0.05, 10.8], "material": "cyber.strip.red" }
-        },
-        {
-          "id": "strip-red-r",
-          "kind": "prop.box",
-          "position": [7.7, 2.35, -0.5],
-          "props": { "size": [0.08, 0.05, 10.8], "material": "cyber.strip.red" }
-        },
-        {
-          "id": "cube-red",
-          "kind": "prop.box",
-          "position": [7, 0.4, 3.2],
-          "tags": ["landmark"],
-          "props": { "size": [0.8, 0.8, 0.8], "color": "#ff3b4a" }
-        },
-        {
-          "id": "plaque-red",
-          "kind": "prop.plaque",
-          "position": [-2.2, 1.6, 4.9],
-          "props": { "color": "#ff3b4a", "text": "Red lane" }
-        },
-        {
-          "id": "frame-rc",
-          "kind": "arch.frame",
-          "position": [0, 1, 0],
-          "rotation": [0, 3.141592653589793, 0],
-          "props": { "color": "#2ee6ff", "coversPortalId": "door-rc" }
-        },
-        {
-          "id": "frame-rb",
-          "kind": "arch.frame",
-          "position": [0, 1, -5],
-          "props": { "color": "#3b7cff", "coversPortalId": "door-rb" }
-        }
+        { "id": "hazard-red", "kind": "prop.box", "position": [0, 0.04, -1], "props": { "size": [2.4, 0.04, 8], "material": "cyber.hazard" } },
+        { "id": "strip-red-l", "kind": "prop.box", "position": [-3, 2.1, -1], "props": { "size": [0.08, 0.05, 12], "material": "cyber.strip.red" } },
+        { "id": "strip-red-r", "kind": "prop.box", "position": [3, 2.1, -1], "props": { "size": [0.08, 0.05, 12], "material": "cyber.strip.red" } },
+        { "id": "cube-red", "kind": "prop.box", "position": [2.2, 0.35, 2.6], "tags": ["landmark"], "props": { "size": [0.55, 0.7, 0.55], "color": "#ff3b4a" } },
+        { "id": "plaque-red", "kind": "prop.plaque", "position": [-1.6, 1.6, 5.4], "props": { "color": "#ff3b4a", "text": "Red throat" } },
+        { "id": "frame-rc", "kind": "arch.frame", "position": [0, 1, 6], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#2ee6ff", "coversPortalId": "door-rc" } },
+        { "id": "frame-rb", "kind": "arch.frame", "position": [0, 1, -8], "props": { "color": "#3b7cff", "coversPortalId": "door-rb" } }
       ],
       "portals": [
-        {
-          "id": "door-rc",
-          "position": [0, 1, 0],
-          "yaw": 3.141592653589793,
-          "size": [2, 2],
-          "destinationId": "door-cr"
-        },
-        {
-          "id": "door-rb",
-          "position": [0, 1, -5],
-          "yaw": 0,
-          "size": [2, 2],
-          "destinationId": "door-br"
-        }
+        { "id": "door-rc", "position": [0, 1, 6], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-cr" },
+        { "id": "door-rb", "position": [0, 1, -8], "yaw": 0, "size": [2, 2], "destinationId": "door-br" }
       ]
     },
     {
       "id": "blue-lane",
-      "title": "Blue lane",
+      "title": "Blue catwalk",
       "tags": ["interior", "cyber"],
       "origin": [750, 0, 0],
       "clearColor": "#040814",
       "entities": [
         { "id": "sky-blue", "kind": "env.sky", "props": { "color": "#040814" } },
-        { "id": "light-blue", "kind": "env.light", "props": { "ambient": "#101828", "sun": "#3b7cff", "sunIntensity": 0.32, "ambientIntensity": 0.3 } },
-        { "id": "floor-blue", "kind": "env.floor", "props": { "material": "cyber.grid.blue" } },
+        { "id": "light-blue", "kind": "env.light", "props": { "ambient": "#101828", "sun": "#3b7cff", "sunIntensity": 0.3, "ambientIntensity": 0.26 } },
+        { "id": "floor-blue", "kind": "env.floor", "props": { "material": "cyber.grid.blue", "size": 24 } },
         {
           "id": "shell-blue",
-          "kind": "arch.corridor",
+          "kind": "arch.loft",
           "props": {
             "material": "cyber.grid.blue",
-            "color": "#040814",
             "halfX": 8,
-            "zMin": -6.2,
-            "zMax": 1,
-            "openings": [0],
-            "sideOpenings": [{ "side": -1, "z": -2.4 }]
+            "zMin": -8,
+            "zMax": 5,
+            "height": 5.8,
+            "holes": [{ "wall": "south", "u": 0 }, { "wall": "west", "u": 0 }]
           }
         },
-        {
-          "id": "strip-blue-l",
-          "kind": "prop.box",
-          "position": [-7.7, 2.35, -2.6],
-          "props": { "size": [0.08, 0.05, 6.8], "material": "cyber.strip.blue" }
-        },
-        {
-          "id": "strip-blue-r",
-          "kind": "prop.box",
-          "position": [7.7, 2.35, -2.6],
-          "props": { "size": [0.08, 0.05, 6.8], "material": "cyber.strip.blue" }
-        },
-        {
-          "id": "cube-blue",
-          "kind": "prop.box",
-          "position": [-3, 0.4, -3],
-          "tags": ["landmark"],
-          "props": { "size": [0.8, 0.8, 0.8], "color": "#3b7cff" }
-        },
-        {
-          "id": "plaque-blue",
-          "kind": "prop.plaque",
-          "position": [2.2, 1.6, -5.9],
-          "props": { "color": "#3b7cff", "text": "Blue lane" }
-        },
-        {
-          "id": "frame-br",
-          "kind": "arch.frame",
-          "position": [0, 1, 0],
-          "rotation": [0, 3.141592653589793, 0],
-          "props": { "color": "#3b7cff", "coversPortalId": "door-br" }
-        },
-        {
-          "id": "frame-bw",
-          "kind": "arch.frame",
-          "position": [-6.4, 1, -2.4],
-          "rotation": [0, 1.5707963267948966, 0],
-          "props": { "color": "#e8eef8", "coversPortalId": "door-bw" }
-        }
+        { "id": "strip-blue", "kind": "prop.box", "position": [0, 3.6, -2], "props": { "size": [14, 0.05, 0.08], "material": "cyber.strip.blue", "scroll": [0.12, 0] } },
+        { "id": "cube-blue", "kind": "prop.box", "position": [4.4, 2.4, -4.2], "tags": ["landmark"], "props": { "size": [0.7, 0.7, 0.7], "color": "#3b7cff" } },
+        { "id": "spot-blue", "kind": "env.spot", "position": [0, 5.2, -2], "props": { "color": "#3b7cff", "intensity": 1.1, "distance": 12, "target": [0, -4, 0] } },
+        { "id": "plaque-blue", "kind": "prop.plaque", "position": [3.2, 1.6, 4.4], "props": { "color": "#3b7cff", "text": "Blue catwalk" } },
+        { "id": "frame-br", "kind": "arch.frame", "position": [0, 1, 5], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#ff3b4a", "coversPortalId": "door-br" } },
+        { "id": "frame-bw", "kind": "arch.frame", "position": [-8, 1, 0], "rotation": [0, 1.5707963267948966, 0], "props": { "color": "#e8eef8", "coversPortalId": "door-bw" } }
       ],
       "portals": [
-        {
-          "id": "door-br",
-          "position": [0, 1, 0],
-          "yaw": 3.141592653589793,
-          "size": [2, 2],
-          "destinationId": "door-rb"
-        },
-        {
-          "id": "door-bw",
-          "position": [-6.4, 1, -2.4],
-          "yaw": 1.5707963267948966,
-          "size": [2, 2],
-          "destinationId": "door-wb"
-        }
+        { "id": "door-br", "position": [0, 1, 5], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-rb" },
+        { "id": "door-bw", "position": [-8, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-wb" }
       ]
     },
     {
       "id": "gold-lane",
-      "title": "Gold lane",
+      "title": "Gold vault",
       "tags": ["interior", "cyber", "secret"],
       "origin": [1000, 0, 0],
       "clearColor": "#181204",
       "entities": [
         { "id": "sky-gold", "kind": "env.sky", "props": { "color": "#181204" } },
-        { "id": "light-gold", "kind": "env.light", "props": { "ambient": "#2a2010", "sun": "#f0c040", "sunIntensity": 0.4, "ambientIntensity": 0.32 } },
-        { "id": "floor-gold", "kind": "env.floor", "props": { "material": "cyber.grid.gold" } },
+        { "id": "light-gold", "kind": "env.light", "props": { "ambient": "#2a2010", "sun": "#f0c040", "sunIntensity": 0.42, "ambientIntensity": 0.3 } },
+        { "id": "floor-gold", "kind": "env.floor", "props": { "material": "cyber.grid.gold", "size": 20 } },
         {
           "id": "shell-gold",
-          "kind": "arch.corridor",
-          "props": { "material": "cyber.grid.gold", "color": "#181204", "halfX": 8, "zMin": -6.2, "zMax": 1, "openings": [0] }
+          "kind": "arch.chamber",
+          "props": {
+            "material": "cyber.grid.gold",
+            "halfX": 7,
+            "zMin": -7,
+            "zMax": 3,
+            "height": 4.6,
+            "holes": [{ "wall": "south", "u": 0 }]
+          }
         },
-        {
-          "id": "strip-gold-l",
-          "kind": "prop.box",
-          "position": [-7.7, 2.35, -2.6],
-          "props": { "size": [0.08, 0.05, 6.8], "material": "cyber.strip.gold" }
-        },
-        {
-          "id": "strip-gold-r",
-          "kind": "prop.box",
-          "position": [7.7, 2.35, -2.6],
-          "props": { "size": [0.08, 0.05, 6.8], "material": "cyber.strip.gold" }
-        },
-        {
-          "id": "cube-gold",
-          "kind": "prop.box",
-          "position": [-3, 0.4, -3],
-          "tags": ["landmark"],
-          "props": { "size": [0.8, 0.8, 0.8], "color": "#f0c040" }
-        },
-        {
-          "id": "plaque-gold",
-          "kind": "prop.plaque",
-          "position": [2.2, 1.6, -5.9],
-          "props": { "color": "#f0c040", "text": "Gold lane" }
-        },
-        {
-          "id": "frame-gc",
-          "kind": "arch.frame",
-          "position": [0, 1, 0],
-          "rotation": [0, 3.141592653589793, 0],
-          "props": { "color": "#f0c040", "coversPortalId": "door-gc" }
-        }
+        { "id": "strip-gold-l", "kind": "prop.box", "position": [-6.6, 2.6, -2], "props": { "size": [0.1, 0.06, 8], "material": "cyber.strip.gold" } },
+        { "id": "strip-gold-r", "kind": "prop.box", "position": [6.6, 2.6, -2], "props": { "size": [0.1, 0.06, 8], "material": "cyber.strip.gold" } },
+        { "id": "prize-gold", "kind": "prop.box", "position": [0, 0.7, -3.4], "tags": ["landmark"], "props": { "size": [1.4, 1.4, 1.4], "color": "#f0c040" } },
+        { "id": "well-gold", "kind": "interact.pad", "position": [0, 0.04, -1.2], "props": { "color": "#f0c040", "action": "launch", "impulse": [0, 10, 0], "text": "Jump well" } },
+        { "id": "plaque-gold", "kind": "prop.plaque", "position": [2.4, 1.6, 2.4], "props": { "color": "#f0c040", "text": "Gold vault", "action": "read" } },
+        { "id": "point-gold", "kind": "env.point", "position": [0, 3.2, -3], "props": { "color": "#f0c040", "intensity": 1.4, "distance": 10 } },
+        { "id": "frame-gc", "kind": "arch.frame", "position": [0, 1, 3], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#f0c040", "coversPortalId": "door-gc" } }
       ],
       "portals": [
-        {
-          "id": "door-gc",
-          "position": [0, 1, 0],
-          "yaw": 3.141592653589793,
-          "size": [2, 2],
-          "destinationId": "door-cg"
-        }
+        { "id": "door-gc", "position": [0, 1, 3], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-cg" }
       ]
     },
     {
       "id": "shaft",
-      "title": "White shaft",
+      "title": "White well",
       "tags": ["interior", "cyber"],
       "origin": [1250, 0, 0],
       "clearColor": "#10141a",
       "entities": [
         { "id": "sky-shaft", "kind": "env.sky", "props": { "color": "#10141a" } },
-        { "id": "light-shaft", "kind": "env.light", "props": { "ambient": "#1a2030", "sun": "#e8eef8", "sunIntensity": 0.3 } },
-        { "id": "floor-shaft", "kind": "env.floor", "props": { "material": "cyber.grid.white" } },
+        { "id": "light-shaft", "kind": "env.light", "props": { "ambient": "#1a2030", "sun": "#e8eef8", "sunIntensity": 0.26 } },
+        { "id": "floor-shaft", "kind": "env.floor", "props": { "material": "cyber.grid.white", "size": 16 } },
         {
           "id": "shell-shaft",
-          "kind": "arch.corridor",
+          "kind": "arch.shaft",
           "props": {
-            "material": "cyber.grid.white",
-            "color": "#10141a",
-            "halfX": 8,
-            "zMin": -6.2,
-            "zMax": 1,
-            "height": 5.4,
-            "openings": [0]
+            "material": "cyber.wall",
+            "halfX": 5,
+            "zMin": -5,
+            "zMax": 5,
+            "height": 10,
+            "holes": [{ "wall": "south", "u": 0 }]
           }
         },
-        {
-          "id": "ledge-low",
-          "kind": "prop.box",
-          "position": [0, 0.45, -2.2],
-          "props": { "size": [2.2, 0.9, 1.4], "color": "#2a3038" }
-        },
-        {
-          "id": "ledge-high",
-          "kind": "prop.box",
-          "position": [0, 1.4, -3.6],
-          "props": { "size": [2.2, 0.9, 1.4], "color": "#343c48" }
-        },
-        {
-          "id": "pad-shaft",
-          "kind": "interact.pad",
-          "position": [0, 0.04, -1.1],
-          "props": { "color": "#e8eef8", "action": "launch", "impulse": [0, 9, 0], "text": "Jump" }
-        },
-        {
-          "id": "plaque-shaft",
-          "kind": "prop.plaque",
-          "position": [2.2, 1.6, -5.9],
-          "props": { "color": "#a8b4c8", "text": "White shaft" }
-        },
-        {
-          "id": "frame-sw",
-          "kind": "arch.frame",
-          "position": [0, 1, 0],
-          "rotation": [0, 3.141592653589793, 0],
-          "props": { "color": "#a8b4c8", "coversPortalId": "door-sw" }
-        }
+        { "id": "pad-shaft", "kind": "interact.pad", "position": [0, 0.04, -0.8], "props": { "color": "#e8eef8", "action": "launch", "impulse": [0, 11, 0], "text": "Jump" } },
+        { "id": "plaque-shaft", "kind": "prop.plaque", "position": [2.2, 1.6, 4.4], "props": { "color": "#a8b4c8", "text": "White well" } },
+        { "id": "cube-shaft", "kind": "prop.box", "position": [3.4, 3.2, 0], "tags": ["landmark"], "props": { "size": [0.6, 0.6, 0.6], "color": "#e8eef8" } },
+        { "id": "frame-sw", "kind": "arch.frame", "position": [0, 1, 5], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#a8b4c8", "coversPortalId": "door-sw" } }
       ],
       "portals": [
+        { "id": "door-sw", "position": [0, 1, 5], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-ws" }
+      ]
+    },
+    {
+      "id": "ribbon",
+      "title": "Race ribbon",
+      "tags": ["interior", "cyber"],
+      "origin": [1500, 0, 0],
+      "clearColor": "#061018",
+      "entities": [
+        { "id": "sky-ribbon", "kind": "env.sky", "props": { "color": "#061018" } },
+        { "id": "light-ribbon", "kind": "env.light", "props": { "ambient": "#102028", "sun": "#8af4ff", "sunIntensity": 0.32, "ambientIntensity": 0.26 } },
+        { "id": "floor-ribbon", "kind": "env.floor", "props": { "material": "cyber.grid.cyan", "size": 30 } },
         {
-          "id": "door-sw",
-          "position": [0, 1, 0],
-          "yaw": 3.141592653589793,
-          "size": [2, 2],
-          "destinationId": "door-ws"
-        }
+          "id": "shell-ribbon",
+          "kind": "arch.court",
+          "props": {
+            "material": "cyber.wall",
+            "halfX": 11,
+            "zMin": -10,
+            "zMax": 6,
+            "height": 4.2,
+            "holes": [{ "wall": "north", "u": 0 }]
+          }
+        },
+        { "id": "strip-ribbon", "kind": "prop.box", "position": [0, 0.06, -2], "props": { "size": [16, 0.04, 1.1], "material": "cyber.strip.cyan", "scroll": [0.3, 0] } },
+        { "id": "cube-ribbon", "kind": "prop.box", "position": [7.4, 0.4, 2.2], "tags": ["landmark"], "props": { "size": [0.8, 0.8, 0.8], "color": "#8af4ff" } },
+        { "id": "plaque-ribbon", "kind": "prop.plaque", "position": [-3.2, 1.6, 5.4], "props": { "color": "#8af4ff", "text": "Race ribbon" } },
+        { "id": "frame-xw", "kind": "arch.frame", "position": [0, 1, -10], "props": { "color": "#e8eef8", "coversPortalId": "door-xw" } }
+      ],
+      "portals": [
+        { "id": "door-xw", "position": [0, 1, -10], "yaw": 0, "size": [2, 2], "destinationId": "door-wx" }
       ]
     }
   ]

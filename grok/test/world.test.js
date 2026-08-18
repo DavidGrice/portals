@@ -186,6 +186,58 @@ describe('world data', () => {
     assert.equal(bedForRoom(controller.currentRoom), 'cyber');
     assert.equal(bedForRoom({ id: 'mesozoic', tags: ['ages', 'prehistoric'] }), 'agesPast');
     assert.equal(bedForRoom({ id: 'orbital', tags: ['ages', 'future'] }), 'agesFuture');
+    const volumes = new Set();
+    for (const room of controller.rooms) {
+      room.scene.traverse((object) => {
+        if (object.userData.volume?.kind) {
+          volumes.add(`${room.id}:${object.userData.volume.kind}`);
+        }
+      });
+    }
+    assert.ok(volumes.has('white-core:plus'));
+    assert.ok(volumes.has('cyan-lane:chamber'));
+    assert.ok(volumes.has('blue-lane:loft'));
+    assert.ok(volumes.has('shaft:shaft'));
+    assert.ok(volumes.has('ribbon:court'));
+    assert.ok(controller.rooms.some((room) => room.id === 'ribbon'));
+    assert.equal(controller.getPortal('door-wx').destinationId, 'door-xw');
+    assert.equal(controller.getPortal('door-cg').enabled, false);
+  });
+
+  it('loads nine distinct Ages volumes', () => {
+    const world = readJson('data/worlds/ages.json');
+    const catalog = readJson('data/catalog.json');
+    const camera = new PerspectiveCamera(60, 1, 0.05, 100);
+    const controller = loadWorld(world, catalog, camera, mockRenderer());
+    assert.equal(world.rooms.length, 9);
+    const kinds = {};
+    for (const room of controller.rooms) {
+      room.scene.traverse((object) => {
+        if (object.userData.volume?.kind) {
+          kinds[room.id] = object.userData.volume.kind;
+        }
+      });
+    }
+    assert.equal(kinds.primordial, 'court');
+    assert.equal(kinds.mesozoic, 'court');
+    assert.equal(kinds.stone, 'wing');
+    assert.equal(kinds.ancient, 'chamber');
+    assert.equal(kinds.medieval, 'chamber');
+    assert.equal(kinds.industrial, 'plus');
+    assert.equal(kinds.present, 'chamber');
+    assert.equal(kinds['near-future'], 'loft');
+    assert.equal(kinds.orbital, 'rotunda');
+    assert.ok(kinds.medieval !== kinds.industrial);
+    assert.ok(controller.rooms.find((room) => room.id === 'primordial').scene.children.some((child) => child.userData?.water || child.userData?.kind === 'prop.water'));
+    let npcs = 0;
+    controller.rooms.find((room) => room.id === 'mesozoic').scene.traverse((object) => {
+      if (object.userData.npc) {
+        npcs += 1;
+      }
+    });
+    assert.ok(npcs >= 1);
+    assert.equal(bedForRoom(controller.rooms.find((room) => room.id === 'primordial')), 'agesPrimordial');
+    assert.equal(bedForRoom(controller.rooms.find((room) => room.id === 'industrial')), 'agesIndustrial');
   });
 });
 

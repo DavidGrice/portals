@@ -8,7 +8,8 @@
       "line": "#2a2e38",
       "cells": 4,
       "roughness": 0.9,
-      "metalness": 0.04
+      "metalness": 0.04,
+      "surface": "stone"
     },
     "shared.stone": {
       "recipe": "stone",
@@ -16,7 +17,8 @@
       "line": "#3a342c",
       "cells": 6,
       "roughness": 0.92,
-      "metalness": 0.02
+      "metalness": 0.02,
+      "surface": "stone"
     },
     "cyber.grid.cyan": {
       "recipe": "circuit",
@@ -27,7 +29,9 @@
       "roughness": 0.28,
       "metalness": 0.74,
       "emissive": "#062028",
-      "emissiveIntensity": 0.4
+      "emissiveIntensity": 0.4,
+      "surface": "metal",
+      "map": "/assets/textures/cyber/floor-cyan.jpg"
     },
     "cyber.grid.red": {
       "recipe": "circuit",
@@ -38,7 +42,9 @@
       "roughness": 0.28,
       "metalness": 0.74,
       "emissive": "#28060a",
-      "emissiveIntensity": 0.4
+      "emissiveIntensity": 0.4,
+      "surface": "metal",
+      "map": "/assets/textures/cyber/floor-red.jpg"
     },
     "cyber.grid.white": {
       "recipe": "circuit",
@@ -49,7 +55,9 @@
       "roughness": 0.3,
       "metalness": 0.7,
       "emissive": "#181c22",
-      "emissiveIntensity": 0.32
+      "emissiveIntensity": 0.32,
+      "surface": "grate",
+      "map": "/assets/textures/cyber/night-panel.jpg"
     },
     "cyber.grid.blue": {
       "recipe": "circuit",
@@ -60,7 +68,9 @@
       "roughness": 0.28,
       "metalness": 0.74,
       "emissive": "#061028",
-      "emissiveIntensity": 0.4
+      "emissiveIntensity": 0.4,
+      "surface": "metal",
+      "map": "/assets/textures/cyber/floor-blue.jpg"
     },
     "cyber.strip.cyan": {
       "recipe": "stripe",
@@ -107,7 +117,30 @@
       "roughness": 0.26,
       "metalness": 0.78,
       "emissive": "#2a2008",
-      "emissiveIntensity": 0.45
+      "emissiveIntensity": 0.45,
+      "surface": "metal",
+      "map": "/assets/textures/cyber/floor-gold.jpg"
+    },
+    "cyber.wall": {
+      "recipe": "circuit",
+      "color": "#121418",
+      "line": "#8aa0b0",
+      "cells": 8,
+      "repeat": [4, 4],
+      "roughness": 0.5,
+      "metalness": 0.55,
+      "surface": "metal",
+      "map": "/assets/textures/cyber/wall-grid.jpg"
+    },
+    "cyber.hazard": {
+      "recipe": "stripe",
+      "color": "#f0c040",
+      "line": "#1a1c18",
+      "repeat": [2, 2],
+      "roughness": 0.55,
+      "metalness": 0.2,
+      "surface": "metal",
+      "map": "/assets/textures/cyber/stripes.jpg"
     },
     "cyber.strip.gold": {
       "recipe": "stripe",
@@ -124,7 +157,8 @@
       "line": "#3a2814",
       "cells": 7,
       "roughness": 0.96,
-      "metalness": 0
+      "metalness": 0,
+      "surface": "dirt"
     },
     "haunt.boards": {
       "recipe": "wood",

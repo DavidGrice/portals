@@ -12,7 +12,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "node --test test/*.test.js",
-    "validate-data": "node scripts/validate-world.js"
+    "bake-audio": "node scripts/bake-audio.js",
+    "validate-data": "node scripts/validate-world.js && node scripts/validate-audio.js"
   },
   "devDependencies": {
     "vite": "^7.1.2"

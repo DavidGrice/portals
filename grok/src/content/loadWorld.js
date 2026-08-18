@@ -94,6 +94,7 @@ export function dressRooms(controller) {
       color: room.clearColor,
       origin: room.origin ?? [0, 0, 0],
       half: [7.2, 1.35, 5.6],
+      weather: room.atmosphere?.weather ?? weatherForTags(room.tags ?? []),
     });
     setMoteDensity(room, room.atmosphere?.density ?? 1);
     applyClimateToScene(room, room.climate ?? climateForDepth(room.depth ?? 0));
@@ -108,6 +109,16 @@ export function dressRooms(controller) {
       }
     });
   }
+}
+
+export function weatherForTags(tags = []) {
+  if (tags.includes('prehistoric') || tags.includes('primordial')) {
+    return 'rain';
+  }
+  if (tags.includes('industrial')) {
+    return 'ash';
+  }
+  return 'dust';
 }
 
 export function kindsByCategory(catalog) {
