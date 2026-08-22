@@ -2,7 +2,7 @@ import { Scene } from 'three';
 import { PortalController } from '../engine/index.js';
 import { parseColor, spawnEntity } from './prefabs.js';
 import { attachMotes, indexRoomFx, setMoteDensity, tintGlow } from '../engine/atmosphere.js';
-import { indexRoomOptics } from '../optics/tickOptics.js';
+import { indexRoomOptics, syncOpticsDoors } from '../optics/tickOptics.js';
 import { applyClimateToScene, climateForDepth } from './climate.js';
 
 export function withOrigin(vec, origin) {
@@ -79,6 +79,16 @@ export function loadWorld(world, catalog, camera, renderer) {
   relinkPortals(controller);
 
   dressRooms(controller);
+
+  controller.flags = { ...(world.flags ?? {}) };
+  if (world.freeRoam) {
+    controller.flags['free-roam'] = true;
+    controller.flags['littrow-lock'] = true;
+    for (const portal of controller.allPortals) {
+      portal.enabled = true;
+    }
+  }
+  syncOpticsDoors(controller);
 
   controller.setCurrentScene(world.startRoom);
   if (world.startSpawn) {

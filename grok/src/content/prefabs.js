@@ -1160,29 +1160,58 @@ export const prefabs = {
   grating(entity) {
     const group = new THREE.Group();
     applyPose(group, entity);
-    const width = entity.props?.width ?? 1.4;
-    const height = entity.props?.height ?? 0.88;
+    const width = entity.props?.width ?? 1.22;
+    const height = entity.props?.height ?? 1.78;
+    const thickness = entity.props?.thickness ?? 0.04;
     const linesPerMm = entity.props?.linesPerMm ?? 600;
-    const blazeDeg = entity.props?.blazeDeg ?? 17.45;
+    const blazeDeg = entity.props?.blazeDeg ?? 10.37;
     const mode = entity.props?.mode ?? 'reflect';
-    const face = new THREE.Mesh(
-      new THREE.BoxGeometry(width, height, 0.03),
-      createGratingMaterial({ linesPerMm, blazeDeg, mode }),
-    );
+    const portrait = height >= width * 0.95;
+    const border = portrait ? Math.min(0.09, width * 0.075) : 0.04;
+    const nameH = portrait ? 0.13 : 0;
+    const artW = Math.max(0.18, width - border * 2);
+    const artH = Math.max(0.18, height - border * 2 - nameH);
+    const stock = buildMaterial('optics.card');
+    const body = new THREE.Mesh(new THREE.BoxGeometry(width, height, thickness), stock);
+    body.castShadow = true;
+    body.receiveShadow = true;
+    body.userData.collider = { type: 'aabb' };
+    group.add(body);
+    const gratingMat = createGratingMaterial({ linesPerMm, blazeDeg, mode, lightOn: 0.55 });
+    const artY = portrait ? -nameH * 0.5 : 0;
+    const face = new THREE.Mesh(new THREE.PlaneGeometry(artW, artH), gratingMat);
+    face.position.set(0, artY, thickness * 0.5 + 0.0016);
     face.castShadow = false;
-    face.receiveShadow = true;
-    face.userData.collider = { type: 'aabb' };
+    face.receiveShadow = false;
+    face.userData.gratingFace = true;
     group.add(face);
-    const rim = buildMaterial('optics.rim');
-    addBox(group, rim, 0, height * 0.5 + 0.02, 0, width + 0.08, 0.04, 0.04);
-    addBox(group, rim, 0, -height * 0.5 - 0.02, 0, width + 0.08, 0.04, 0.04);
-    addBox(group, rim, -width * 0.5 - 0.02, 0, 0, 0.04, height + 0.08, 0.04);
-    addBox(group, rim, width * 0.5 + 0.02, 0, 0, 0.04, height + 0.08, 0.04);
+    const back = new THREE.Mesh(new THREE.PlaneGeometry(artW, artH), gratingMat);
+    back.position.set(0, artY, -(thickness * 0.5 + 0.0016));
+    back.rotation.y = Math.PI;
+    back.castShadow = false;
+    back.receiveShadow = false;
+    back.userData.gratingFace = true;
+    group.add(back);
+    const rim = buildMaterial(portrait ? 'optics.foil' : 'optics.rim');
+    const t = Math.max(0.028, border * 0.5);
+    addBox(group, rim, 0, height * 0.5 - t * 0.5, 0, width + 0.012, t, thickness + 0.02, false);
+    addBox(group, rim, 0, -height * 0.5 + t * 0.5, 0, width + 0.012, t, thickness + 0.02, false);
+    addBox(group, rim, -width * 0.5 + t * 0.5, 0, 0, t, height + 0.012, thickness + 0.02, false);
+    addBox(group, rim, width * 0.5 - t * 0.5, 0, 0, t, height + 0.012, thickness + 0.02, false);
+    if (portrait) {
+      const plate = new THREE.Mesh(
+        new THREE.BoxGeometry(artW, Math.max(0.06, nameH * 0.7), 0.01),
+        rim,
+      );
+      plate.position.set(0, height * 0.5 - border - nameH * 0.42, thickness * 0.5 + 0.006);
+      plate.castShadow = false;
+      group.add(plate);
+    }
     group.userData.grating = {
       linesPerMm,
       blazeDeg,
       mode,
-      hover: false,
+      hover: entity.props?.hover === true,
       baseY: entity.position?.[1] ?? group.position.y,
       locked: true,
       mMin: entity.props?.mMin ?? null,
@@ -1191,6 +1220,8 @@ export const prefabs = {
       options: entity.props?.options ?? null,
       optionIndex: 0,
       label: entity.props?.options?.[0]?.label ?? `${linesPerMm} /mm ${mode}`,
+      width,
+      height,
     };
     return group;
   },

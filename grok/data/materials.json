@@ -542,6 +542,17 @@
       "emissiveIntensity": 0.25,
       "surface": "metal"
     },
+    "optics.foil": {
+      "recipe": "metal",
+      "color": "#e8c86a",
+      "line": "#8a6a28",
+      "roughness": 0.16,
+      "metalness": 1,
+      "emissive": "#f0c040",
+      "emissiveIntensity": 0.55,
+      "envMapIntensity": 0.45,
+      "surface": "metal"
+    },
     "optics.strip": {
       "recipe": "circuit",
       "color": "#041018",

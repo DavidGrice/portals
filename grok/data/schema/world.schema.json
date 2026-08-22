@@ -8,6 +8,8 @@
     "id": { "type": "string" },
     "title": { "type": "string" },
     "theme": { "type": "string" },
+    "freeRoam": { "type": "boolean" },
+    "flags": { "type": "object" },
     "bed": { "type": "string" },
     "status": { "enum": ["playable", "draft"] },
     "layers": { "type": "array", "items": { "type": "string" } },

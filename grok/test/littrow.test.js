@@ -36,29 +36,37 @@ describe('Littrow', () => {
     assert.ok(listWorlds().some((entry) => entry.id === 'littrow'));
     const world = getWorldData('littrow');
     assert.equal(world.id, 'littrow');
-    assert.equal(world.startRoom, 'rotunda');
-    assert.equal(world.rooms.length, 17);
+    assert.equal(world.startRoom, 'exhibit');
+    assert.equal(world.freeRoam, true);
+    assert.equal(world.rooms.length, 18);
     const catalog = readJson('data/catalog.json');
     const materials = readJson('data/materials.json');
     assert.deepEqual(validateWorld(world, catalog, materials), []);
   });
 
-  it('loads a stationary grating card and no combat kinds', () => {
+  it('loads a vertical floating grating card and one door to the labs', () => {
     const world = readJson('data/worlds/littrow.json');
     const catalog = readJson('data/catalog.json');
     const camera = new PerspectiveCamera(60, 1, 0.05, 280);
     const controller = loadWorld(world, catalog, camera, mockRenderer());
-    assert.equal(controller.currentRoom.id, 'rotunda');
+    assert.equal(controller.currentRoom.id, 'exhibit');
+    const exhibit = world.rooms.find((room) => room.id === 'exhibit');
+    assert.equal(exhibit.portals.length, 1);
+    assert.equal(exhibit.portals[0].destinationId, 'door-rotunda-exhibit');
     const kinds = new Set();
     let card = null;
     let lights = 0;
+    let faces = 0;
     for (const room of controller.rooms) {
       room.scene.traverse((object) => {
         if (object.userData.kind) {
           kinds.add(object.userData.kind);
         }
-        if (object.name === 'card-main') {
+        if (object.name === 'card-main' && room.id === 'exhibit') {
           card = object;
+        }
+        if (object.userData.gratingFace) {
+          faces += 1;
         }
         if (object.userData.runningLight) {
           lights += 1;
@@ -66,8 +74,15 @@ describe('Littrow', () => {
       });
     }
     assert.ok(card);
+    assert.ok(card.userData.grating.height > card.userData.grating.width);
     assert.equal(card.userData.grating.linesPerMm, 600);
     assert.equal(card.userData.spin, undefined);
+    assert.equal(card.userData.grating.hover, true);
+    assert.ok(faces >= 2);
+    const hot = controller.currentRoom.lasers.filter((laser) => laser.userData.laser.enabled);
+    assert.equal(hot.length, 1);
+    const lit = tickOptics([controller.currentRoom], { camera, dt: 0.016, controller, elapsed: 0 });
+    assert.ok(lit.beams >= 3, `exhibit beams ${lit.beams}`);
     assert.ok(kinds.has('prop.grating'));
     assert.ok(kinds.has('prop.laser'));
     assert.ok(kinds.has('prop.detector'));
@@ -84,9 +99,11 @@ describe('Littrow', () => {
     const camera = new PerspectiveCamera(60, 1, 0.05, 280);
     const controller = loadWorld(world, catalog, camera, mockRenderer());
     const room = controller.currentRoom;
+    assert.equal(room.id, 'exhibit');
     const card = room.gratings.find((entry) => entry.name === 'card-main') ?? room.gratings[0];
     assert.equal(card.userData.spin, undefined);
     assert.equal(card.userData.grating.locked, true);
+    assert.ok(card.userData.grating.height > card.userData.grating.width);
     const cycled = runInteract({ spec: { action: 'cycle-options' } }, { controller });
     assert.equal(cycled.type, 'cycle-options');
     assert.equal(card.userData.grating.linesPerMm, 1200);
@@ -110,27 +127,22 @@ describe('Littrow', () => {
     assert.equal(detector.userData.detector.order, 1);
   });
 
-  it('keeps lab doors sealed until the optics flags fire', () => {
+  it('opens every lab door from the exhibit and keeps the chain linked', () => {
     const world = readJson('data/worlds/littrow.json');
     const catalog = readJson('data/catalog.json');
     const camera = new PerspectiveCamera(60, 1, 0.05, 280);
     const controller = loadWorld(world, catalog, camera, mockRenderer());
-    assert.equal(controller.getPortal('door-rotunda-collimator').enabled, false);
-    assert.equal(controller.getPortal('door-rotunda-continuum').enabled, false);
-    assert.equal(controller.getPortal('door-rotunda-blaze').enabled, false);
-    assert.equal(controller.getPortal('door-rotunda-echelle').enabled, false);
-    assert.equal(controller.getPortal('door-rotunda-rowland').enabled, false);
-    assert.equal(controller.getPortal('door-rowland-disc').enabled, false);
-    assert.equal(controller.getPortal('door-slit-vault').enabled, false);
-    controller.flags = { 'found-zero': true };
-    syncOpticsDoors(controller);
+    assert.equal(controller.flags['free-roam'], true);
+    assert.equal(controller.getPortal('door-exhibit-labs').enabled, true);
+    assert.equal(controller.getPortal('door-rotunda-exhibit').destinationPortal.portalId, 'door-exhibit-labs');
     assert.equal(controller.getPortal('door-rotunda-collimator').enabled, true);
-    controller.flags['diode-405'] = true;
-    controller.flags['diode-532'] = true;
-    controller.flags['diode-633'] = true;
-    syncOpticsDoors(controller);
-    assert.equal(controller.flags['three-diodes'], true);
     assert.equal(controller.getPortal('door-rotunda-continuum').enabled, true);
+    assert.equal(controller.getPortal('door-rotunda-blaze').enabled, true);
+    assert.equal(controller.getPortal('door-rotunda-echelle').enabled, true);
+    assert.equal(controller.getPortal('door-rotunda-rowland').enabled, true);
+    assert.equal(controller.getPortal('door-rowland-disc').enabled, true);
+    assert.equal(controller.getPortal('door-slit-vault').enabled, true);
+    assert.ok(world.rooms.every((room) => !(room.portals ?? []).some((portal) => portal.enabled === false)));
   });
 
   it('locks the collimator card and keeps 532 nm first order at 18.6 deg', () => {
@@ -139,7 +151,8 @@ describe('Littrow', () => {
     const card = collimator.entities.find((entity) => entity.id === 'card-collimator');
     assert.equal(card.props.spin, undefined);
     assert.ok(world.rooms.every((room) => !room.entities.some((entity) => entity.kind === 'prop.grating' && entity.props?.spin)));
-    assert.ok(world.rooms[0].entities.some((entity) => entity.props?.action === 'cycle-options'));
+    const exhibit = world.rooms.find((room) => room.id === 'exhibit');
+    assert.ok(exhibit.entities.some((entity) => entity.props?.action === 'cycle-options'));
     const echelle = world.rooms.find((room) => room.id === 'echelle').entities.find((entity) => entity.id === 'card-echelle');
     assert.equal(echelle.props.linesPerMm, 75);
     assert.equal(echelle.props.mMin, 12);

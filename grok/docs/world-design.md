@@ -182,10 +182,13 @@ Hub option (later): a “gallery of doors” room whose portals are the eras, so
 
 | # | Deliverable | Status |
 | --- | --- | --- |
-| 0 | Material catalog, asset folders, this plan, draft index | now |
-| 1 | Circuit Grid, four lanes, cyber bed, playable | now (seed) |
-| 2 | Ages draft: mesozoic + orbital, hidden from picker | now (seed) |
-| 3 | Circuit extras: gold lane, strips that read as runways | todo |
-| 4 | Ages: fill the era table, fire in stone, glass in present | todo |
-| 5 | Optional PNG/HDR/video files behind the same material ids | todo |
-| 6 | GLTF dressing + collider JSON | todo (parked with NPCs) |
+| 0 | Material catalog, asset folders, this plan, draft index | done |
+| 1 | Circuit Grid, four lanes, cyber bed, playable | done |
+| 2 | Ages draft: mesozoic + orbital, hidden from picker | done (now playable) |
+| 3 | Circuit extras: gold lane, strips that read as runways | done |
+| 4 | Ages: fill the era table, fire in stone, glass in present | done |
+| 5 | Optional PNG/HDR/video files behind the same material ids | done (recipe fallback) |
+| 6 | GLTF dressing + collider JSON | parked with NPCs |
+| 7 | Littrow experimental hall + grating card | done (not a puzzle) |
+| 8 | WebGPU as a door substitute | parked (stencil stays WebGL) |
+| 9 | Multiplayer | last / parked |

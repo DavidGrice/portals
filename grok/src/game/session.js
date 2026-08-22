@@ -6,6 +6,7 @@ import { hydrateRoomMaterials } from '../content/materials.js';
 import { openDrift } from '../content/drift.js';
 import { createOriginPool } from '../content/generateRoom.js';
 import { applyPose } from '../content/save.js';
+import { assertMultiplayerAllowed } from '../net/multiplayer.js';
 
 const TEXTURE_KEYS = ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap'];
 
@@ -38,9 +39,7 @@ export function createSession({
       document.body.insertBefore(nextRenderer.domElement, document.body.firstChild);
     }
 
-    if (world?.multiplayer && (world.id === 'drift' || world.generated)) {
-      throw new Error('Drift cannot host multiplayer');
-    }
+    assertMultiplayerAllowed(world);
     const resolvedWorld = world?.id === 'drift' || world?.generated
       ? openDrift({ seed: pose?.seed, depth: pose?.depth ?? 0, kitId: pose?.kitId })
       : world;

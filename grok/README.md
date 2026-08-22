@@ -13,7 +13,7 @@ Each room is its own Three.js scene. A portal is a one-sided quad that:
 3. Decrements the stencil and depth-writes the opening so the current room cannot paint over dest
 4. Teleports the player when the eye crosses the door plane
 
-The portal pass **requires WebGL with a stencil buffer**. WebGPU is detected on the welcome card and reserved for later; it is not used to draw portals.
+The portal pass **requires WebGL with a stencil buffer**. WebGPU is detected on the welcome card and stays parked — it cannot replace stencil doors. Multiplayer is last and is not hosted. Combat is out.
 
 ## Requirements
 
@@ -56,7 +56,7 @@ Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/). The start menu is HTML on
 | Gamepad | Left stick move, right stick look, A jump, Start pause / Play |
 | **Options** | Graphics, controls, interface, sound, keybinds |
 
-Play opens a world gallery. **Four halls** is blue → rose; glass panes and hallway monitors are furniture (the TV is a camera-to-texture of the hall you are in, not a portal). **The Hollow House** is a foyer, gallery, dining room, parlor, cellar, crypt, and a sealed attic — stand on the parlor pad and press **E** to unseal it. **Circuit Grid** is a plus hub: cyan runway, red throat, blue catwalk, shaft well, race ribbon, locked gold vault. **The Ages** walks nine distinct volumes from primordial court to orbital hull. **Drift** is one-way generated rooms — doors do not come back; enter a seed on Play. Worlds and looks are JSON: kinds in `data/catalog.json`, materials in `data/materials.json`, beds in `data/audio.json`. See `docs/world-design.md` and `docs/qa-walk.md`. Quit to menu writes a **Continue** save.
+Play opens a world gallery. **Four halls** is blue → rose; glass panes and hallway monitors are furniture (the TV is a camera-to-texture of the hall you are in, not a portal). **The Hollow House** is a foyer, gallery, dining room, parlor, cellar, crypt, and a sealed attic — stand on the parlor pad and press **E** to unseal it. **Circuit Grid** is a plus hub: cyan runway, red throat, blue catwalk, shaft well, race ribbon, locked gold vault. **The Ages** walks nine distinct volumes from primordial court to orbital hull. **Littrow** is an experimental rotunda around a vertical grating card; one door holds the labs. **Drift** is one-way generated rooms — doors do not come back; enter a seed on Play. Worlds and looks are JSON: kinds in `data/catalog.json`, materials in `data/materials.json`, beds in `data/audio.json`. See `docs/world-design.md` and `docs/qa-walk.md`. Quit to menu writes a **Continue** save.
 
 Query flags:
 

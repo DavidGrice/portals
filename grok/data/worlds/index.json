@@ -31,7 +31,7 @@
     {
       "id": "littrow",
       "title": "Littrow",
-      "blurb": "The card stays still. Walk the orders. Return the beam.",
+      "blurb": "A vertical grating card in an experimental hall. One door holds the labs.",
       "preview": "/worlds/littrow.jpg",
       "file": "littrow.json"
     },

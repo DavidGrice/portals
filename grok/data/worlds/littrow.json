@@ -2,15 +2,78 @@
   "id": "littrow",
   "title": "Littrow",
   "theme": "optics",
-  "startRoom": "rotunda",
-  "startSpawn": [0, 1, 6.4],
-  "lookAt": [0, 1.35, 0],
+  "freeRoam": true,
+  "startRoom": "exhibit",
+  "startSpawn": [0, 1, 6.0],
+  "lookAt": [0, 1.7, 0],
   "rooms": [
     {
-      "id": "rotunda",
+      "id": "exhibit",
       "title": "The Card",
       "tags": ["interior", "cyber", "optics", "grating", "start"],
       "origin": [0, 0, 0],
+      "clearColor": "#05070c",
+      "atmosphere": { "density": 0.28 },
+      "entities": [
+        { "id": "sky-exhibit", "kind": "env.sky", "props": { "color": "#05070c" } },
+        { "id": "light-exhibit", "kind": "env.light", "props": { "ambient": "#10141c", "sun": "#c8d4ff", "sunIntensity": 0.28, "ambientIntensity": 0.18 } },
+        { "id": "floor-exhibit", "kind": "env.floor", "props": { "material": "scifi.gate.floor", "size": 24 } },
+        {
+          "id": "shell-exhibit",
+          "kind": "arch.rotunda",
+          "props": {
+            "material": "scifi.hull",
+            "runningLights": true,
+            "stripMaterial": "optics.strip",
+            "radius": 8,
+            "height": 6.4,
+            "holes": [{ "wall": "north", "u": 0 }]
+          }
+        },
+        {
+          "id": "card-main",
+          "kind": "prop.grating",
+          "position": [0, 1.7, 0],
+          "tags": ["landmark"],
+          "props": {
+            "width": 1.26,
+            "height": 1.84,
+            "thickness": 0.045,
+            "hover": true,
+            "linesPerMm": 600,
+            "blazeDeg": 10.37,
+            "options": [
+              { "label": "600 /mm reflect", "linesPerMm": 600, "mode": "reflect", "blazeDeg": 10.37 },
+              { "label": "1200 /mm reflect", "linesPerMm": 1200, "mode": "reflect", "blazeDeg": 10.37 },
+              { "label": "1800 /mm reflect", "linesPerMm": 1800, "mode": "reflect", "blazeDeg": 10.37 },
+              { "label": "600 /mm transmit", "linesPerMm": 600, "mode": "transmit", "blazeDeg": 10.37 }
+            ]
+          }
+        },
+        { "id": "protractor-exhibit", "kind": "prop.protractor", "position": [0, 0, 0], "props": { "radius": 2.6 } },
+        { "id": "laser-exhibit", "kind": "prop.laser", "position": [-2.6, 1.65, 5.4], "props": { "lambdaNm": 532, "targetId": "card-main", "power": 1, "enabled": true } },
+        { "id": "pedestal-options", "kind": "prop.box", "position": [2.6, 0.45, 4.2], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-options", "kind": "interact.pad", "position": [2.6, 0.94, 4.2], "props": { "color": "#6ad8ff", "action": "cycle-options", "text": "Change options" } },
+        { "id": "pad-arm", "kind": "interact.pad", "position": [-2.6, 0.04, 4.4], "props": { "color": "#3dff6a", "action": "arm-laser", "lambdaNm": 532, "text": "Arm 532 nm" } },
+        { "id": "pad-kill", "kind": "interact.pad", "position": [-1.3, 0.04, 4.4], "props": { "color": "#8a9098", "action": "kill-laser", "text": "Beam off" } },
+        { "id": "plaque-eq", "kind": "prop.plaque", "position": [-3.4, 1.7, 7.2], "props": { "color": "#6ad8ff", "text": "m lambda = d (sin i + sin theta). The face is the grating.", "action": "read" } },
+        { "id": "plaque-hall", "kind": "prop.plaque", "position": [3.4, 1.7, 7.2], "props": { "color": "#e8eef8", "text": "Experimental hall. One door holds the labs.", "action": "read" } },
+        { "id": "plaque-options", "kind": "prop.plaque", "position": [4.2, 1.7, 4.2], "props": { "color": "#c8d4ff", "text": "The pedestal cycles d and reflect/transmit. The card does not spin.", "action": "read" } },
+        { "id": "readout-exhibit", "kind": "prop.readout", "position": [0, 3.6, -6.2], "props": { "text": "600 /mm  reflect" } },
+        { "id": "ring-dome", "kind": "prop.ring", "position": [0, 5.1, 0], "props": { "radius": 2.2, "tube": 0.08, "material": "scifi.gate.ring", "horizon": false } },
+        { "id": "spot-exhibit", "kind": "env.spot", "position": [0, 5.8, 0], "props": { "color": "#c8d4ff", "intensity": 0.95, "distance": 14, "angle": 0.72, "target": [0, -4, 0] } },
+        { "id": "spot-card", "kind": "env.spot", "position": [0, 3.4, 4.2], "props": { "color": "#e8eef8", "intensity": 0.55, "distance": 9, "angle": 0.35, "target": [0, -1.6, -4.2] } },
+        { "id": "frame-labs", "kind": "arch.frame", "position": [0, 1, -8], "props": { "color": "#6ad8ff", "coversPortalId": "door-exhibit-labs" } }
+      ],
+      "portals": [
+        { "id": "door-exhibit-labs", "position": [0, 1, -8], "yaw": 0, "size": [2, 2], "destinationId": "door-rotunda-exhibit" }
+      ]
+    },
+    {
+      "id": "rotunda",
+      "title": "Labs",
+      "tags": ["interior", "cyber", "optics", "grating"],
+      "origin": [0, 0, 500],
       "clearColor": "#05070c",
       "atmosphere": { "density": 0.3 },
       "entities": [
@@ -33,7 +96,8 @@
               { "wall": "west", "u": 0 },
               { "wall": "northeast", "u": 0 },
               { "wall": "northwest", "u": 0 },
-              { "wall": "southwest", "u": 0 }
+              { "wall": "southwest", "u": 0 },
+              { "wall": "southeast", "u": 0 }
             ]
           }
         },
@@ -76,16 +140,18 @@
         { "id": "frame-continuum", "kind": "arch.frame", "position": [-9, 1, 0], "rotation": [0, 1.5707963267948966, 0], "props": { "color": "#e8eef8", "coversPortalId": "door-rotunda-continuum" } },
         { "id": "frame-blaze", "kind": "arch.frame", "position": [6.4, 1, -6.4], "rotation": [0, -0.7853981633974483, 0], "props": { "color": "#f0c040", "coversPortalId": "door-rotunda-blaze" } },
         { "id": "frame-echelle", "kind": "arch.frame", "position": [-6.4, 1, -6.4], "rotation": [0, 0.7853981633974483, 0], "props": { "color": "#c070ff", "coversPortalId": "door-rotunda-echelle" } },
-        { "id": "frame-rowland", "kind": "arch.frame", "position": [-6.4, 1, 6.4], "rotation": [0, 2.356194490192345, 0], "props": { "color": "#88a0b8", "coversPortalId": "door-rotunda-rowland" } }
+        { "id": "frame-rowland", "kind": "arch.frame", "position": [-6.4, 1, 6.4], "rotation": [0, 2.356194490192345, 0], "props": { "color": "#88a0b8", "coversPortalId": "door-rotunda-rowland" } },
+        { "id": "frame-exhibit", "kind": "arch.frame", "position": [6.4, 1, 6.4], "rotation": [0, -2.356194490192345, 0], "props": { "color": "#6ad8ff", "coversPortalId": "door-rotunda-exhibit" } }
       ],
       "portals": [
         { "id": "door-rotunda-airlock", "position": [0, 1, 9], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-airlock-rotunda" },
         { "id": "door-rotunda-diodes", "position": [9, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-diodes-rotunda" },
-        { "id": "door-rotunda-collimator", "position": [0, 1, -9], "yaw": 0, "size": [2, 2], "destinationId": "door-collimator-rotunda", "enabled": false },
-        { "id": "door-rotunda-continuum", "position": [-9, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-continuum-rotunda", "enabled": false },
-        { "id": "door-rotunda-blaze", "position": [6.4, 1, -6.4], "yaw": -0.7853981633974483, "size": [2, 2], "destinationId": "door-blaze-rotunda", "enabled": false },
-        { "id": "door-rotunda-echelle", "position": [-6.4, 1, -6.4], "yaw": 0.7853981633974483, "size": [2, 2], "destinationId": "door-echelle-rotunda", "enabled": false },
-        { "id": "door-rotunda-rowland", "position": [-6.4, 1, 6.4], "yaw": 2.356194490192345, "size": [2, 2], "destinationId": "door-rowland-rotunda", "enabled": false }
+        { "id": "door-rotunda-collimator", "position": [0, 1, -9], "yaw": 0, "size": [2, 2], "destinationId": "door-collimator-rotunda" },
+        { "id": "door-rotunda-continuum", "position": [-9, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-continuum-rotunda" },
+        { "id": "door-rotunda-blaze", "position": [6.4, 1, -6.4], "yaw": -0.7853981633974483, "size": [2, 2], "destinationId": "door-blaze-rotunda" },
+        { "id": "door-rotunda-echelle", "position": [-6.4, 1, -6.4], "yaw": 0.7853981633974483, "size": [2, 2], "destinationId": "door-echelle-rotunda" },
+        { "id": "door-rotunda-rowland", "position": [-6.4, 1, 6.4], "yaw": 2.356194490192345, "size": [2, 2], "destinationId": "door-rowland-rotunda" },
+        { "id": "door-rotunda-exhibit", "position": [6.4, 1, 6.4], "yaw": -2.356194490192345, "size": [2, 2], "destinationId": "door-exhibit-labs" }
       ]
     },
     {
@@ -114,7 +180,7 @@
           }
         },
         { "id": "plaque-periodic", "kind": "prop.plaque", "position": [-2.2, 1.6, 3.2], "props": { "color": "#6ad8ff", "text": "A grating is a periodic boundary. Period d. Order m. Wavelength lambda.", "action": "read" } },
-        { "id": "plaque-puzzle", "kind": "prop.plaque", "position": [2.2, 1.6, 3.2], "props": { "color": "#e8eef8", "text": "This hall is a puzzle. Nothing here fights you.", "action": "read" } },
+        { "id": "plaque-puzzle", "kind": "prop.plaque", "position": [2.2, 1.6, 3.2], "props": { "color": "#e8eef8", "text": "These rooms are benches, not a lock. Walk them in any order.", "action": "read" } },
         { "id": "plaque-fraunhofer", "kind": "prop.plaque", "position": [-2.2, 1.6, -3.4], "props": { "color": "#88a0b8", "text": "We use far-field (Fraunhofer) diffraction. Lasers are geometric. Scalar Kirchhoff, not RCWA.", "action": "read" } },
         { "id": "diagram-young", "kind": "prop.diagram", "position": [0, 2.15, 3.6], "props": { "kind": "young", "width": 2.6, "height": 0.9 } },
         { "id": "frame-airlock-back", "kind": "arch.frame", "position": [0, 1, -6], "props": { "color": "#6ad8ff", "coversPortalId": "door-airlock-rotunda" } }
@@ -404,7 +470,7 @@
       ],
       "portals": [
         { "id": "door-rowland-rotunda", "position": [0, 1, 5], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-rotunda-rowland" },
-        { "id": "door-rowland-disc", "position": [8, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-disc-rowland", "enabled": false }
+        { "id": "door-rowland-disc", "position": [8, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-disc-rowland" }
       ]
     },
     {
@@ -436,7 +502,7 @@
       ],
       "portals": [
         { "id": "door-disc-rowland", "position": [-7, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-rowland-disc" },
-        { "id": "door-disc-hydrogen", "position": [0, 1, -7], "yaw": 0, "size": [2, 2], "destinationId": "door-hydrogen-disc", "enabled": false }
+        { "id": "door-disc-hydrogen", "position": [0, 1, -7], "yaw": 0, "size": [2, 2], "destinationId": "door-hydrogen-disc" }
       ]
     },
     {
@@ -467,8 +533,8 @@
       ],
       "portals": [
         { "id": "door-hydrogen-disc", "position": [0, 1, 4], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-disc-hydrogen" },
-        { "id": "door-hydrogen-sodium", "position": [7, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-sodium-hydrogen", "enabled": false },
-        { "id": "door-hydrogen-identify", "position": [0, 1, -7], "yaw": 0, "size": [2, 2], "destinationId": "door-identify-hydrogen", "enabled": false }
+        { "id": "door-hydrogen-sodium", "position": [7, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-sodium-hydrogen" },
+        { "id": "door-hydrogen-identify", "position": [0, 1, -7], "yaw": 0, "size": [2, 2], "destinationId": "door-identify-hydrogen" }
       ]
     },
     {
@@ -529,7 +595,7 @@
       ],
       "portals": [
         { "id": "door-sodium-hydrogen", "position": [-4.2, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-hydrogen-sodium" },
-        { "id": "door-sodium-overlap", "position": [4.2, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-overlap-sodium", "enabled": false }
+        { "id": "door-sodium-overlap", "position": [4.2, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-overlap-sodium" }
       ]
     },
     {
@@ -561,7 +627,7 @@
       ],
       "portals": [
         { "id": "door-overlap-sodium", "position": [-7, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-sodium-overlap" },
-        { "id": "door-overlap-polar", "position": [7, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-polar-overlap", "enabled": false }
+        { "id": "door-overlap-polar", "position": [7, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-polar-overlap" }
       ]
     },
     {
@@ -590,7 +656,7 @@
       ],
       "portals": [
         { "id": "door-polar-overlap", "position": [-7, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-overlap-polar" },
-        { "id": "door-polar-invisible", "position": [7, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-invisible-polar", "enabled": false }
+        { "id": "door-polar-invisible", "position": [7, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-invisible-polar" }
       ]
     },
     {
@@ -620,7 +686,7 @@
       ],
       "portals": [
         { "id": "door-invisible-polar", "position": [-7, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-polar-invisible" },
-        { "id": "door-invisible-slit", "position": [7, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-slit-invisible", "enabled": false }
+        { "id": "door-invisible-slit", "position": [7, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-slit-invisible" }
       ]
     },
     {
@@ -651,7 +717,7 @@
       ],
       "portals": [
         { "id": "door-slit-invisible", "position": [-5, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-invisible-slit" },
-        { "id": "door-slit-vault", "position": [0, 1, -10], "yaw": 0, "size": [2, 2], "destinationId": "door-vault-slit", "enabled": false }
+        { "id": "door-slit-vault", "position": [0, 1, -10], "yaw": 0, "size": [2, 2], "destinationId": "door-vault-slit" }
       ]
     },
     {

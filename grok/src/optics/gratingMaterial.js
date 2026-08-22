@@ -82,9 +82,19 @@ const fragmentShader = /* glsl */ `
     float cosI = clamp(dot(toward, n), -1.0, 1.0);
     float thetaI = sign(dot(toward, tangent)) * acos(cosI);
     float d = 0.001 / max(uLinesPerMm, 1.0);
-    vec3 color = uBase * 0.35;
-    float groove = 0.04 * sin(vUv.x * uLinesPerMm * 6.28318 + uTime * 0.15);
-    color += groove * vec3(0.08, 0.09, 0.1);
+    float blaze = uBlazeDeg * 0.01745329252;
+    vec3 facetN = normalize(n * cos(blaze) + tangent * sin(blaze));
+    vec3 color = uBase * 0.28;
+    float groove = 0.5 + 0.5 * sin(vUv.x * uLinesPerMm * 6.28318);
+    color += groove * vec3(0.05, 0.055, 0.06);
+
+    float fres = pow(1.0 - max(dot(n, viewDir), 0.0), 2.4);
+    float foil = fract(vUv.x * 3.4 + vUv.y * 5.1 + viewDir.x * 0.7 + uTime * 0.08);
+    float nmFoil = mix(410.0, 690.0, foil);
+    color += wavelengthRgb(nmFoil) * (0.16 + 0.55 * fres) * (0.35 + 0.65 * max(uLightOn, 0.25));
+
+    float spec = pow(max(dot(reflect(-light, facetN), viewDir), 0.0), 36.0);
+    color += spec * vec3(0.92, 0.94, 1.0) * 0.4;
 
     int samples = uLightLambdaNm > 0.0 ? 1 : 11;
     for (int s = 0; s < 11; s += 1) {
@@ -94,7 +104,7 @@ const fragmentShader = /* glsl */ `
       float nm = uLightLambdaNm > 0.0 ? uLightLambdaNm : mix(400.0, 700.0, float(s) / 10.0);
       float lambda = nm * 1e-9;
       vec3 rgb = wavelengthRgb(nm);
-      float weight = uLightOn * (uLightLambdaNm > 0.0 ? 1.2 : 0.45);
+      float weight = max(uLightOn, 0.22) * (uLightLambdaNm > 0.0 ? 1.25 : 0.5);
       for (int m = -3; m <= 3; m += 1) {
         float thetaM;
         if (m == 0) {
@@ -115,7 +125,7 @@ const fragmentShader = /* glsl */ `
         }
       }
     }
-    color = min(color, vec3(1.4));
+    color = min(color, vec3(1.55));
     gl_FragColor = vec4(color, uMode > 0.5 ? 0.72 : 1.0);
   }
 `;
@@ -124,12 +134,12 @@ export function createGratingMaterial(spec = {}) {
   const material = new ShaderMaterial({
     uniforms: {
       uLinesPerMm: { value: spec.linesPerMm ?? 600 },
-      uBlazeDeg: { value: spec.blazeDeg ?? 17.45 },
+      uBlazeDeg: { value: spec.blazeDeg ?? 10.37 },
       uMode: { value: spec.mode === 'transmit' ? 1 : 0 },
       uViewPos: { value: new Vector3(0, 1, 6) },
       uLightDir: { value: new Vector3(0, -0.2, -1) },
       uLightLambdaNm: { value: spec.lambdaNm ?? 0 },
-      uLightOn: { value: spec.lightOn ?? 0.35 },
+      uLightOn: { value: spec.lightOn ?? 0.55 },
       uTime: { value: 0 },
       uBase: { value: new Color(0x2a3038) },
     },
