@@ -11,6 +11,7 @@ import topologyAlcove from '../../data/topologies/alcove.json' with { type: 'jso
 import topologyOpen from '../../data/topologies/open.json' with { type: 'json' };
 import topologyArcade from '../../data/topologies/arcade.json' with { type: 'json' };
 import topologyRound from '../../data/topologies/round.json' with { type: 'json' };
+import topologyStack from '../../data/topologies/stack.json' with { type: 'json' };
 import { pickOne } from './rng.js';
 import { socketWorld } from './volumes.js';
 
@@ -28,6 +29,7 @@ const BY_ID = {
   open: topologyOpen,
   arcade: topologyArcade,
   round: topologyRound,
+  stack: topologyStack,
 };
 
 export function listTopologies() {

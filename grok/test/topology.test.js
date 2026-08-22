@@ -17,7 +17,7 @@ function readJson(relative) {
 describe('topologies', () => {
   it('ships ten shapes with at least three sockets on different walls', () => {
     const list = listTopologies();
-    assert.equal(list.length, 13);
+    assert.equal(list.length, 14);
     for (const topology of list) {
       const sockets = topologySockets(topology);
       const exits = sockets.filter((socket) => socket.role === 'exit');

@@ -12,6 +12,7 @@
     { "id": "alcove", "file": "alcove.json" },
     { "id": "open", "file": "open.json" },
     { "id": "arcade", "file": "arcade.json" },
-    { "id": "round", "file": "round.json" }
+    { "id": "round", "file": "round.json" },
+    { "id": "stack", "file": "stack.json" }
   ]
 }

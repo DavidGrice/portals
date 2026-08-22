@@ -1,16 +1,19 @@
-import { SpotLight, Vector3 } from 'three';
+import { PointLight, SpotLight, Vector3 } from 'three';
 
 const aim = new Vector3();
 
 export const FLASHLIGHT = {
-  color: 0xfff1d0,
-  intensity: 2.6,
-  distance: 16,
-  angle: 0.46,
-  penumbra: 0.4,
-  decay: 1.6,
-  performanceDistance: 9,
-  performanceIntensity: 1.6,
+  color: 0xfff4dc,
+  intensity: 48,
+  distance: 22,
+  angle: 0.42,
+  penumbra: 0.52,
+  decay: 1.7,
+  fillIntensity: 3.4,
+  fillDistance: 5.5,
+  performanceDistance: 12,
+  performanceIntensity: 22,
+  performanceFill: 1.6,
 };
 
 export class Flashlight {
@@ -22,11 +25,17 @@ export class Flashlight {
     this.camera = camera;
     this.enabled = false;
     this.baseIntensity = intensity;
+    this.fillIntensity = FLASHLIGHT.fillIntensity;
     this.light = new SpotLight(FLASHLIGHT.color, 0, distance, angle, FLASHLIGHT.penumbra, FLASHLIGHT.decay);
     this.light.name = 'flashlight';
     this.light.castShadow = false;
     this.light.userData.noCollider = true;
+    this.light.userData.flashlight = true;
     this.light.target.userData.noCollider = true;
+    this.fill = new PointLight(FLASHLIGHT.color, 0, FLASHLIGHT.fillDistance, 2);
+    this.fill.name = 'flashlight-fill';
+    this.fill.userData.noCollider = true;
+    this.fill.userData.flashlight = true;
   }
 
   attach(scene) {
@@ -36,10 +45,12 @@ export class Flashlight {
     if (this.light.parent && this.light.parent !== scene) {
       this.light.parent.remove(this.light);
       this.light.target.parent?.remove(this.light.target);
+      this.fill.parent?.remove(this.fill);
     }
     if (this.light.parent !== scene) {
       scene.add(this.light);
       scene.add(this.light.target);
+      scene.add(this.fill);
     }
     this.apply();
     return this;
@@ -48,6 +59,7 @@ export class Flashlight {
   detach() {
     this.light.parent?.remove(this.light);
     this.light.target.parent?.remove(this.light.target);
+    this.fill.parent?.remove(this.fill);
     return this;
   }
 
@@ -64,6 +76,8 @@ export class Flashlight {
   apply() {
     this.light.intensity = this.enabled ? this.baseIntensity : 0;
     this.light.visible = this.enabled;
+    this.fill.intensity = this.enabled ? this.fillIntensity : 0;
+    this.fill.visible = this.enabled;
     return this;
   }
 
@@ -71,6 +85,8 @@ export class Flashlight {
     const performance = profileId === 'performance';
     this.light.distance = performance ? FLASHLIGHT.performanceDistance : FLASHLIGHT.distance;
     this.baseIntensity = performance ? FLASHLIGHT.performanceIntensity : FLASHLIGHT.intensity;
+    this.fillIntensity = performance ? FLASHLIGHT.performanceFill : FLASHLIGHT.fillIntensity;
+    this.light.castShadow = profileId === 'ultra';
     this.apply();
     return this;
   }
@@ -81,8 +97,9 @@ export class Flashlight {
     }
     this.camera.updateMatrixWorld();
     this.light.position.copy(this.camera.position);
+    this.fill.position.copy(this.camera.position);
     this.camera.getWorldDirection(aim);
-    this.light.target.position.copy(this.camera.position).addScaledVector(aim, 6);
+    this.light.target.position.copy(this.camera.position).addScaledVector(aim, 8);
     this.light.target.updateMatrixWorld();
     return this;
   }

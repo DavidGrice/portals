@@ -1,0 +1,22 @@
+{
+  "id": "stack",
+  "title": "Stacked hall",
+  "kind": "arch.loft",
+  "tags": ["vertical", "branching"],
+  "roundCorners": true,
+  "footprint": { "halfX": 8, "zMin": -9, "zMax": 6, "height": 7.2 },
+  "sockets": [
+    { "id": "entry", "role": "entry", "wall": "south", "u": 0 },
+    { "id": "exit-a", "role": "exit", "wall": "north", "u": 0 },
+    { "id": "exit-b", "role": "exit", "wall": "west", "u": 1.6 },
+    { "id": "exit-c", "role": "exit", "wall": "east", "u": -2.2 }
+  ],
+  "regions": {
+    "entry-left": [-5.2, 0, 3.2],
+    "center": [0, 0, 0.2],
+    "hearth-wall": [5.4, 0, 2.6],
+    "loft-rail": [0, 2.35, -5.2],
+    "upper-east": [4.6, 2.35, -2],
+    "far-corner": [-5.6, 0, -6.4]
+  }
+}

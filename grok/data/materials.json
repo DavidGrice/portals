@@ -18,7 +18,8 @@
       "cells": 6,
       "roughness": 0.92,
       "metalness": 0.02,
-      "surface": "stone"
+      "surface": "stone",
+      "map": "/assets/textures/shared/stone-wet.jpg"
     },
     "cyber.grid.cyan": {
       "recipe": "circuit",
@@ -252,46 +253,58 @@
       "recipe": "metal",
       "color": "#ffe39d",
       "line": "#c4a060",
-      "roughness": 0.22,
+      "roughness": 0.18,
       "metalness": 1,
-      "clearcoat": 0.18
+      "clearcoat": 0.28,
+      "envMapIntensity": 1.35,
+      "map": "/assets/textures/shared/metal-brushed.jpg"
     },
     "metal.copper": {
       "recipe": "metal",
       "color": "#fad2c2",
       "line": "#8a5040",
-      "roughness": 0.28,
-      "metalness": 1
+      "roughness": 0.24,
+      "metalness": 1,
+      "envMapIntensity": 1.25,
+      "map": "/assets/textures/shared/metal-copper.jpg"
     },
     "metal.iron": {
       "recipe": "metal",
       "color": "#c6c7c8",
       "line": "#4a4c4e",
-      "roughness": 0.48,
-      "metalness": 1
+      "roughness": 0.42,
+      "metalness": 1,
+      "envMapIntensity": 1.1,
+      "map": "/assets/textures/shared/metal-plate.jpg"
     },
     "metal.silver": {
       "recipe": "metal",
       "color": "#fcfbf5",
       "line": "#8a8a86",
-      "roughness": 0.12,
+      "roughness": 0.1,
       "metalness": 1,
-      "clearcoat": 0.2
+      "clearcoat": 0.28,
+      "envMapIntensity": 1.4,
+      "map": "/assets/textures/shared/metal-brushed.jpg"
     },
     "metal.aluminum": {
       "recipe": "metal",
       "color": "#f5f6f6",
       "line": "#8a8c8e",
-      "roughness": 0.3,
-      "metalness": 1
+      "roughness": 0.26,
+      "metalness": 1,
+      "envMapIntensity": 1.2,
+      "map": "/assets/textures/shared/metal-brushed.jpg"
     },
     "metal.chrome": {
       "recipe": "metal",
       "color": "#c4c5c5",
       "line": "#6a6c6e",
-      "roughness": 0.1,
+      "roughness": 0.08,
       "metalness": 1,
-      "clearcoat": 0.35
+      "clearcoat": 0.45,
+      "envMapIntensity": 1.5,
+      "map": "/assets/textures/shared/metal-brushed.jpg"
     },
     "glass.pane": {
       "recipe": "tile",

@@ -16,7 +16,7 @@ describe('flashlight', () => {
   it('toggles on and off without strobing a held state', () => {
     const light = new Flashlight(new PerspectiveCamera());
     assert.equal(light.toggle(), true);
-    assert.ok(light.light.intensity > 0);
+    assert.ok(light.light.intensity >= 20);
     assert.equal(light.toggle(), false);
     assert.equal(light.light.intensity, 0);
   });
@@ -31,6 +31,7 @@ describe('flashlight', () => {
     light.attach(second);
     assert.equal(light.light.parent, second);
     assert.equal(light.light.target.parent, second);
+    assert.equal(light.fill.parent, second);
   });
 
   it('shortens the beam on the performance profile', () => {

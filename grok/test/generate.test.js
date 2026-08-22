@@ -9,6 +9,7 @@ import {
   allocateOrigin,
   createOriginPool,
   generateRoom,
+  lightSpecForKit,
   linkRooms,
   unusedExits,
   worldFromRooms,
@@ -35,6 +36,19 @@ describe('room compiler', () => {
     assert.equal(entry.oneWay, true);
     assert.ok(room.entities.some((entity) => String(entity.kind).startsWith('arch.')));
     assert.ok(room.topologyId);
+    const hauntLight = lightSpecForKit({ tags: ['haunt'] });
+    assert.ok(hauntLight.sunIntensity > 0.45);
+    assert.ok(hauntLight.points.length >= 1);
+    const stacked = generateRoom({
+      kit: readJson('data/kits/haunt-attic.json'),
+      topology: getTopology('stack'),
+      roomId: 'gen-tall',
+      exitCount: 2,
+    });
+    assert.ok((stacked.entities.find((entity) => entity.kind === 'arch.loft')?.props?.height ?? 0) >= 6);
+    assert.ok(stacked.entities.some((entity) => entity.id?.includes('catwalk')));
+    assert.ok(stacked.entities.some((entity) => entity.kind === 'env.point'));
+    assert.ok(stacked.entities.filter((entity) => entity.kind.startsWith('prop.')).length >= 8);
     assert.deepEqual(allocateOrigin(2, 1), [500, 0, 250]);
     const snapped = generateRoom({
       kit: readJson('data/kits/haunt-hall.json'),

@@ -114,13 +114,14 @@ export const prefabs = {
   light(entity) {
     const group = new THREE.Group();
     applyPose(group, entity);
-    const ambient = parseColor(entity.props?.ambient, 0x3a3d4d);
+    const ambient = parseColor(entity.props?.ambient, 0x4a5060);
+    const sky = parseColor(entity.props?.sky, 0xc8d4e8);
     const sun = parseColor(entity.props?.sun, 0xfff4e5);
-    const hemi = new THREE.HemisphereLight(0xb8c8e0, ambient, (entity.props?.ambientIntensity ?? 0.45) * 0.85);
+    const hemi = new THREE.HemisphereLight(sky, ambient, (entity.props?.ambientIntensity ?? 0.45) * 1.15);
     hemi.userData.hemiLight = true;
     group.add(hemi);
-    group.add(new THREE.AmbientLight(ambient, (entity.props?.ambientIntensity ?? 0.45) * 0.28));
-    const directional = new THREE.DirectionalLight(sun, entity.props?.sunIntensity ?? 0.85);
+    group.add(new THREE.AmbientLight(sky, (entity.props?.ambientIntensity ?? 0.45) * 0.22));
+    const directional = new THREE.DirectionalLight(sun, entity.props?.sunIntensity ?? 1.05);
     const aim = entity.props?.aim ?? [6, 11, 4];
     directional.position.set(...aim);
     directional.castShadow = true;
@@ -149,7 +150,9 @@ export const prefabs = {
     applyPose(group, entity);
 
     const { outer, thickness, depth, walkUp, jambDepth, jambInner } = FRAME;
-    const material = standardMaterial(color, { roughness: 0.55, metalness: 0.22 });
+    const material = entity.props?.frameMaterial
+      ? buildMaterial(entity.props.frameMaterial, { color })
+      : standardMaterial(color, { roughness: 0.38, metalness: 0.72, clearcoat: 0.15 });
     material.polygonOffset = true;
     material.polygonOffsetFactor = -2;
     material.polygonOffsetUnits = -2;

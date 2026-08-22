@@ -139,7 +139,7 @@ export function generateRoom({
     : pickTopology(rng, {
       kit,
       recent,
-      allow: [...new Set([...(kit.topologies ?? []), 'open', 'arcade', 'round', 'court'])],
+      allow: [...new Set([...(kit.topologies ?? []), 'open', 'arcade', 'round', 'court', 'loft', 'shaft', 'stack'])],
     });
   const topo = resolved ?? getTopology('I');
   const footprint = { ...(kit.shell ?? {}), ...(topo.footprint ?? {}) };
@@ -170,16 +170,19 @@ export function generateRoom({
   const holeWalls = new Set(holes.map((hole) => hole.wall));
   const openWalls = (topo.openWalls ?? []).filter((wall) => !holeWalls.has(wall));
 
+  const lighting = lightSpecForKit(kit);
+  const height = Number(footprint.height ?? (topo.tags?.includes('vertical') ? 6.2 : 4.2));
   const entities = [
     { id: `sky-${id}`, kind: 'env.sky', props: { color: kit.clearColor ?? '#111111' } },
     {
       id: `light-${id}`,
       kind: 'env.light',
       props: {
-        ambient: kit.clearColor ?? '#222222',
-        sun: materials.accent ?? '#ffffff',
-        sunIntensity: 0.4,
-        ambientIntensity: 0.35,
+        ambient: lighting.ambient,
+        sky: lighting.sky,
+        sun: lighting.sun,
+        sunIntensity: lighting.sunIntensity,
+        ambientIntensity: lighting.ambientIntensity,
       },
     },
     {
@@ -199,7 +202,7 @@ export function generateRoom({
         halfX: footprint.halfX ?? 8,
         zMin: footprint.zMin ?? -6.2,
         zMax: footprint.zMax ?? 5.2,
-        height: footprint.height ?? 3.2,
+        height,
         radius: footprint.radius ?? 8,
         openings,
         sideOpenings,
@@ -244,6 +247,21 @@ export function generateRoom({
   });
 
   entities.push(...placeLandmarks({ kit, topology: topo, roomId: id, rng, materials }));
+  entities.push(...placeVertical({
+    roomId: id,
+    footprint: { ...footprint, height },
+    topology: topo,
+    materials,
+    lighting,
+  }));
+  for (const [index, point] of lighting.points.entries()) {
+    entities.push({
+      id: `point-${id}-${index}`,
+      kind: 'env.point',
+      position: point.position,
+      props: { color: point.color, intensity: point.intensity, distance: point.distance ?? 10 },
+    });
+  }
 
   const portals = [];
   const entryId = `door-in-${id}`;
@@ -252,7 +270,7 @@ export function generateRoom({
     kind: 'arch.frame',
     position: entry.position ?? [0, 1, 0],
     rotation: [0, entry.yaw ?? Math.PI, 0],
-    props: { color: materials.accent ?? '#888888', coversPortalId: entryId },
+    props: { color: materials.accent ?? '#888888', frameMaterial: lighting.metal, coversPortalId: entryId },
   });
   portals.push({
     id: entryId,
@@ -272,7 +290,7 @@ export function generateRoom({
       kind: 'arch.frame',
       position: socket.position,
       rotation: [0, socket.yaw ?? 0, 0],
-      props: { color: materials.accent ?? '#888888', coversPortalId: portalId },
+      props: { color: materials.accent ?? '#888888', frameMaterial: lighting.metal, coversPortalId: portalId },
     });
     portals.push({
       id: portalId,
@@ -317,7 +335,7 @@ function placeLandmarks({ kit, topology, roomId, rng, materials }) {
     });
   }
   const pieces = [];
-  const count = Math.max(4, Math.min(12, names.length || pool.length));
+  const count = Math.max(6, Math.min(14, Math.max(names.length, pool.length) + 2));
   for (let index = 0; index < count; index += 1) {
     const regionName = names[index % Math.max(names.length, 1)] ?? `slot-${index}`;
     const region = regions[regionName] ?? [((index % 3) - 1) * 3.2, 0, -index];
@@ -332,6 +350,147 @@ function placeLandmarks({ kit, topology, roomId, rng, materials }) {
         ...(template.props?.color || !materials.accent ? {} : { color: materials.accent }),
         ...(index === 0 && template.kind === 'prop.box' && !template.props?.spin ? { spin: [0, 0.45, 0] } : {}),
       },
+    });
+  }
+  return pieces;
+}
+
+export function lightSpecForKit(kit) {
+  const tags = kit?.tags ?? [];
+  if (tags.includes('haunt')) {
+    return {
+      sun: '#e8b878',
+      sky: '#8a7060',
+      ambient: '#2c241c',
+      sunIntensity: 0.62,
+      ambientIntensity: 0.32,
+      metal: 'metal.iron',
+      points: [
+        { color: '#ff6a22', intensity: 2.4, distance: 9, position: [3.2, 2.1, 1.2] },
+        { color: '#c47840', intensity: 1.3, distance: 7, position: [-3.4, 2.4, -2.2] },
+      ],
+    };
+  }
+  if (tags.includes('cyber')) {
+    return {
+      sun: '#b8e8ff',
+      sky: '#6a90a8',
+      ambient: '#121820',
+      sunIntensity: 0.55,
+      ambientIntensity: 0.26,
+      metal: 'metal.aluminum',
+      points: [
+        { color: '#2ee6ff', intensity: 2.2, distance: 11, position: [0, 2.8, -1.2] },
+        { color: '#88a0ff', intensity: 1.2, distance: 8, position: [-3.6, 2.2, 2] },
+      ],
+    };
+  }
+  if (tags.includes('industrial')) {
+    return {
+      sun: '#e8d080',
+      sky: '#8a9080',
+      ambient: '#242820',
+      sunIntensity: 0.7,
+      ambientIntensity: 0.3,
+      metal: 'metal.iron',
+      points: [
+        { color: '#f0c040', intensity: 1.8, distance: 9, position: [2.4, 3.2, 0] },
+      ],
+    };
+  }
+  if (tags.includes('ages') || tags.includes('prehistoric') || tags.includes('future')) {
+    return {
+      sun: '#f0e0c0',
+      sky: '#c8d4e0',
+      ambient: '#3a4038',
+      sunIntensity: 1.05,
+      ambientIntensity: 0.42,
+      metal: 'metal.copper',
+      points: [
+        { color: '#ffcc88', intensity: 1.6, distance: 10, position: [0, 2.6, -1] },
+      ],
+    };
+  }
+  return {
+    sun: '#fff4e5',
+    sky: '#c8d4e8',
+    ambient: '#3a4250',
+    sunIntensity: 0.95,
+    ambientIntensity: 0.4,
+    metal: 'metal.aluminum',
+    points: [
+      { color: '#ffe8c8', intensity: 1.4, distance: 9, position: [2, 2.4, 1] },
+    ],
+  };
+}
+
+function placeVertical({ roomId, footprint, topology, materials, lighting }) {
+  const halfX = footprint.halfX ?? 8;
+  const zMin = footprint.zMin ?? -7;
+  const zMax = footprint.zMax ?? 5;
+  const height = footprint.height ?? 4;
+  const metal = lighting.metal ?? 'metal.iron';
+  const pieces = [
+    {
+      id: `beam-a-${roomId}`,
+      kind: 'prop.box',
+      position: [0, height - 0.28, (zMin + zMax) * 0.3],
+      props: { size: [halfX * 1.7, 0.16, 0.22], material: metal },
+    },
+    {
+      id: `beam-b-${roomId}`,
+      kind: 'prop.box',
+      position: [0, height - 0.28, (zMin + zMax) * 0.7],
+      props: { size: [halfX * 1.7, 0.16, 0.22], material: metal },
+    },
+    {
+      id: `base-l-${roomId}`,
+      kind: 'prop.box',
+      position: [-(halfX - 0.12), 0.08, (zMin + zMax) * 0.5],
+      props: { size: [0.12, 0.16, Math.max(2, zMax - zMin - 1)], material: metal },
+    },
+    {
+      id: `base-r-${roomId}`,
+      kind: 'prop.box',
+      position: [halfX - 0.12, 0.08, (zMin + zMax) * 0.5],
+      props: { size: [0.12, 0.16, Math.max(2, zMax - zMin - 1)], material: metal },
+    },
+  ];
+  if (height >= 5.2 || topology?.tags?.includes('vertical')) {
+    pieces.push(
+      {
+        id: `catwalk-${roomId}`,
+        kind: 'prop.box',
+        position: [0, 2.28, (zMin - 0.6) * 0.55],
+        props: { size: [Math.min(halfX * 1.6, 10), 0.12, Math.max(2.4, Math.abs(zMin) * 0.55)], material: metal },
+      },
+      {
+        id: `rail-l-${roomId}`,
+        kind: 'prop.box',
+        position: [-(Math.min(halfX, 5) - 0.2), 2.7, (zMin - 0.6) * 0.55],
+        props: { size: [0.08, 0.7, Math.max(2.2, Math.abs(zMin) * 0.5)], material: metal },
+      },
+      {
+        id: `rail-r-${roomId}`,
+        kind: 'prop.box',
+        position: [Math.min(halfX, 5) - 0.2, 2.7, (zMin - 0.6) * 0.55],
+        props: { size: [0.08, 0.7, Math.max(2.2, Math.abs(zMin) * 0.5)], material: metal },
+      },
+      {
+        id: `upper-spin-${roomId}`,
+        kind: 'prop.box',
+        position: [2.2, 3.1, (zMin ?? -6) * 0.4],
+        tags: ['landmark', 'motion'],
+        props: { size: [0.45, 0.45, 0.45], color: materials.accent ?? '#cfd3e5', spin: [0.2, 0.8, 0] },
+      },
+    );
+  }
+  if ((topology?.tags ?? []).includes('cyber') || (materials.strip && height >= 4)) {
+    pieces.push({
+      id: `pipe-${roomId}`,
+      kind: 'prop.pipe',
+      position: [0, 0, 0],
+      props: { length: Math.min(halfX * 1.6, 9), material: metal, lift: height * 0.62, radius: 0.08 },
     });
   }
   return pieces;
