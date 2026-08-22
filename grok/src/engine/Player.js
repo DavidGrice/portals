@@ -1,5 +1,6 @@
 import { Vector3 } from 'three';
 import { collectColliders, resolveColliders, resolveGround } from './colliders.js';
+import { isOverFloorPortal } from '../portal/portalPose.js';
 
 export class Player {
   constructor({
@@ -57,6 +58,11 @@ export class Player {
     const prevY = this.camera.position.y;
     this.velocity.y -= this.gravity * dt;
     this.camera.position.y += this.velocity.y * dt;
+
+    if (isOverFloorPortal(room, this.camera.position)) {
+      this.onGround = false;
+      return;
+    }
 
     if (colliders.length) {
       resolveGround(this.camera.position, this, colliders, prevY);

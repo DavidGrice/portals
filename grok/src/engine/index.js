@@ -34,6 +34,7 @@ export { attachGadgets, collectScreens, listDestViews, tickDestStrip, tickScreen
 export { Player } from './Player.js';
 export { FLASHLIGHT, Flashlight } from './flashlight.js';
 export { createPortalRenderer, probeCapabilities } from './capabilities.js';
+export { emergeDistance, isFloorPortal, isOverFloorPortal } from '../portal/portalPose.js';
 export { Portal } from '../portal/Portal.js';
 export { PortalController } from '../portal/PortalController.js';
 export { Room } from '../portal/Room.js';

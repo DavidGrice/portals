@@ -2,6 +2,7 @@ import { Euler, Matrix4, PerspectiveCamera, Plane, Quaternion, Scene, Vector3 } 
 import { Portal } from './Portal.js';
 import { Room } from './Room.js';
 import { Emitter } from '../engine/Emitter.js';
+import { emergeDistance, ignoreCleared, isFloorPortal } from './portalPose.js';
 
 const rotationY180 = new Matrix4().makeRotationY(Math.PI);
 const srcToCam = new Matrix4();
@@ -225,7 +226,12 @@ export class PortalController {
     this.camera.matrixWorldInverse.copy(this.camera.matrixWorld).invert();
     this.computePortalViewMatrix(portal, this.camera).decompose(teleportPos, teleportQuat, teleportScale);
     this._applyCameraPose(teleportPos, teleportQuat);
-    this._settleInDestHall(portal.destinationPortal);
+    this._settleInDestHall(
+      portal.destinationPortal,
+      isFloorPortal(portal) || isFloorPortal(portal.destinationPortal)
+        ? emergeDistance(portal)
+        : EMERGE_Z,
+    );
     const fromId = this._currentRoom?.id ?? null;
     const toId = this._getRoom(portal.destinationPortal.scene)?.id ?? portal.destinationPortal.scene.name;
     this.setCurrentScene(toId);
@@ -267,14 +273,14 @@ export class PortalController {
     return Math.abs(x) <= portal.geometry.halfWidth && Math.abs(y) <= portal.geometry.halfHeight;
   }
 
-  _settleInDestHall(destination) {
+  _settleInDestHall(destination, standOff = EMERGE_Z) {
     destination.updateMatrixWorld(true);
     localCurr.copy(this.camera.position);
     destination.worldToLocal(localCurr);
-    if (localCurr.z >= EMERGE_Z) {
+    if (localCurr.z >= standOff) {
       return;
     }
-    localCurr.z = EMERGE_Z;
+    localCurr.z = standOff;
     destination.localToWorld(localCurr);
     this.camera.position.copy(localCurr);
     this.camera.updateMatrixWorld();
@@ -314,7 +320,7 @@ export class PortalController {
     if (!this._isPortalFacingCamera(portal, viewCamera)) {
       return false;
     }
-    if (!this._isPortalInFrontOfCamera(portal, viewCamera)) {
+    if (!isFloorPortal(portal) && !this._isPortalInFrontOfCamera(portal, viewCamera)) {
       return false;
     }
     return true;
@@ -329,9 +335,7 @@ export class PortalController {
       this._ignorePortalId = null;
       return;
     }
-    localCurr.copy(this.camera.position);
-    ignored.worldToLocal(localCurr);
-    if (Math.abs(localCurr.z) > IGNORE_CLEAR_Z) {
+    if (ignoreCleared(ignored, this.camera.position, { wallClear: IGNORE_CLEAR_Z })) {
       this._ignorePortalId = null;
     }
   }

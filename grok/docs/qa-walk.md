@@ -16,7 +16,7 @@ Human acceptance for the 75-item plan. Tests are not a substitute.
 ## Circuit Grid
 
 1. White core is a plus. You can point at four different openings: cyan, shaft, blue, ribbon.
-2. Cyan is wide. Red is a tight throat with hazard paint. Blue is a loft. Shaft is a well with a launch that lands on a ledge.
+2. Cyan is wide. Red is a tight throat with hazard paint. Blue is a loft. Shaft is a well with a launch that lands on a ledge. The glowing floor pit is a live stencil door — fall through to the well bottom, look up, walk out.
 3. Ribbon is a court you can see from the core, run, and return.
 4. Gold stays locked until the core pad (key A) then the cyan pad.
 5. Footsteps are metal / grate. Bed is cyber. No haunt events.

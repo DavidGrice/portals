@@ -323,6 +323,7 @@ export const prefabs = {
       openWalls: entity.props?.openWalls ?? [],
       roundCorners: entity.props?.roundCorners !== false,
       ceiling: entity.props?.ceiling !== false,
+      floorHoles: entity.props?.floorHoles ?? [],
     });
     group.userData.volume = { kind: 'chamber', halfX, zMin, zMax, open: entity.props?.openWalls ?? [] };
     return group;
@@ -486,6 +487,7 @@ export const prefabs = {
       maxZ: zMax,
       height,
       holes: entity.props?.holes ?? [],
+      floorHoles: entity.props?.floorHoles ?? [],
     });
     addBox(group, material, -halfX + 1.3, 3.05, 0, 2.4, 0.18, 3.4);
     addBox(group, material, halfX - 1.3, 6.05, -0.6, 2.4, 0.18, 3.4);

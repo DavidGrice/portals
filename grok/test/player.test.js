@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3 } from 'three';
-import { Player, Room, collectColliders, findInteract, resolveColliders, runInteract } from '../src/engine/index.js';
+import { Player, Portal, Room, collectColliders, findInteract, resolveColliders, runInteract } from '../src/engine/index.js';
 import { FRAME, prefabs } from '../src/content/prefabs.js';
 
 describe('player', () => {
@@ -121,6 +121,23 @@ describe('player', () => {
     assert.ok(Math.abs(hole.x) < 0.001, `hole pushed x=${hole.x}`);
     assert.ok(Math.abs(hole.z) < 0.001, `hole pushed z=${hole.z}`);
     assert.ok(2.5 > FRAME.outer, 'opening must stay wider than the metal frame');
+  });
+
+  it('falls through an open floor portal instead of standing on it', () => {
+    const camera = new PerspectiveCamera();
+    camera.position.set(0, 1, 0);
+    const player = new Player({ camera, eyeHeight: 1, gravity: 20 });
+    const scene = new Scene();
+    const room = new Room({ id: 'pit', scene });
+    const pit = new Portal(2, 2, { id: 'pit-a' });
+    pit.position.set(0, 0, 0);
+    pit.rotation.x = -Math.PI / 2;
+    pit.updateMatrixWorld(true);
+    room.portals = [pit];
+    player.onGround = true;
+    player.step(0.16, {}, null, room);
+    assert.equal(player.onGround, false);
+    assert.ok(camera.position.y < 1, `y ${camera.position.y}`);
   });
 
   it('finds an interact pad in range and unlocks a portal', () => {

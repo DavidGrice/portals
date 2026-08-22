@@ -202,6 +202,9 @@ describe('world data', () => {
     assert.ok(controller.rooms.some((room) => room.id === 'ribbon'));
     assert.equal(controller.getPortal('door-wx').destinationId, 'door-xw');
     assert.equal(controller.getPortal('door-cg').enabled, false);
+    assert.equal(controller.getPortal('door-sp').destinationId, 'door-ps');
+    assert.ok(Math.abs(controller.getPortal('door-sp').rotation.x + Math.PI / 2) < 0.01);
+    assert.ok(controller.rooms.some((room) => room.id === 'well-bottom'));
   });
 
   it('loads nine distinct Ages volumes', () => {

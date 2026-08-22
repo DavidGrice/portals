@@ -106,6 +106,7 @@ export function addRectVolume(group, material, {
   openWalls = [],
   roundCorners = false,
   cornerRadius = 0.9,
+  floorHoles = [],
 }) {
   const midX = (minX + maxX) * 0.5;
   const midZ = (minZ + maxZ) * 0.5;
@@ -115,7 +116,15 @@ export function addRectVolume(group, material, {
   const inset = radius;
   const open = new Set(openWalls ?? []);
   if (floor) {
-    addBox(group, material, midX, y0 - thickness * 0.5, midZ, width + thickness, thickness, depth + thickness);
+    addFloorSlab(group, material, {
+      minX,
+      maxX,
+      minZ,
+      maxZ,
+      y: y0 - thickness * 0.5,
+      thickness,
+      holes: floorHoles,
+    });
   }
   if (ceiling) {
     addBox(group, material, midX, y0 + height + thickness * 0.5, midZ, width + thickness, thickness, depth + thickness, false);
@@ -152,6 +161,42 @@ export function addRectVolume(group, material, {
     }
   }
   return { minX, maxX, minZ, maxZ, height, y0, openWalls: [...open], roundCorners: radius > 0 };
+}
+
+export function addFloorSlab(group, material, {
+  minX,
+  maxX,
+  minZ,
+  maxZ,
+  y,
+  thickness,
+  holes = [],
+}) {
+  const hole = holes[0];
+  if (!hole) {
+    addBox(group, material, (minX + maxX) * 0.5, y, (minZ + maxZ) * 0.5, maxX - minX, thickness, maxZ - minZ);
+    return;
+  }
+  const hx = Number(hole.halfX ?? hole.half ?? 1.1);
+  const hz = Number(hole.halfZ ?? hole.half ?? 1.1);
+  const x0 = Number(hole.x ?? 0);
+  const z0 = Number(hole.z ?? 0);
+  const left = x0 - hx;
+  const right = x0 + hx;
+  const south = z0 - hz;
+  const north = z0 + hz;
+  if (left - minX > 0.08) {
+    addBox(group, material, (minX + left) * 0.5, y, (minZ + maxZ) * 0.5, left - minX, thickness, maxZ - minZ);
+  }
+  if (maxX - right > 0.08) {
+    addBox(group, material, (right + maxX) * 0.5, y, (minZ + maxZ) * 0.5, maxX - right, thickness, maxZ - minZ);
+  }
+  if (south - minZ > 0.08) {
+    addBox(group, material, (left + right) * 0.5, y, (minZ + south) * 0.5, right - left, thickness, south - minZ);
+  }
+  if (maxZ - north > 0.08) {
+    addBox(group, material, (left + right) * 0.5, y, (north + maxZ) * 0.5, right - left, thickness, maxZ - north);
+  }
 }
 
 export function addColonnade(group, material, {

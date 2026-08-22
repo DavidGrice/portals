@@ -38,7 +38,9 @@ export function addRoom(controller, roomData, catalog) {
     const [width, height] = portalData.size ?? [2, 2];
     const portal = controller.createPortal(width, height, roomData.id, { id: portalData.id });
     portal.position.set(...withOrigin(portalData.position, origin));
-    if (portalData.yaw) {
+    if (portalData.rotation) {
+      portal.rotation.set(...portalData.rotation);
+    } else if (portalData.yaw) {
       portal.rotation.y = portalData.yaw;
     }
     portal.userData.destinationId = portalData.destinationId;

@@ -391,4 +391,37 @@ describe('portal engine', () => {
     a.worldToLocal(local);
     assert.ok(local.z > 0.1, `return hall local z ${local.z}`);
   });
+
+  it('drops through a floor portal and stands in the dest hall', () => {
+    const camera = new PerspectiveCamera(60, 1, 0.05, 100);
+    const controller = new PortalController({ camera, renderer: mockRenderer() });
+    controller.registerScene('room-a', new Scene(), { clearColor: 0x2a3344 });
+    controller.registerScene('room-b', new Scene(), { clearColor: 0x4a1c1c });
+    const a = controller.createPortal(2, 2, 'room-a', { id: 'pit-ab' });
+    a.position.set(0, 0, 0);
+    a.rotation.x = -Math.PI / 2;
+    const b = controller.createPortal(2, 2, 'room-b', { id: 'pit-ba' });
+    b.position.set(0, 0, 0);
+    b.rotation.x = -Math.PI / 2;
+    a.setDestinationPortal(b);
+    b.setDestinationPortal(a);
+    controller.setCurrentScene('room-a');
+    camera.position.set(0, 1, 0);
+    camera.lookAt(0, 0, 0);
+    a.updateMatrixWorld(true);
+    b.updateMatrixWorld(true);
+    controller.update();
+    assert.equal(controller._shouldDrawPortal(a, null), true);
+    camera.position.set(0, -0.05, 0);
+    controller.update();
+    assert.equal(controller.currentRoom.id, 'room-b');
+    assert.ok(camera.position.y >= 0.8, `eye ${camera.position.y}`);
+    const local = camera.position.clone();
+    b.updateMatrixWorld(true);
+    b.worldToLocal(local);
+    assert.ok(local.z > 0.7, `dest local z ${local.z}`);
+    camera.position.set(0, 1, 0);
+    controller.update();
+    assert.equal(controller.currentRoom.id, 'room-b', 'must not bounce while still over the hole');
+  });
 });

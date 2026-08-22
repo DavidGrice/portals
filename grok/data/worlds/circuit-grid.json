@@ -219,16 +219,53 @@
             "zMin": -5,
             "zMax": 5,
             "height": 10,
-            "holes": [{ "wall": "south", "u": 0 }]
+            "holes": [{ "wall": "south", "u": 0 }],
+            "floorHoles": [{ "x": 0, "z": 2.2, "halfX": 1.15, "halfZ": 1.15 }]
           }
         },
+        { "id": "rim-shaft-n", "kind": "prop.box", "position": [0, 0.06, 3.32], "props": { "size": [2.4, 0.08, 0.12], "material": "cyber.strip.white" } },
+        { "id": "rim-shaft-s", "kind": "prop.box", "position": [0, 0.06, 1.08], "props": { "size": [2.4, 0.08, 0.12], "material": "cyber.strip.white" } },
+        { "id": "rim-shaft-e", "kind": "prop.box", "position": [1.15, 0.06, 2.2], "props": { "size": [0.12, 0.08, 2.2], "material": "cyber.strip.white" } },
+        { "id": "rim-shaft-w", "kind": "prop.box", "position": [-1.15, 0.06, 2.2], "props": { "size": [0.12, 0.08, 2.2], "material": "cyber.strip.white" } },
         { "id": "pad-shaft", "kind": "interact.pad", "position": [0, 0.04, -0.8], "props": { "color": "#e8eef8", "action": "launch", "impulse": [0, 11, 0], "text": "Jump" } },
         { "id": "plaque-shaft", "kind": "prop.plaque", "position": [2.2, 1.6, 4.4], "props": { "color": "#a8b4c8", "text": "White well" } },
         { "id": "cube-shaft", "kind": "prop.box", "position": [3.4, 3.2, 0], "tags": ["landmark"], "props": { "size": [0.6, 0.6, 0.6], "color": "#e8eef8" } },
         { "id": "frame-sw", "kind": "arch.frame", "position": [0, 1, 5], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#a8b4c8", "coversPortalId": "door-sw" } }
       ],
       "portals": [
-        { "id": "door-sw", "position": [0, 1, 5], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-ws" }
+        { "id": "door-sw", "position": [0, 1, 5], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-ws" },
+        { "id": "door-sp", "position": [0, 0.04, 2.2], "rotation": [-1.5707963267948966, 0, 0], "size": [2, 2], "destinationId": "door-ps" }
+      ]
+    },
+    {
+      "id": "well-bottom",
+      "title": "Well bottom",
+      "tags": ["interior", "cyber"],
+      "origin": [1250, 0, 250],
+      "clearColor": "#080c12",
+      "entities": [
+        { "id": "sky-bottom", "kind": "env.sky", "props": { "color": "#080c12" } },
+        { "id": "light-bottom", "kind": "env.light", "props": { "ambient": "#101820", "sun": "#88a0b8", "sunIntensity": 0.22 } },
+        { "id": "floor-bottom", "kind": "env.floor", "props": { "material": "cyber.grid.white", "size": 16 } },
+        {
+          "id": "shell-bottom",
+          "kind": "arch.chamber",
+          "props": {
+            "material": "cyber.wall",
+            "halfX": 5,
+            "zMin": -5,
+            "zMax": 5,
+            "height": 4.2,
+            "roundCorners": true,
+            "floorHoles": [{ "x": 0, "z": 0, "halfX": 1.15, "halfZ": 1.15 }]
+          }
+        },
+        { "id": "cube-bottom", "kind": "prop.box", "position": [2.6, 0.4, -2.4], "tags": ["landmark"], "props": { "size": [0.7, 0.8, 0.7], "color": "#e8eef8", "spin": [0, 0.6, 0] } },
+        { "id": "plaque-bottom", "kind": "prop.plaque", "position": [-2.2, 1.6, 4.4], "props": { "color": "#a8b4c8", "text": "Look up. Walk out." } },
+        { "id": "point-bottom", "kind": "env.point", "position": [0, 2.4, 0], "props": { "color": "#88c0ff", "intensity": 1.1, "distance": 8 } }
+      ],
+      "portals": [
+        { "id": "door-ps", "position": [0, 0.04, 0], "rotation": [-1.5707963267948966, 0, 0], "size": [2, 2], "destinationId": "door-sp" }
       ]
     },
     {
