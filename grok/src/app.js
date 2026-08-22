@@ -18,6 +18,7 @@ import {
   sealArrival,
 } from './content/drift.js';
 import { tickMaterials } from './content/materials.js';
+import { tickOptics } from './optics/tickOptics.js';
 import { createSession } from './game/session.js';
 import { loadSave, poseFromSession, writeSave } from './content/save.js';
 import { bindOptions, refreshHud } from './ui/options.js';
@@ -477,6 +478,24 @@ export function createApp({
     if (spec?.action === 'toggle') {
       return 'E  Toggle';
     }
+    if (spec?.action === 'arm-laser') {
+      return spec.text ? `E  ${spec.text}` : 'E  Arm laser';
+    }
+    if (spec?.action === 'lock-spin') {
+      return 'E  Lock the card';
+    }
+    if (spec?.action === 'free-spin') {
+      return 'E  Free the spin';
+    }
+    if (spec?.action === 'set-grooves') {
+      return 'E  Cycle grooves';
+    }
+    if (spec?.action === 'set-mode') {
+      return 'E  Reflect / transmit';
+    }
+    if (spec?.action === 'kill-laser') {
+      return 'E  Beam off';
+    }
     return spec?.text ? `E  ${spec.text}` : 'E  Look';
   }
 
@@ -673,6 +692,12 @@ export function createApp({
     const fxRooms = liveFxRooms();
     tickAtmosphere(fxRooms, { elapsed: clock.elapsedTime, dt });
     tickMaterials(fxRooms, dt);
+    tickOptics(fxRooms, {
+      camera: session.camera,
+      dt,
+      controller: session.controller,
+      elapsed: clock.elapsedTime,
+    });
     tickNpcs(fxRooms, session.camera);
 
     session.postAA.begin();

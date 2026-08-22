@@ -103,6 +103,9 @@ describe('world data', () => {
     assert.ok(groups.prop.includes('prop.model'));
     assert.ok(groups.prop.includes('prop.npc'));
     assert.ok(groups.prop.includes('prop.ring'));
+    assert.ok(groups.prop.includes('prop.grating'));
+    assert.ok(groups.prop.includes('prop.laser'));
+    assert.ok(groups.prop.includes('prop.detector'));
   });
 
   it('loads two-rooms and resolves portal links', () => {
@@ -171,6 +174,7 @@ describe('world data', () => {
     assert.ok(listWorlds().every((entry) => entry.status !== 'draft'));
     assert.ok(listWorlds().some((entry) => entry.id === 'circuit-grid'));
     assert.ok(listWorlds().some((entry) => entry.id === 'ages'));
+    assert.ok(listWorlds().some((entry) => entry.id === 'littrow'));
   });
 
   it('resolves named materials and validates every listed world', () => {

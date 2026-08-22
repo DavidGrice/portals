@@ -152,6 +152,36 @@
       "prefab": "ring",
       "tags": ["prop", "scifi"]
     },
+    "prop.grating": {
+      "category": "prop",
+      "prefab": "grating",
+      "tags": ["prop", "optics", "scifi"]
+    },
+    "prop.laser": {
+      "category": "prop",
+      "prefab": "laser",
+      "tags": ["prop", "optics", "laser"]
+    },
+    "prop.detector": {
+      "category": "prop",
+      "prefab": "detector",
+      "tags": ["prop", "optics"]
+    },
+    "prop.slit": {
+      "category": "prop",
+      "prefab": "slit",
+      "tags": ["prop", "optics"]
+    },
+    "prop.protractor": {
+      "category": "prop",
+      "prefab": "protractor",
+      "tags": ["prop", "optics"]
+    },
+    "prop.readout": {
+      "category": "prop",
+      "prefab": "readout",
+      "tags": ["prop", "optics"]
+    },
     "prop.npc": {
       "category": "prop",
       "prefab": "npc",

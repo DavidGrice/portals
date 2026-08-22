@@ -1,0 +1,149 @@
+{
+  "id": "littrow",
+  "title": "Littrow",
+  "theme": "optics",
+  "startRoom": "rotunda",
+  "startSpawn": [0, 1, 6.4],
+  "lookAt": [0, 1.35, 0],
+  "rooms": [
+    {
+      "id": "rotunda",
+      "title": "The Card",
+      "tags": ["interior", "cyber", "optics", "grating", "start"],
+      "origin": [0, 0, 0],
+      "clearColor": "#05070c",
+      "atmosphere": { "density": 0.3 },
+      "entities": [
+        { "id": "sky-rotunda", "kind": "env.sky", "props": { "color": "#05070c" } },
+        { "id": "light-rotunda", "kind": "env.light", "props": { "ambient": "#10141c", "sun": "#c8d4ff", "sunIntensity": 0.22, "ambientIntensity": 0.16 } },
+        { "id": "floor-rotunda", "kind": "env.floor", "props": { "material": "scifi.gate.floor", "size": 28 } },
+        {
+          "id": "shell-rotunda",
+          "kind": "arch.rotunda",
+          "props": {
+            "material": "scifi.hull",
+            "runningLights": true,
+            "stripMaterial": "optics.strip",
+            "radius": 9,
+            "height": 6.2,
+            "holes": [
+              { "wall": "south", "u": 0 },
+              { "wall": "east", "u": 0 }
+            ]
+          }
+        },
+        {
+          "id": "card-main",
+          "kind": "prop.grating",
+          "position": [0, 1.35, 0],
+          "tags": ["landmark"],
+          "props": { "width": 1.4, "height": 0.88, "linesPerMm": 600, "blazeDeg": 10.37, "spin": [0, 0.12, 0], "hover": true }
+        },
+        { "id": "protractor-main", "kind": "prop.protractor", "position": [0, 0, 0], "props": { "radius": 2.4 } },
+        { "id": "laser-532", "kind": "prop.laser", "position": [0, 1.05, 7.2], "props": { "lambdaNm": 532, "targetId": "card-main", "power": 1 } },
+        { "id": "detector-zero", "kind": "prop.detector", "position": [0, 1.35, 8.2], "props": { "lambdaNm": null, "order": 0, "flag": "found-zero", "radius": 0.22, "lambdaTolNm": 400 } },
+        { "id": "detector-plus", "kind": "prop.detector", "position": [3.4, 1.35, 6.2], "rotation": [0, -0.5, 0], "props": { "lambdaNm": 532, "order": 1, "flag": "order-one-green", "radius": 0.22 } },
+        { "id": "detector-minus", "kind": "prop.detector", "position": [-3.4, 1.35, 6.2], "rotation": [0, 0.5, 0], "props": { "lambdaNm": 532, "order": -1, "flag": "order-minus-one-green", "radius": 0.22 } },
+        { "id": "pedestal-lock", "kind": "prop.box", "position": [2.2, 0.45, 2.2], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-lock", "kind": "interact.pad", "position": [2.2, 0.94, 2.2], "props": { "color": "#e8eef8", "action": "lock-spin", "text": "Lock the card" } },
+        { "id": "pad-free", "kind": "interact.pad", "position": [2.2, 0.94, 3.1], "props": { "color": "#8ab4ff", "action": "free-spin", "text": "Free the spin" } },
+        { "id": "pedestal-groove", "kind": "prop.box", "position": [-2.2, 0.45, 2.2], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-groove", "kind": "interact.pad", "position": [-2.2, 0.94, 2.2], "props": { "color": "#6ad8ff", "action": "set-grooves", "require": "found-zero", "text": "Cycle grooves" } },
+        { "id": "pad-arm", "kind": "interact.pad", "position": [0, 0.04, 5.2], "props": { "color": "#3dff6a", "action": "arm-laser", "lambdaNm": 532, "text": "Arm 532 nm" } },
+        { "id": "pad-kill", "kind": "interact.pad", "position": [1.2, 0.04, 5.2], "props": { "color": "#8a9098", "action": "kill-laser", "text": "Beam off" } },
+        { "id": "pad-mode", "kind": "interact.pad", "position": [0, 0.04, 2.4], "props": { "color": "#c070ff", "action": "set-mode", "text": "Reflect / transmit" } },
+        { "id": "plaque-eq", "kind": "prop.plaque", "position": [-3.2, 1.7, 8.2], "props": { "color": "#6ad8ff", "text": "m lambda = d (sin i + sin theta)", "action": "read" } },
+        { "id": "plaque-zero", "kind": "prop.plaque", "position": [3.2, 1.7, 8.2], "props": { "color": "#e8eef8", "text": "m = 0 is the mirror. Color lives in m != 0.", "action": "read" } },
+        { "id": "plaque-lock", "kind": "prop.plaque", "position": [4.4, 1.7, 2.2], "props": { "color": "#c8d4ff", "text": "Lock the spin to measure. Free it to search.", "action": "read" } },
+        { "id": "readout-main", "kind": "prop.readout", "position": [0, 3.4, -6.5], "props": { "text": "NO SOURCE" } },
+        { "id": "ring-dome", "kind": "prop.ring", "position": [0, 4.8, 0], "props": { "radius": 2.4, "tube": 0.08, "material": "scifi.gate.ring", "horizon": false } },
+        { "id": "spot-rotunda", "kind": "env.spot", "position": [0, 5.6, 0], "props": { "color": "#c8d4ff", "intensity": 0.7, "distance": 14, "angle": 0.8, "target": [0, -4, 0] } },
+        { "id": "frame-airlock", "kind": "arch.frame", "position": [0, 1, 9], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#6ad8ff", "coversPortalId": "door-rotunda-airlock" } },
+        { "id": "frame-diodes", "kind": "arch.frame", "position": [9, 1, 0], "rotation": [0, -1.5707963267948966, 0], "props": { "color": "#3dff6a", "coversPortalId": "door-rotunda-diodes" } }
+      ],
+      "portals": [
+        { "id": "door-rotunda-airlock", "position": [0, 1, 9], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-airlock-rotunda" },
+        { "id": "door-rotunda-diodes", "position": [9, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-diodes-rotunda" }
+      ]
+    },
+    {
+      "id": "airlock",
+      "title": "Airlock",
+      "tags": ["interior", "cyber", "optics", "grating"],
+      "origin": [0, 0, 250],
+      "clearColor": "#070b10",
+      "atmosphere": { "density": 0.2 },
+      "entities": [
+        { "id": "sky-airlock", "kind": "env.sky", "props": { "color": "#070b10" } },
+        { "id": "light-airlock", "kind": "env.light", "props": { "ambient": "#182028", "sun": "#c8d4ff", "sunIntensity": 0.2, "ambientIntensity": 0.22 } },
+        { "id": "floor-airlock", "kind": "env.floor", "props": { "material": "scifi.plate", "size": 16 } },
+        {
+          "id": "shell-airlock",
+          "kind": "arch.chamber",
+          "props": {
+            "material": "scifi.tile",
+            "runningLights": true,
+            "stripMaterial": "optics.strip",
+            "halfX": 4,
+            "zMin": -6,
+            "zMax": 4,
+            "height": 3.4,
+            "holes": [{ "wall": "north", "u": 0 }]
+          }
+        },
+        { "id": "plaque-periodic", "kind": "prop.plaque", "position": [-2.2, 1.6, 3.2], "props": { "color": "#6ad8ff", "text": "A grating is a periodic boundary. Period d. Order m. Wavelength lambda.", "action": "read" } },
+        { "id": "plaque-puzzle", "kind": "prop.plaque", "position": [2.2, 1.6, 3.2], "props": { "color": "#e8eef8", "text": "This hall is a puzzle. Nothing here fights you.", "action": "read" } },
+        { "id": "readout-diagram", "kind": "prop.readout", "position": [0, 2.2, 3.6], "props": { "text": "m = -1, 0, +1" } },
+        { "id": "frame-airlock-back", "kind": "arch.frame", "position": [0, 1, -6], "props": { "color": "#6ad8ff", "coversPortalId": "door-airlock-rotunda" } }
+      ],
+      "portals": [
+        { "id": "door-airlock-rotunda", "position": [0, 1, -6], "yaw": 0, "size": [2, 2], "destinationId": "door-rotunda-airlock" }
+      ]
+    },
+    {
+      "id": "diodes",
+      "title": "Diodes",
+      "tags": ["interior", "cyber", "optics", "grating"],
+      "origin": [250, 0, 0],
+      "clearColor": "#080410",
+      "atmosphere": { "density": 0.25 },
+      "entities": [
+        { "id": "sky-diodes", "kind": "env.sky", "props": { "color": "#080410" } },
+        { "id": "light-diodes", "kind": "env.light", "props": { "ambient": "#181022", "sun": "#c070ff", "sunIntensity": 0.2, "ambientIntensity": 0.18 } },
+        { "id": "floor-diodes", "kind": "env.floor", "props": { "material": "scifi.rubber", "size": 22 } },
+        {
+          "id": "shell-diodes",
+          "kind": "arch.chamber",
+          "props": {
+            "material": "scifi.cabin",
+            "runningLights": true,
+            "stripMaterial": "optics.strip.violet",
+            "halfX": 8,
+            "zMin": -8,
+            "zMax": 5,
+            "height": 4.2,
+            "holes": [{ "wall": "west", "u": 0 }]
+          }
+        },
+        { "id": "card-diodes", "kind": "prop.grating", "position": [0, 1.35, -3], "props": { "width": 1.2, "height": 0.8, "linesPerMm": 600, "blazeDeg": 10.37, "spin": [0, 0.1, 0] } },
+        { "id": "laser-405", "kind": "prop.laser", "position": [-2.4, 1.05, 3.4], "props": { "lambdaNm": 405, "targetId": "card-diodes" } },
+        { "id": "laser-532-d", "kind": "prop.laser", "position": [0, 1.05, 3.4], "props": { "lambdaNm": 532, "targetId": "card-diodes" } },
+        { "id": "laser-633", "kind": "prop.laser", "position": [2.4, 1.05, 3.4], "props": { "lambdaNm": 633, "targetId": "card-diodes" } },
+        { "id": "pad-405", "kind": "interact.pad", "position": [-2.4, 0.04, 2.2], "props": { "color": "#7040ff", "action": "arm-laser", "lambdaNm": 405, "text": "Arm 405 nm" } },
+        { "id": "pad-532-d", "kind": "interact.pad", "position": [0, 0.04, 2.2], "props": { "color": "#3dff6a", "action": "arm-laser", "lambdaNm": 532, "text": "Arm 532 nm" } },
+        { "id": "pad-633", "kind": "interact.pad", "position": [2.4, 0.04, 2.2], "props": { "color": "#ff3b4a", "action": "arm-laser", "lambdaNm": 633, "text": "Arm 633 nm" } },
+        { "id": "pad-off-d", "kind": "interact.pad", "position": [0, 0.04, 4.2], "props": { "color": "#8a9098", "action": "kill-laser", "text": "Beam off" } },
+        { "id": "pad-groove-d", "kind": "interact.pad", "position": [-4.2, 0.04, -1], "props": { "color": "#6ad8ff", "action": "set-grooves", "text": "Cycle grooves" } },
+        { "id": "detector-405", "kind": "prop.detector", "position": [-2.2, 1.35, -6.4], "props": { "lambdaNm": 405, "order": 1, "flag": "diode-405" } },
+        { "id": "detector-532-d", "kind": "prop.detector", "position": [0, 1.35, -6.4], "props": { "lambdaNm": 532, "order": 1, "flag": "diode-532" } },
+        { "id": "detector-633", "kind": "prop.detector", "position": [2.4, 1.35, -6.4], "props": { "lambdaNm": 633, "order": 1, "flag": "diode-633" } },
+        { "id": "plaque-angles", "kind": "prop.plaque", "position": [4.4, 1.6, 4.2], "props": { "color": "#c070ff", "text": "600 /mm, i=0: 405 nm -> 14.1 deg. 532 -> 18.6. 633 -> 22.3.", "action": "read" } },
+        { "id": "plaque-evan", "kind": "prop.plaque", "position": [-4.4, 1.6, 4.2], "props": { "color": "#6ad8ff", "text": "1800 /mm makes 633 nm m=+1 vanish. sin theta > 1, the order dies.", "action": "read" } },
+        { "id": "frame-diodes-back", "kind": "arch.frame", "position": [-8, 1, 0], "rotation": [0, 1.5707963267948966, 0], "props": { "color": "#6ad8ff", "coversPortalId": "door-diodes-rotunda" } }
+      ],
+      "portals": [
+        { "id": "door-diodes-rotunda", "position": [-8, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-rotunda-diodes" }
+      ]
+    }
+  ]
+}

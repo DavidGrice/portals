@@ -2,6 +2,7 @@ import { Scene } from 'three';
 import { PortalController } from '../engine/index.js';
 import { parseColor, spawnEntity } from './prefabs.js';
 import { attachMotes, indexRoomFx, setMoteDensity, tintGlow } from '../engine/atmosphere.js';
+import { indexRoomOptics } from '../optics/tickOptics.js';
 import { applyClimateToScene, climateForDepth } from './climate.js';
 
 export function withOrigin(vec, origin) {
@@ -105,6 +106,7 @@ export function dressRooms(controller) {
     if (!room.fires) {
       indexRoomFx(room);
     }
+    indexRoomOptics(room);
     room.scene.traverse((object) => {
       if (!object.userData.portalFrame || !object.userData.coversPortalId) {
         return;

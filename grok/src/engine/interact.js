@@ -1,6 +1,21 @@
 import { Vector3 } from 'three';
+import { applyOpticsInteract } from '../optics/tickOptics.js';
 
 const scratch = new Vector3();
+const OPTICS_ACTIONS = new Set([
+  'arm-laser',
+  'kill-laser',
+  'lock-spin',
+  'free-spin',
+  'set-grooves',
+  'flip-blaze',
+  'set-mode',
+  'set-slit',
+  'yaw-left',
+  'yaw-right',
+  'read-angle',
+  'arm-lamp',
+]);
 
 export function findInteract(room, position, { maxDistance = 2 } = {}) {
   let best = null;
@@ -50,6 +65,13 @@ export function runInteract(target, { controller } = {}) {
       fire.base = Math.min((fire.base ?? 1.2) + 0.35, 2.6);
     }
     return { type: 'stoke', text: target.spec.text ?? 'The fire lifts.' };
+  }
+  if (OPTICS_ACTIONS.has(target.spec.action)) {
+    return applyOpticsInteract(target.spec.action, {
+      room: controller?.currentRoom,
+      spec: target.spec,
+      controller,
+    });
   }
   return { type: target.spec.action ?? 'look', text: target.spec.text ?? '' };
 }

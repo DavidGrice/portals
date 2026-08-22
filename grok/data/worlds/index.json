@@ -29,6 +29,13 @@
       "file": "ages.json"
     },
     {
+      "id": "littrow",
+      "title": "Littrow",
+      "blurb": "A card splits the hall. Walk the orders. Lock the return beam.",
+      "preview": "/worlds/circuit-grid.jpg",
+      "file": "littrow.json"
+    },
+    {
       "id": "drift",
       "title": "Drift",
       "blurb": "One-way. Doors do not come back. It will not remember you.",

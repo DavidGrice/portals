@@ -33,6 +33,9 @@ export function bedForRoom(room, manifest = audioManifest) {
     return rooms[id];
   }
   const tags = room?.tags ?? [];
+  if (tags.includes('optics') || tags.includes('grating')) {
+    return 'cyber';
+  }
   if (tags.includes('cyber')) {
     return 'cyber';
   }
@@ -56,7 +59,7 @@ export function doorTheme(room) {
   if (tags.includes('haunt')) {
     return 'haunt';
   }
-  if (tags.includes('cyber')) {
+  if (tags.includes('optics') || tags.includes('grating') || tags.includes('cyber')) {
     return 'cyber';
   }
   if (tags.includes('ages') || tags.includes('prehistoric') || tags.includes('future')) {

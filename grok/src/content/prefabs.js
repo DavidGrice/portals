@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { buildMaterial, parseColor as parseMaterialColor, resolveMaterial } from './materials.js';
 import { makeRecipeTexture } from './tiles.js';
 import { addColonnade, addRectVolume, addStairs, addWallWithHoles } from './volumes.js';
+import { createGratingMaterial } from '../optics/gratingMaterial.js';
+import { wavelengthToRgb } from '../optics/grating.js';
 
 export function parseColor(value, fallback = 0xffffff) {
   return parseMaterialColor(value, fallback);
@@ -926,6 +928,8 @@ export const prefabs = {
       impulse: entity.props?.impulse ?? null,
       setFlag: entity.props?.setFlag ?? null,
       require: entity.props?.require ?? null,
+      lambdaNm: entity.props?.lambdaNm ?? null,
+      deltaYaw: entity.props?.deltaYaw ?? null,
     };
     return mesh;
   },
@@ -1105,6 +1109,153 @@ export const prefabs = {
       candle: true,
     };
     return group;
+  },
+
+  grating(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const width = entity.props?.width ?? 1.4;
+    const height = entity.props?.height ?? 0.88;
+    const linesPerMm = entity.props?.linesPerMm ?? 600;
+    const blazeDeg = entity.props?.blazeDeg ?? 17.45;
+    const mode = entity.props?.mode ?? 'reflect';
+    const face = new THREE.Mesh(
+      new THREE.BoxGeometry(width, height, 0.03),
+      createGratingMaterial({ linesPerMm, blazeDeg, mode }),
+    );
+    face.castShadow = false;
+    face.receiveShadow = true;
+    face.userData.collider = { type: 'aabb' };
+    group.add(face);
+    const rim = buildMaterial('optics.rim');
+    addBox(group, rim, 0, height * 0.5 + 0.02, 0, width + 0.08, 0.04, 0.04);
+    addBox(group, rim, 0, -height * 0.5 - 0.02, 0, width + 0.08, 0.04, 0.04);
+    addBox(group, rim, -width * 0.5 - 0.02, 0, 0, 0.04, height + 0.08, 0.04);
+    addBox(group, rim, width * 0.5 + 0.02, 0, 0, 0.04, height + 0.08, 0.04);
+    if (entity.props?.spin) {
+      group.userData.spin = entity.props.spin;
+    }
+    group.userData.grating = {
+      linesPerMm,
+      blazeDeg,
+      mode,
+      hover: entity.props?.hover !== false,
+      baseY: entity.position?.[1] ?? group.position.y,
+      locked: entity.props?.spin ? false : true,
+    };
+    return group;
+  },
+
+  laser(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const lambdaNm = entity.props?.lambdaNm ?? 532;
+    const rgb = wavelengthToRgb(lambdaNm);
+    const color = (Math.round(rgb.r * 255) << 16) + (Math.round(rgb.g * 255) << 8) + Math.round(rgb.b * 255);
+    const metal = buildMaterial('scifi.cabin');
+    addBox(group, metal, 0, 0.18, 0.2, 0.16, 0.16, 0.7);
+    const aperture = new THREE.Mesh(
+      new THREE.CircleGeometry(0.07, 20),
+      new THREE.MeshStandardMaterial({
+        color: color || 0x888888,
+        emissive: color || 0x222222,
+        emissiveIntensity: 0.08,
+        roughness: 0.3,
+        metalness: 0.2,
+      }),
+    );
+    aperture.position.set(0, 0.18, -0.16);
+    aperture.userData.laserAperture = true;
+    group.add(aperture);
+    const spot = new THREE.SpotLight(color || 0xffffff, 0, 18, 0.04, 0.15, 1);
+    spot.position.set(0, 0.18, -0.16);
+    spot.castShadow = false;
+    group.add(spot);
+    group.userData.laser = {
+      lambdaNm,
+      enabled: entity.props?.enabled === true,
+      beamWidth: entity.props?.beamWidth ?? 0.04,
+      power: entity.props?.power ?? 1,
+      targetId: entity.props?.targetId ?? null,
+    };
+    group.userData.collider = { type: 'aabb' };
+    return group;
+  },
+
+  detector(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const lambdaNm = entity.props?.lambdaNm ?? 532;
+    const rgb = wavelengthToRgb(lambdaNm);
+    const color = lambdaNm ? (Math.round(rgb.r * 255) << 16) + (Math.round(rgb.g * 255) << 8) + Math.round(rgb.b * 255) : 0xe8eef8;
+    const bezel = buildMaterial('scifi.tile');
+    addBox(group, bezel, 0, 0, 0.02, 0.55, 0.55, 0.06);
+    const face = new THREE.Mesh(
+      new THREE.CircleGeometry(entity.props?.radius ?? 0.22, 24),
+      new THREE.MeshStandardMaterial({
+        color,
+        emissive: color,
+        emissiveIntensity: 0.05,
+        roughness: 0.35,
+        metalness: 0.2,
+      }),
+    );
+    face.position.z = 0.06;
+    group.add(face);
+    group.userData.detector = {
+      lambdaNm: entity.props?.lambdaNm ?? null,
+      order: entity.props?.order ?? 1,
+      toleranceDeg: entity.props?.toleranceDeg ?? 2.5,
+      lambdaTolNm: entity.props?.lambdaTolNm ?? 8,
+      radius: entity.props?.radius ?? 0.22,
+      flag: entity.props?.flag ?? null,
+      unlockPortalId: entity.props?.unlockPortalId ?? null,
+      lit: false,
+      hold: 0,
+    };
+    return group;
+  },
+
+  slit(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const metal = buildMaterial('scifi.cabin');
+    const width = entity.props?.width ?? 0.04;
+    addBox(group, metal, -0.55, 1.1, 0, 0.9, 2.2, 0.08);
+    addBox(group, metal, 0.55, 1.1, 0, 0.9, 2.2, 0.08);
+    group.userData.slit = { width };
+    return group;
+  },
+
+  protractor(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const radius = entity.props?.radius ?? 2.4;
+    const ticks = buildMaterial('optics.ticks');
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(radius, 0.025, 8, 64), ticks);
+    ring.rotation.x = Math.PI / 2;
+    ring.position.y = 0.02;
+    group.add(ring);
+    for (let deg = 0; deg < 360; deg += 5) {
+      const rad = (deg * Math.PI) / 180;
+      const len = deg % 15 === 0 ? 0.18 : 0.08;
+      const mark = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, len), ticks);
+      mark.position.set(Math.sin(rad) * radius, 0.03, -Math.cos(rad) * radius);
+      mark.rotation.y = -rad;
+      group.add(mark);
+    }
+    group.userData.protractor = { radius };
+    return group;
+  },
+
+  readout(entity) {
+    const mesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(entity.props?.width ?? 1.8, entity.props?.height ?? 0.42),
+      new THREE.MeshBasicMaterial({ color: 0x041018 }),
+    );
+    applyPose(mesh, entity);
+    mesh.userData.readout = { text: entity.props?.text ?? 'NO SOURCE' };
+    return mesh;
   },
 
   ring(entity) {
