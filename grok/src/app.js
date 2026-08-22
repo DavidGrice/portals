@@ -422,8 +422,17 @@ export function createApp({
       gameAudio.launch();
     } else if (result?.type === 'unlock') {
       gameAudio.unlock();
-    } else if (result?.type === 'stoke' || result?.type === 'toggle' || result?.type === 'read') {
+    } else if (result?.type === 'stoke' || result?.type === 'toggle' || result?.type === 'read'
+      || result?.type === 'cycle-options' || result?.type === 'kill-laser'
+      || result?.type === 'confirm-blaze' || result?.type === 'confirm-evanescent'
+      || result?.type === 'confirm-polar' || result?.type === 'resolve-sodium') {
       gameAudio.click();
+    } else if (result?.type === 'arm-laser' || result?.type === 'arm-lamp') {
+      if (typeof gameAudio.laserOn === 'function') {
+        gameAudio.laserOn();
+      } else {
+        gameAudio.click();
+      }
     }
     nearbyInteract = findInteract(session.controller.currentRoom, session.camera.position);
     updateInteractHud();
@@ -515,6 +524,19 @@ export function createApp({
       }
     }
     touchHud.setInteractVisible?.(visible && state === APP_STATES.playing);
+  }
+
+  function updateOpticsHud(status) {
+    const node = document.getElementById('optics-hud');
+    if (!node) {
+      return;
+    }
+    const tags = session?.controller?.currentRoom?.tags ?? [];
+    const show = state === APP_STATES.playing && (tags.includes('optics') || tags.includes('grating')) && status;
+    node.hidden = !show;
+    if (show) {
+      node.textContent = status;
+    }
   }
 
   function bindLiveSession(next) {
@@ -698,12 +720,16 @@ export function createApp({
     const fxRooms = liveFxRooms();
     tickAtmosphere(fxRooms, { elapsed: clock.elapsedTime, dt });
     tickMaterials(fxRooms, dt);
-    tickOptics(fxRooms, {
+    const optics = tickOptics(fxRooms, {
       camera: session.camera,
       dt,
       controller: session.controller,
       elapsed: clock.elapsedTime,
     });
+    if (optics.events?.includes('detector-hit') && typeof gameAudio.detectorHit === 'function') {
+      gameAudio.detectorHit();
+    }
+    updateOpticsHud(optics.status ?? session.controller.currentRoom?.opticsStatus);
     tickNpcs(fxRooms, session.camera);
 
     session.postAA.begin();

@@ -126,6 +126,29 @@ export function visibleOrders(d, lambda, thetaI, mMax = 4, extras = {}) {
   return ordersFor(d, lambda, thetaI, mMax, extras);
 }
 
+export function formatOpticsStatus({
+  linesPerMm = 600,
+  mode = 'reflect',
+  lambdaNm = null,
+  thetaI = 0,
+  order = 1,
+  label = null,
+} = {}) {
+  const d = groovePitchMeters(linesPerMm);
+  const i = toDeg(thetaI).toFixed(1);
+  const head = `${linesPerMm} /mm  ${mode}  i=${i}`;
+  const prefix = label ? `${label}  |  ` : '';
+  if (lambdaNm == null || lambdaNm === 0) {
+    return `${prefix}${head}  NO SOURCE`;
+  }
+  const thetaM = d ? diffractionAngle(d, wavelengthMeters(lambdaNm), order, thetaI, { mode }) : null;
+  const mLabel = `${order > 0 ? '+' : ''}${order}`;
+  if (thetaM == null) {
+    return `${prefix}${head}  m=${mLabel} ${lambdaNm}nm evanescent`;
+  }
+  return `${prefix}${head}  m=${mLabel} ${lambdaNm}nm -> ${toDeg(thetaM).toFixed(1)}`;
+}
+
 export function angularDispersion(d, thetaM, m) {
   if (!(d > 0) || !Number.isFinite(thetaM) || !m) {
     return 0;

@@ -74,7 +74,7 @@ describe('Littrow', () => {
     assert.ok(!kinds.has('prop.npc'));
     assert.ok(!kinds.has('prop.hearth'));
     assert.ok(lights >= 8);
-    assert.equal(bedForRoom(controller.currentRoom), 'cyber');
+    assert.equal(bedForRoom(controller.currentRoom), 'grating');
     assert.ok(!controller.rooms.some((room) => room.portals?.some((portal) => Math.abs((portal.rotation?.x ?? 0) + Math.PI / 2) < 0.01)));
   });
 

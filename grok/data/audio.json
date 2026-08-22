@@ -49,7 +49,10 @@
     "haunt-whisper": { "url": "/assets/audio/haunt/whisper.wav", "bus": "sfx", "gain": 0.55 },
     "haunt-note": { "url": "/assets/audio/haunt/note.wav", "bus": "sfx", "gain": 0.5 },
     "haunt-shutter": { "url": "/assets/audio/haunt/shutter.wav", "bus": "sfx", "gain": 0.62 },
-    "haunt-drip": { "url": "/assets/audio/haunt/drip.wav", "bus": "sfx", "gain": 0.48 }
+    "haunt-drip": { "url": "/assets/audio/haunt/drip.wav", "bus": "sfx", "gain": 0.48 },
+    "bed-grating": { "url": "/assets/audio/beds/grating.wav", "bus": "music", "loop": true, "gain": 0.56 },
+    "laser-on": { "url": "/assets/audio/oneshot/laser-on.wav", "bus": "sfx", "gain": 0.4 },
+    "detector-hit": { "url": "/assets/audio/oneshot/detector-hit.wav", "bus": "sfx", "gain": 0.5 }
   },
   "beds": {
     "halls": { "clip": "bed-halls", "synth": "halls", "underlay": 0.4 },
@@ -60,7 +63,8 @@
     "agesPast": { "clip": "bed-ages-past", "synth": "agesPast", "underlay": 0.42 },
     "agesFuture": { "clip": "bed-ages-future", "synth": "agesFuture", "underlay": 0.36 },
     "agesPrimordial": { "clip": "bed-ages-primordial", "synth": "agesPrimordial", "underlay": 0.52 },
-    "agesIndustrial": { "clip": "bed-ages-industrial", "synth": "agesIndustrial", "underlay": 0.4 }
+    "agesIndustrial": { "clip": "bed-ages-industrial", "synth": "agesIndustrial", "underlay": 0.4 },
+    "grating": { "clip": "bed-grating", "synth": "grating", "underlay": 0.32 }
   },
   "rooms": {
     "room-a": "halls",
@@ -74,14 +78,30 @@
     "dining": "haunt",
     "cellar": "hauntDeep",
     "crypt": "hauntDeep",
-    "attic": "hauntWind"
+    "attic": "hauntWind",
+    "rotunda": "grating",
+    "airlock": "grating",
+    "diodes": "grating",
+    "collimator": "grating",
+    "continuum": "grating",
+    "blaze": "grating",
+    "echelle": "grating",
+    "rowland": "grating",
+    "disc": "grating",
+    "hydrogen": "grating",
+    "sodium": "grating",
+    "overlap": "grating",
+    "polar": "grating",
+    "invisible": "grating",
+    "slit": "grating",
+    "vault": "grating"
   },
   "events": [
-    { "id": "creak", "clip": "haunt-creak", "synth": "creak", "tags": ["haunt"], "excludeTags": ["cyber"], "weight": 1.1, "cooldown": [4.2, 9.5] },
-    { "id": "whisper", "clip": "haunt-whisper", "synth": "whisper", "tags": ["haunt"], "excludeTags": ["cyber"], "weight": 0.9, "cooldown": [5, 11] },
-    { "id": "note", "clip": "haunt-note", "synth": "rumble", "tags": ["haunt"], "excludeTags": ["cyber"], "weight": 0.55, "cooldown": [7, 14] },
-    { "id": "shutter", "clip": "haunt-shutter", "synth": "knock", "tags": ["haunt"], "excludeTags": ["cyber"], "weight": 0.7, "cooldown": [6, 12] },
-    { "id": "drip", "clip": "haunt-drip", "synth": "drip", "tags": ["haunt"], "rooms": ["cellar", "crypt"], "excludeTags": ["cyber"], "weight": 1.2, "cooldown": [3.5, 8] }
+    { "id": "creak", "clip": "haunt-creak", "synth": "creak", "tags": ["haunt"], "excludeTags": ["cyber", "optics", "grating"], "weight": 1.1, "cooldown": [4.2, 9.5] },
+    { "id": "whisper", "clip": "haunt-whisper", "synth": "whisper", "tags": ["haunt"], "excludeTags": ["cyber", "optics", "grating"], "weight": 0.9, "cooldown": [5, 11] },
+    { "id": "note", "clip": "haunt-note", "synth": "rumble", "tags": ["haunt"], "excludeTags": ["cyber", "optics", "grating"], "weight": 0.55, "cooldown": [7, 14] },
+    { "id": "shutter", "clip": "haunt-shutter", "synth": "knock", "tags": ["haunt"], "excludeTags": ["cyber", "optics", "grating"], "weight": 0.7, "cooldown": [6, 12] },
+    { "id": "drip", "clip": "haunt-drip", "synth": "drip", "tags": ["haunt"], "rooms": ["cellar", "crypt"], "excludeTags": ["cyber", "optics", "grating"], "weight": 1.2, "cooldown": [3.5, 8] }
   ],
   "doors": {
     "haunt": { "whoosh": "whoosh-haunt", "slam": "slam-haunt" },
@@ -90,6 +110,8 @@
     "default": { "whoosh": "whoosh", "slam": "slam" }
   },
   "interact": {
+    "laserOn": "laser-on",
+    "detectorHit": "detector-hit",
     "unlock": "bolt",
     "launch": "punch",
     "click": "click",

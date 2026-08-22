@@ -4,6 +4,7 @@ import {
   LINES,
   angularDispersion,
   bandOf,
+  formatOpticsStatus,
   blazeAngleFor,
   blazeEfficiency,
   deltaLambda,
@@ -188,6 +189,23 @@ describe('diffraction grating kernel', () => {
     assert.equal(grazing, 0);
     const mid = angularDispersion(d, fromDeg(18.6), 1);
     assert.ok(mid > 0);
+  });
+
+  it('prints a HUD line that matches the 532 nm first-order angle', () => {
+    const line = formatOpticsStatus({
+      linesPerMm: 600,
+      mode: 'reflect',
+      lambdaNm: 532,
+      thetaI: 0,
+      order: 1,
+    });
+    assert.match(line, /600 \/mm/);
+    assert.match(line, /18\.6/);
+    assert.match(line, /532nm/);
+    const dark = formatOpticsStatus({ linesPerMm: 1800, lambdaNm: 633, thetaI: 0, order: 1 });
+    assert.match(dark, /evanescent/);
+    const idle = formatOpticsStatus({ linesPerMm: 600, lambdaNm: null });
+    assert.match(idle, /NO SOURCE/);
   });
 
   it('never imports three or constructs a renderer', async () => {

@@ -18,6 +18,7 @@ export const BEDS = {
   agesFuture: { freqs: [48, 96, 192], filter: 360, lfo: 0.08, gain: 0.09, whisper: 880, sub: 24 },
   agesPrimordial: { freqs: [22, 33, 44], filter: 90, lfo: 0.02, gain: 0.12, sub: 14, whisper: 180 },
   agesIndustrial: { freqs: [55, 82, 110], filter: 240, lfo: 0.07, gain: 0.1, whisper: 300, sub: 28 },
+  grating: { freqs: [80, 160, 240, 480], filter: 520, lfo: 0.09, gain: 0.07, whisper: 1480, sub: 40 },
 };
 
 const ROOM_BED = audioManifest.rooms ?? {};
@@ -34,7 +35,7 @@ export function bedForRoom(room, manifest = audioManifest) {
   }
   const tags = room?.tags ?? [];
   if (tags.includes('optics') || tags.includes('grating')) {
-    return 'cyber';
+    return 'grating';
   }
   if (tags.includes('cyber')) {
     return 'cyber';
@@ -377,6 +378,18 @@ export class GameAudio {
     if (!this.playClip(this.manifest?.interact?.launch ?? 'punch')) {
       this._noise(0.1, 400, 0.16, 80);
       this._tone(220, 70, 0.16, 0.16);
+    }
+  }
+
+  laserOn() {
+    if (!this.playClip(this.manifest?.interact?.laserOn ?? 'laser-on')) {
+      this._tone(880, 440, 0.08, 0.08);
+    }
+  }
+
+  detectorHit() {
+    if (!this.playClip(this.manifest?.interact?.detectorHit ?? 'detector-hit')) {
+      this._tone(660, 990, 0.12, 0.07);
     }
   }
 

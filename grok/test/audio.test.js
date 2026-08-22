@@ -107,6 +107,8 @@ describe('audio', () => {
     assert.ok(BEDS.hauntDeep.sub < BEDS.haunt.sub);
     assert.ok(BEDS.hauntDeep.filter < BEDS.haunt.filter);
     assert.equal(BEDS.hauntWind.wind, true);
+    assert.equal(bedForRoom({ tags: ['optics', 'grating'] }), 'grating');
+    assert.ok(BEDS.grating.filter > 400);
   });
 
   it('loads the haunted house and keeps the attic door sealed', () => {

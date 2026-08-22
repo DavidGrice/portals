@@ -1,5 +1,6 @@
 import {
   AdditiveBlending,
+  CanvasTexture,
   CylinderGeometry,
   Mesh,
   MeshBasicMaterial,
@@ -10,6 +11,7 @@ import {
   blazeEfficiency,
   diffractionAngle,
   diffractedDirection,
+  formatOpticsStatus,
   fromDeg,
   groovePitchMeters,
   rayHitsDisk,
@@ -463,7 +465,50 @@ function worldNormalTangent(object) {
   };
 }
 
-function hitDetectors(room, controller, origin, dir, m, nm, grating, hits) {
+export function paintReadout(mesh, text) {
+  const readout = mesh?.userData?.readout;
+  if (!readout) {
+    return mesh;
+  }
+  const line = String(text ?? '');
+  if (readout.text === line && readout.painted) {
+    return mesh;
+  }
+  readout.text = line;
+  if (typeof document === 'undefined' || !mesh.material) {
+    return mesh;
+  }
+  let canvas = readout.canvas;
+  if (!canvas) {
+    canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 96;
+    readout.canvas = canvas;
+  }
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    return mesh;
+  }
+  ctx.fillStyle = '#041018';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#6ad8ff';
+  ctx.font = '18px monospace';
+  ctx.fillText(line.slice(0, 64), 16, 40);
+  if (line.length > 64) {
+    ctx.fillText(line.slice(64, 128), 16, 68);
+  }
+  if (!readout.texture) {
+    readout.texture = new CanvasTexture(canvas);
+    mesh.material.map = readout.texture;
+    mesh.material.color.setHex(0xffffff);
+  }
+  readout.texture.needsUpdate = true;
+  readout.painted = true;
+  mesh.material.needsUpdate = true;
+  return mesh;
+}
+
+function hitDetectors(room, controller, origin, dir, m, nm, grating, hits, events) {
   let count = hits;
   for (const detector of room.detectors ?? []) {
     const want = detector.userData.detector;
@@ -512,6 +557,7 @@ function hitDetectors(room, controller, origin, dir, m, nm, grating, hits) {
         portal.enabled = true;
       }
       syncOpticsDoors(controller);
+      events?.push('detector-hit');
     }
     detector.traverse((child) => {
       if (child.material?.emissiveIntensity != null) {
@@ -522,11 +568,13 @@ function hitDetectors(room, controller, origin, dir, m, nm, grating, hits) {
   return count;
 }
 
-function emitOrders(room, grating, laser, incident, beamIndex, hits, controller) {
+function emitOrders(room, grating, laser, incident, beamIndex, hits, controller, events) {
   grating.getWorldPosition(scratchCard);
   const { n, tan } = worldNormalTangent(grating);
   const thetaI = thetaIFrom(incident, n, tan);
   const spec = grating.userData.grating;
+  spec.lastThetaI = thetaI;
+  spec.lastLambdaNm = laser.userData.laser.lambdaNm;
   const d = groovePitchMeters(spec.linesPerMm);
   const lambdaNm = laser.userData.laser.lambdaNm;
   const lineList = laser.userData.laser.lines;
@@ -561,7 +609,7 @@ function emitOrders(room, grating, laser, incident, beamIndex, hits, controller)
     mesh.userData.thetaDeg = toDeg(thetaM);
     mesh.userData.gratingId = grating.name;
     index += 1;
-    hitCount = hitDetectors(room, controller, origin, dir, m, nm, grating, hitCount);
+    hitCount = hitDetectors(room, controller, origin, dir, m, nm, grating, hitCount, events);
   };
 
   if (continuum) {
@@ -601,6 +649,8 @@ function emitOrders(room, grating, laser, incident, beamIndex, hits, controller)
 export function tickOptics(rooms, { camera, dt = 0.016, controller, elapsed = 0 } = {}) {
   let beams = 0;
   let hits = 0;
+  const events = [];
+  let status = null;
   for (const room of rooms ?? []) {
     if (!room?.gratings && room?.scene) {
       indexRoomOptics(room);
@@ -671,6 +721,7 @@ export function tickOptics(rooms, { camera, dt = 0.016, controller, elapsed = 0 
           beamIndex,
           hits,
           controller,
+          events,
         );
         beamIndex = emitted.beamIndex;
         hits = emitted.hits;
@@ -720,6 +771,30 @@ export function tickOptics(rooms, { camera, dt = 0.016, controller, elapsed = 0 
         }
       }
     }
+
+    const live = gratingForLaser(room, firstLaser) ?? room.gratings[0];
+    const spec = live?.userData?.grating;
+    if (spec) {
+      const line = formatOpticsStatus({
+        linesPerMm: spec.linesPerMm,
+        mode: spec.mode,
+        lambdaNm: firstLaser ? (spec.lastLambdaNm ?? firstLaser.userData.laser.lambdaNm) : null,
+        thetaI: spec.lastThetaI ?? 0,
+        order: 1,
+        label: spec.label ?? null,
+      });
+      room.opticsStatus = line;
+      if (!status) {
+        status = line;
+      }
+      room._readoutClock = (room._readoutClock ?? 0) + dt;
+      if (room._readoutClock >= 0.125) {
+        room._readoutClock = 0;
+        for (const readout of room.readouts ?? []) {
+          paintReadout(readout, line);
+        }
+      }
+    }
   }
-  return { beams, hits };
+  return { beams, hits, events, status };
 }
