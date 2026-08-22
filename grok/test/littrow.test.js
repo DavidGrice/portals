@@ -10,7 +10,7 @@ import { runInteract } from '../src/engine/interact.js';
 import { bedForRoom } from '../src/engine/audio.js';
 import { listWorlds, getWorldData } from '../src/ui/worlds.js';
 import { validateWorld } from '../scripts/validate-world.js';
-import { lockGratingSpin, syncOpticsDoors, tickOptics, applyOpticsInteract } from '../src/optics/tickOptics.js';
+import { syncOpticsDoors, tickOptics, applyOpticsInteract } from '../src/optics/tickOptics.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -37,13 +37,13 @@ describe('Littrow', () => {
     const world = getWorldData('littrow');
     assert.equal(world.id, 'littrow');
     assert.equal(world.startRoom, 'rotunda');
-    assert.equal(world.rooms.length, 8);
+    assert.equal(world.rooms.length, 16);
     const catalog = readJson('data/catalog.json');
     const materials = readJson('data/materials.json');
     assert.deepEqual(validateWorld(world, catalog, materials), []);
   });
 
-  it('loads a rotating grating card and no combat kinds', () => {
+  it('loads a stationary grating card and no combat kinds', () => {
     const world = readJson('data/worlds/littrow.json');
     const catalog = readJson('data/catalog.json');
     const camera = new PerspectiveCamera(60, 1, 0.05, 280);
@@ -67,7 +67,7 @@ describe('Littrow', () => {
     }
     assert.ok(card);
     assert.equal(card.userData.grating.linesPerMm, 600);
-    assert.deepEqual(card.userData.spin, [0, 0.12, 0]);
+    assert.equal(card.userData.spin, undefined);
     assert.ok(kinds.has('prop.grating'));
     assert.ok(kinds.has('prop.laser'));
     assert.ok(kinds.has('prop.detector'));
@@ -78,23 +78,24 @@ describe('Littrow', () => {
     assert.ok(!controller.rooms.some((room) => room.portals?.some((portal) => Math.abs((portal.rotation?.x ?? 0) + Math.PI / 2) < 0.01)));
   });
 
-  it('locks spin and arms one laser at a time', () => {
+  it('keeps the card stationary and cycles options from one pedestal', () => {
     const catalog = readJson('data/catalog.json');
     const world = readJson('data/worlds/littrow.json');
     const camera = new PerspectiveCamera(60, 1, 0.05, 280);
     const controller = loadWorld(world, catalog, camera, mockRenderer());
     const room = controller.currentRoom;
-    const card = room.gratings[0];
-    lockGratingSpin(card, true);
-    assert.deepEqual(card.userData.spin, [0, 0, 0]);
+    const card = room.gratings.find((entry) => entry.name === 'card-main') ?? room.gratings[0];
+    assert.equal(card.userData.spin, undefined);
+    assert.equal(card.userData.grating.locked, true);
+    const cycled = runInteract({ spec: { action: 'cycle-options' } }, { controller });
+    assert.equal(cycled.type, 'cycle-options');
+    assert.equal(card.userData.grating.linesPerMm, 1200);
     const arm = runInteract({
       spec: { action: 'arm-laser', lambdaNm: 532 },
     }, { controller });
     assert.equal(arm.type, 'arm-laser');
-    const lasers = room.lasers;
-    const hot = lasers.filter((laser) => laser.userData.laser.enabled);
+    const hot = room.lasers.filter((laser) => laser.userData.laser.enabled);
     assert.equal(hot.length, 1);
-    assert.equal(hot[0].userData.laser.lambdaNm, 532);
     runInteract({ spec: { action: 'kill-laser' } }, { controller });
     assert.equal(room.lasers.filter((laser) => laser.userData.laser.enabled).length, 0);
   });
@@ -119,6 +120,8 @@ describe('Littrow', () => {
     assert.equal(controller.getPortal('door-rotunda-blaze').enabled, false);
     assert.equal(controller.getPortal('door-rotunda-echelle').enabled, false);
     assert.equal(controller.getPortal('door-rotunda-rowland').enabled, false);
+    assert.equal(controller.getPortal('door-rowland-disc').enabled, false);
+    assert.equal(controller.getPortal('door-slit-vault').enabled, false);
     controller.flags = { 'found-zero': true };
     syncOpticsDoors(controller);
     assert.equal(controller.getPortal('door-rotunda-collimator').enabled, true);
@@ -134,8 +137,9 @@ describe('Littrow', () => {
     const world = readJson('data/worlds/littrow.json');
     const collimator = world.rooms.find((room) => room.id === 'collimator');
     const card = collimator.entities.find((entity) => entity.id === 'card-collimator');
-    assert.equal(card.props.hover, false);
     assert.equal(card.props.spin, undefined);
+    assert.ok(world.rooms.every((room) => !room.entities.some((entity) => entity.kind === 'prop.grating' && entity.props?.spin)));
+    assert.ok(world.rooms[0].entities.some((entity) => entity.props?.action === 'cycle-options'));
     const echelle = world.rooms.find((room) => room.id === 'echelle').entities.find((entity) => entity.id === 'card-echelle');
     assert.equal(echelle.props.linesPerMm, 75);
     assert.equal(echelle.props.mMin, 12);
@@ -156,8 +160,8 @@ describe('Littrow', () => {
     controller.setCurrentScene('echelle');
     applyOpticsInteract('arm-laser', { room: echelle, spec: { lambdaNm: 532 }, controller });
     const before = tickOptics([echelle], { camera, dt: 0.016, controller, elapsed: 0 });
-    const hit = applyOpticsInteract('tilt-cross', { room: echelle, spec: {}, controller });
-    assert.equal(hit.type, 'tilt-cross');
+    const hit = applyOpticsInteract('cycle-options', { room: echelle, spec: {}, controller });
+    assert.equal(hit.type, 'cycle-options');
     assert.ok(echelle.gratings[0].userData.grating.crossTilt);
     const after = tickOptics([echelle], { camera, dt: 0.016, controller, elapsed: 0 });
     assert.ok(after.beams >= 1);

@@ -5,6 +5,7 @@ const scratch = new Vector3();
 const OPTICS_ACTIONS = new Set([
   'arm-laser',
   'kill-laser',
+  'cycle-options',
   'lock-spin',
   'free-spin',
   'set-grooves',
@@ -18,6 +19,8 @@ const OPTICS_ACTIONS = new Set([
   'tilt-cross',
   'confirm-blaze',
   'confirm-evanescent',
+  'confirm-polar',
+  'resolve-sodium',
 ]);
 
 export function findInteract(room, position, { maxDistance = 2 } = {}) {

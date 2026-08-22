@@ -39,7 +39,93 @@ const OPTICS_DOORS = [
   { all: ['collimated-green', 'order-one-green'], portalId: 'door-rotunda-blaze' },
   { all: ['understood-blaze'], portalId: 'door-rotunda-echelle' },
   { all: ['echelle-hit', 'saw-evanescent'], portalId: 'door-rotunda-rowland' },
+  { all: ['rowland-focus'], portalId: 'door-rowland-disc' },
+  { all: ['disc-pitch'], portalId: 'door-disc-hydrogen' },
+  { all: ['balmer'], portalId: 'door-hydrogen-sodium' },
+  { all: ['resolved-sodium'], portalId: 'door-sodium-overlap' },
+  { all: ['separated-overlap'], portalId: 'door-overlap-polar' },
+  { all: ['polar-s'], portalId: 'door-polar-invisible' },
+  { all: ['seen-uv', 'seen-ir'], portalId: 'door-invisible-slit' },
+  { all: ['exit-532'], portalId: 'door-slit-vault' },
 ];
+
+export function defaultGratingOptions(spec = {}) {
+  if (spec.options?.length) {
+    return spec.options;
+  }
+  const blaze = spec.blazeDeg ?? 10.37;
+  return [
+    { label: '600 /mm reflect', linesPerMm: 600, mode: 'reflect', blazeDeg: blaze },
+    { label: '1200 /mm reflect', linesPerMm: 1200, mode: 'reflect', blazeDeg: blaze },
+    { label: '1800 /mm reflect', linesPerMm: 1800, mode: 'reflect', blazeDeg: blaze },
+    { label: '600 /mm transmit', linesPerMm: 600, mode: 'transmit', blazeDeg: blaze },
+  ];
+}
+
+export function applyGratingOption(grating, option, room) {
+  const spec = grating?.userData?.grating;
+  if (!spec || !option) {
+    return null;
+  }
+  if (option.linesPerMm != null) {
+    spec.linesPerMm = option.linesPerMm;
+  }
+  if (option.mode != null) {
+    spec.mode = option.mode;
+  }
+  if (option.blazeDeg != null) {
+    spec.blazeDeg = option.blazeDeg;
+  }
+  if (option.mMax != null) {
+    spec.mMax = option.mMax;
+  }
+  if (option.mMin != null) {
+    spec.mMin = option.mMin;
+  }
+  if (option.label != null) {
+    spec.label = option.label;
+  }
+  if (option.yaw != null) {
+    grating.rotation.y = option.yaw;
+  }
+  if (option.tilt != null) {
+    spec.crossTilt = option.tilt !== 0;
+    grating.rotation.x = fromDeg(option.tilt);
+  }
+  spec.filterBand = option.filterBand ?? null;
+  if (option.slitWidth != null && room?.scene) {
+    room.scene.traverse((object) => {
+      if (object.userData?.slit) {
+        object.userData.slit.width = option.slitWidth;
+      }
+    });
+  }
+  grating.traverse((child) => {
+    if (child.material?.userData?.gratingMaterial) {
+      syncGratingMaterial(child.material, {
+        linesPerMm: spec.linesPerMm,
+        blazeDeg: spec.blazeDeg,
+        mode: spec.mode,
+      });
+    }
+  });
+  for (const readout of room?.readouts ?? []) {
+    if (readout.userData?.readout) {
+      readout.userData.readout.text = option.label ?? spec.label ?? '';
+    }
+  }
+  return option;
+}
+
+export function cycleGratingOptions(grating, room) {
+  const spec = grating?.userData?.grating;
+  if (!spec) {
+    return null;
+  }
+  const options = defaultGratingOptions(spec);
+  spec.optionIndex = ((spec.optionIndex ?? 0) + 1) % options.length;
+  return applyGratingOption(grating, options[spec.optionIndex], room);
+}
 
 export function indexRoomOptics(room) {
   if (!room?.scene) {
@@ -49,6 +135,8 @@ export function indexRoomOptics(room) {
   const lasers = [];
   const detectors = [];
   const readouts = [];
+  const slits = [];
+  const shutters = [];
   room.scene.traverse((object) => {
     if (object.userData?.grating) {
       gratings.push(object);
@@ -62,11 +150,19 @@ export function indexRoomOptics(room) {
     if (object.userData?.readout) {
       readouts.push(object);
     }
+    if (object.userData?.slit) {
+      slits.push(object);
+    }
+    if (object.userData?.shutter) {
+      shutters.push(object);
+    }
   });
   room.gratings = gratings;
   room.lasers = lasers;
   room.detectors = detectors;
   room.readouts = readouts;
+  room.slits = slits;
+  room.shutters = shutters;
   room.orderBeams = room.orderBeams ?? [];
   return room;
 }
@@ -126,6 +222,9 @@ export function syncOpticsDoors(controller) {
   if (continuumHits >= 3) {
     flags['walked-spectrum'] = true;
   }
+  if (flags['balmer-ha'] && flags['balmer-hb'] && flags['balmer-hg'] && flags['balmer-hd']) {
+    flags['balmer'] = true;
+  }
   for (const rule of OPTICS_DOORS) {
     if (rule.all.every((name) => flags[name])) {
       if (rule.set) {
@@ -167,30 +266,37 @@ export function applyOpticsInteract(action, { room, spec, controller } = {}) {
     }
     return { type: action };
   }
+  if (action === 'cycle-options') {
+    let option = null;
+    for (const grating of room.gratings) {
+      option = cycleGratingOptions(grating, room);
+    }
+    if (option?.filterBand) {
+      controller.flags['separated-overlap'] = true;
+    }
+    maybeSawEvanescent(room, controller);
+    syncOpticsDoors(controller);
+    return { type: action, option, linesPerMm: option?.linesPerMm ?? null, label: option?.label ?? '' };
+  }
   if (action === 'lock-spin') {
     for (const grating of room.gratings) {
       lockGratingSpin(grating, true);
     }
-    controller.flags['spin-locked'] = true;
     return { type: action };
   }
   if (action === 'free-spin') {
     for (const grating of room.gratings) {
       lockGratingSpin(grating, false);
     }
-    controller.flags['spin-locked'] = false;
     return { type: action };
   }
   if (action === 'set-grooves') {
-    if (spec?.require && !controller.flags[spec.require]) {
-      return { type: action, ok: false, need: spec.require };
-    }
-    let lines = null;
+    let option = null;
     for (const grating of room.gratings) {
-      lines = cycleGrooves(grating);
+      option = cycleGratingOptions(grating, room);
     }
     maybeSawEvanescent(room, controller);
-    return { type: action, linesPerMm: lines };
+    return { type: action, linesPerMm: option?.linesPerMm ?? null };
   }
   if (action === 'flip-blaze') {
     for (const grating of room.gratings) {
@@ -257,15 +363,25 @@ export function applyOpticsInteract(action, { room, spec, controller } = {}) {
     }
     return { type: action, ok };
   }
-  if (action === 'yaw-left' || action === 'yaw-right') {
-    if (!controller.flags['spin-locked']) {
-      return { type: action, ok: false, need: 'spin-locked' };
+  if (action === 'confirm-polar') {
+    controller.flags['polar-s'] = true;
+    syncOpticsDoors(controller);
+    return { type: action, ok: true };
+  }
+  if (action === 'resolve-sodium') {
+    let width = 0.04;
+    room.scene.traverse((object) => {
+      if (object.userData?.slit?.width != null) {
+        width = object.userData.slit.width;
+      }
+    });
+    const armed = (room.lasers ?? []).some((laser) => laser.userData.laser.enabled);
+    const ok = armed && width <= 0.021;
+    if (ok) {
+      controller.flags['resolved-sodium'] = true;
+      syncOpticsDoors(controller);
     }
-    const delta = (spec?.deltaYaw ?? 0.5) * (Math.PI / 180) * (action === 'yaw-left' ? 1 : -1);
-    for (const grating of room.gratings) {
-      grating.rotation.y += delta;
-    }
-    return { type: action };
+    return { type: action, ok, slitWidth: width };
   }
   return { type: action, text: spec?.text ?? '' };
 }
@@ -360,6 +476,12 @@ function hitDetectors(room, controller, origin, dir, m, nm, grating, hits) {
     if (want.requireTilt && !grating.userData.grating.crossTilt) {
       continue;
     }
+    if (want.requireNarrowSlit) {
+      const slit = room.slits?.[0]?.userData?.slit;
+      if ((slit?.width ?? 0.04) > 0.021) {
+        continue;
+      }
+    }
     if (want.gratingId && grating.name !== want.gratingId) {
       continue;
     }
@@ -407,8 +529,13 @@ function emitOrders(room, grating, laser, incident, beamIndex, hits, controller)
   const spec = grating.userData.grating;
   const d = groovePitchMeters(spec.linesPerMm);
   const lambdaNm = laser.userData.laser.lambdaNm;
-  const continuum = lambdaNm === 0;
-  const bins = continuum ? CONTINUUM_BINS : [lambdaNm];
+  const lineList = laser.userData.laser.lines;
+  const continuum = lambdaNm === 0 && !lineList?.length;
+  let bins = continuum ? CONTINUUM_BINS.slice() : (lineList?.length ? lineList : [lambdaNm]);
+  if (spec.filterBand) {
+    bins = bins.filter((nm) => nm >= spec.filterBand[0] && nm <= spec.filterBand[1]);
+  }
+  const converters = (room.detectors ?? []).map((entry) => entry.userData.detector?.convert).filter(Boolean);
   const mMax = spec.mMax ?? 2;
   const mMin = spec.mMin != null ? spec.mMin : -mMax;
   const thetaB = fromDeg(spec.blazeDeg ?? 0);
@@ -442,17 +569,30 @@ function emitOrders(room, grating, laser, incident, beamIndex, hits, controller)
     for (const nm of bins) {
       const rgb = wavelengthToRgb(nm);
       emit(1, nm, rgbColor(rgb), 0.5);
+      if ((spec.mMax ?? 1) >= 2) {
+        emit(2, nm, rgbColor(rgb), 0.28);
+      }
     }
   } else {
-    const rgb = wavelengthToRgb(lambdaNm);
-    const visible = rgb.band === 'visible';
-    const color0 = 0xe8eef8;
-    emit(0, lambdaNm, color0, 0.55);
-    for (let m = mMin; m <= mMax; m += 1) {
-      if (m === 0) {
-        continue;
+    emit(0, bins[0], 0xe8eef8, 0.55);
+    for (const nm of bins) {
+      const rgb = wavelengthToRgb(nm);
+      let opacity = rgb.band === 'visible' ? 0.55 : 0;
+      let color = rgb.band === 'visible' ? rgbColor(rgb) : 0x000000;
+      if (rgb.band === 'uv' && converters.includes('phosphor')) {
+        opacity = 0.5;
+        color = 0x40e0c0;
       }
-      emit(m, lambdaNm, visible ? rgbColor(rgb) : 0x000000, visible ? 0.55 : 0);
+      if (rgb.band === 'ir' && converters.includes('thermal')) {
+        opacity = 0.4;
+        color = 0x884040;
+      }
+      for (let m = mMin; m <= mMax; m += 1) {
+        if (m === 0) {
+          continue;
+        }
+        emit(m, nm, color, opacity);
+      }
     }
   }
   return { beamIndex: index, hits: hitCount };
@@ -557,6 +697,27 @@ export function tickOptics(rooms, { camera, dt = 0.016, controller, elapsed = 0 
     for (let i = beamIndex; i < (room.orderBeams?.length ?? 0); i += 1) {
       if (room.orderBeams[i]) {
         room.orderBeams[i].visible = false;
+      }
+    }
+
+    for (const shutter of room.shutters ?? []) {
+      const open = Boolean(controller?.flags?.[shutter.userData.shutter.flag]);
+      shutter.traverse((child) => {
+        if (child.material?.opacity != null) {
+          child.material.opacity = open ? 0.05 : 0.45;
+          child.material.transparent = true;
+        }
+        if (open) {
+          delete child.userData.collider;
+        } else if (child.isMesh) {
+          child.userData.collider = { type: 'aabb' };
+        }
+      });
+      if (open && shutter.userData.shutter.portalId && controller) {
+        const portal = controller.getPortal(shutter.userData.shutter.portalId);
+        if (portal) {
+          portal.enabled = true;
+        }
       }
     }
   }

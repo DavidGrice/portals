@@ -182,6 +182,11 @@
       "prefab": "readout",
       "tags": ["prop", "optics"]
     },
+    "prop.shutter": {
+      "category": "prop",
+      "prefab": "shutter",
+      "tags": ["prop", "optics"]
+    },
     "prop.npc": {
       "category": "prop",
       "prefab": "npc",

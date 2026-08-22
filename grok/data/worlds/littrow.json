@@ -42,24 +42,31 @@
           "kind": "prop.grating",
           "position": [0, 1.35, 0],
           "tags": ["landmark"],
-          "props": { "width": 1.4, "height": 0.88, "linesPerMm": 600, "blazeDeg": 10.37, "spin": [0, 0.12, 0], "hover": true }
+          "props": {
+            "width": 1.4,
+            "height": 0.88,
+            "linesPerMm": 600,
+            "blazeDeg": 10.37,
+            "options": [
+              { "label": "600 /mm reflect", "linesPerMm": 600, "mode": "reflect", "blazeDeg": 10.37 },
+              { "label": "1200 /mm reflect", "linesPerMm": 1200, "mode": "reflect", "blazeDeg": 10.37 },
+              { "label": "1800 /mm reflect", "linesPerMm": 1800, "mode": "reflect", "blazeDeg": 10.37 },
+              { "label": "600 /mm transmit", "linesPerMm": 600, "mode": "transmit", "blazeDeg": 10.37 }
+            ]
+          }
         },
         { "id": "protractor-main", "kind": "prop.protractor", "position": [0, 0, 0], "props": { "radius": 2.4 } },
         { "id": "laser-532", "kind": "prop.laser", "position": [0, 1.05, 7.2], "props": { "lambdaNm": 532, "targetId": "card-main", "power": 1 } },
         { "id": "detector-zero", "kind": "prop.detector", "position": [0, 1.35, 8.2], "props": { "lambdaNm": null, "order": 0, "flag": "found-zero", "radius": 0.22, "lambdaTolNm": 400 } },
         { "id": "detector-plus", "kind": "prop.detector", "position": [3.4, 1.35, 6.2], "rotation": [0, -0.5, 0], "props": { "lambdaNm": 532, "order": 1, "flag": "order-one-green", "radius": 0.22 } },
         { "id": "detector-minus", "kind": "prop.detector", "position": [-3.4, 1.35, 6.2], "rotation": [0, 0.5, 0], "props": { "lambdaNm": 532, "order": -1, "flag": "order-minus-one-green", "radius": 0.22 } },
-        { "id": "pedestal-lock", "kind": "prop.box", "position": [2.2, 0.45, 2.2], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
-        { "id": "pad-lock", "kind": "interact.pad", "position": [2.2, 0.94, 2.2], "props": { "color": "#e8eef8", "action": "lock-spin", "text": "Lock the card" } },
-        { "id": "pad-free", "kind": "interact.pad", "position": [2.2, 0.94, 3.1], "props": { "color": "#8ab4ff", "action": "free-spin", "text": "Free the spin" } },
-        { "id": "pedestal-groove", "kind": "prop.box", "position": [-2.2, 0.45, 2.2], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
-        { "id": "pad-groove", "kind": "interact.pad", "position": [-2.2, 0.94, 2.2], "props": { "color": "#6ad8ff", "action": "set-grooves", "require": "found-zero", "text": "Cycle grooves" } },
+        { "id": "pedestal-options", "kind": "prop.box", "position": [2.2, 0.45, 2.2], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-options", "kind": "interact.pad", "position": [2.2, 0.94, 2.2], "props": { "color": "#6ad8ff", "action": "cycle-options", "text": "Change options" } },
         { "id": "pad-arm", "kind": "interact.pad", "position": [0, 0.04, 5.2], "props": { "color": "#3dff6a", "action": "arm-laser", "lambdaNm": 532, "text": "Arm 532 nm" } },
         { "id": "pad-kill", "kind": "interact.pad", "position": [1.2, 0.04, 5.2], "props": { "color": "#8a9098", "action": "kill-laser", "text": "Beam off" } },
-        { "id": "pad-mode", "kind": "interact.pad", "position": [0, 0.04, 2.4], "props": { "color": "#c070ff", "action": "set-mode", "text": "Reflect / transmit" } },
         { "id": "plaque-eq", "kind": "prop.plaque", "position": [-3.2, 1.7, 8.2], "props": { "color": "#6ad8ff", "text": "m lambda = d (sin i + sin theta)", "action": "read" } },
         { "id": "plaque-zero", "kind": "prop.plaque", "position": [3.2, 1.7, 8.2], "props": { "color": "#e8eef8", "text": "m = 0 is the mirror. Color lives in m != 0.", "action": "read" } },
-        { "id": "plaque-lock", "kind": "prop.plaque", "position": [4.4, 1.7, 2.2], "props": { "color": "#c8d4ff", "text": "Lock the spin to measure. Free it to search.", "action": "read" } },
+        { "id": "plaque-options", "kind": "prop.plaque", "position": [4.4, 1.7, 2.2], "props": { "color": "#c8d4ff", "text": "One pedestal. The button cycles d and reflect/transmit. The card does not turn.", "action": "read" } },
         { "id": "readout-main", "kind": "prop.readout", "position": [0, 3.4, -6.5], "props": { "text": "NO SOURCE" } },
         { "id": "ring-dome", "kind": "prop.ring", "position": [0, 4.8, 0], "props": { "radius": 2.4, "tube": 0.08, "material": "scifi.gate.ring", "horizon": false } },
         { "id": "spot-rotunda", "kind": "env.spot", "position": [0, 5.6, 0], "props": { "color": "#c8d4ff", "intensity": 0.7, "distance": 14, "angle": 0.8, "target": [0, -4, 0] } },
@@ -140,7 +147,9 @@
             "holes": [{ "wall": "west", "u": 0 }]
           }
         },
-        { "id": "card-diodes", "kind": "prop.grating", "position": [0, 1.35, -3], "props": { "width": 1.2, "height": 0.8, "linesPerMm": 600, "blazeDeg": 10.37, "spin": [0, 0.1, 0] } },
+        { "id": "card-diodes", "kind": "prop.grating", "position": [0, 1.35, -3], "props": { "width": 1.2, "height": 0.8, "linesPerMm": 600, "blazeDeg": 10.37 } },
+        { "id": "pedestal-diodes", "kind": "prop.box", "position": [-4.2, 0.45, -1], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-options-d", "kind": "interact.pad", "position": [-4.2, 0.94, -1], "props": { "color": "#6ad8ff", "action": "cycle-options", "text": "Change options" } },
         { "id": "laser-405", "kind": "prop.laser", "position": [-2.4, 1.05, 3.4], "props": { "lambdaNm": 405, "targetId": "card-diodes" } },
         { "id": "laser-532-d", "kind": "prop.laser", "position": [0, 1.05, 3.4], "props": { "lambdaNm": 532, "targetId": "card-diodes" } },
         { "id": "laser-633", "kind": "prop.laser", "position": [2.4, 1.05, 3.4], "props": { "lambdaNm": 633, "targetId": "card-diodes" } },
@@ -148,7 +157,7 @@
         { "id": "pad-532-d", "kind": "interact.pad", "position": [0, 0.04, 2.2], "props": { "color": "#3dff6a", "action": "arm-laser", "lambdaNm": 532, "text": "Arm 532 nm" } },
         { "id": "pad-633", "kind": "interact.pad", "position": [2.4, 0.04, 2.2], "props": { "color": "#ff3b4a", "action": "arm-laser", "lambdaNm": 633, "text": "Arm 633 nm" } },
         { "id": "pad-off-d", "kind": "interact.pad", "position": [0, 0.04, 4.2], "props": { "color": "#8a9098", "action": "kill-laser", "text": "Beam off" } },
-        { "id": "pad-groove-d", "kind": "interact.pad", "position": [-4.2, 0.04, -1], "props": { "color": "#6ad8ff", "action": "set-grooves", "text": "Cycle grooves" } },
+
         { "id": "detector-405", "kind": "prop.detector", "position": [-2.2, 1.35, -6.4], "props": { "lambdaNm": 405, "order": 1, "flag": "diode-405" } },
         { "id": "detector-532-d", "kind": "prop.detector", "position": [0, 1.35, -6.4], "props": { "lambdaNm": 532, "order": 1, "flag": "diode-532" } },
         { "id": "detector-633", "kind": "prop.detector", "position": [2.4, 1.35, -6.4], "props": { "lambdaNm": 633, "order": 1, "flag": "diode-633" } },
@@ -191,11 +200,16 @@
         },
         { "id": "slit-collimator", "kind": "prop.slit", "position": [0, 0, 4.2], "props": { "width": 0.04 } },
         { "id": "mirror-collimator", "kind": "prop.box", "position": [-3.6, 1.6, -2], "props": { "size": [0.12, 3.2, 4.4], "material": "scifi.hull" } },
-        { "id": "card-collimator", "kind": "prop.grating", "position": [0, 1.35, -3], "props": { "width": 1.2, "height": 0.8, "linesPerMm": 600, "blazeDeg": 10.37, "hover": false } },
+        { "id": "card-collimator", "kind": "prop.grating", "position": [0, 1.35, -3], "props": { "width": 1.2, "height": 0.8, "linesPerMm": 600, "blazeDeg": 10.37, "options": [
+          { "label": "slit 4 cm", "slitWidth": 0.04, "linesPerMm": 600 },
+          { "label": "slit 2 cm", "slitWidth": 0.02, "linesPerMm": 600 },
+          { "label": "slit 8 cm", "slitWidth": 0.08, "linesPerMm": 600 }
+        ] } },
         { "id": "laser-collimator", "kind": "prop.laser", "position": [0, 1.05, 5.4], "props": { "lambdaNm": 532, "targetId": "card-collimator", "enabled": true } },
         { "id": "detector-collimator", "kind": "prop.detector", "position": [1.7, 1.35, 1.8], "rotation": [0, 2.82, 0], "props": { "lambdaNm": 532, "order": 1, "flag": "collimated-green", "radius": 0.34, "toleranceDeg": 1.2, "gratingId": "card-collimator" } },
         { "id": "protractor-collimator", "kind": "prop.protractor", "position": [0, 0, -3], "props": { "radius": 3.2 } },
-        { "id": "pad-slit", "kind": "interact.pad", "position": [1.6, 0.04, 4.2], "props": { "color": "#3dff6a", "action": "set-slit", "text": "Cycle slit 2 / 4 / 8 cm" } },
+        { "id": "pedestal-collimator", "kind": "prop.box", "position": [2.2, 0.45, 3.2], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-options-c", "kind": "interact.pad", "position": [2.2, 0.94, 3.2], "props": { "color": "#6ad8ff", "action": "cycle-options", "text": "Change options" } },
         { "id": "plaque-czerny", "kind": "prop.plaque", "position": [-2.4, 1.6, 5.4], "props": { "color": "#3dff6a", "text": "Czerny-Turner: slit -> collimator -> grating -> camera -> exit slit.", "action": "read" } },
         { "id": "plaque-resolve", "kind": "prop.plaque", "position": [2.4, 1.6, 5.4], "props": { "color": "#e8eef8", "text": "Wider slit, more flux, worse d(lambda). R = mN. N is the illuminated width.", "action": "read" } },
         { "id": "readout-collimator", "kind": "prop.readout", "position": [0, 2.8, -9.4], "props": { "text": "600 /mm  m=+1  532 nm  18.6 deg" } },
@@ -230,10 +244,12 @@
             "holes": [{ "wall": "east", "u": 0 }]
           }
         },
-        { "id": "card-continuum", "kind": "prop.grating", "position": [0, 1.35, -2], "props": { "width": 1.3, "height": 0.84, "linesPerMm": 600, "blazeDeg": 10.37, "spin": [0, 0.08, 0] } },
+        { "id": "card-continuum", "kind": "prop.grating", "position": [0, 1.35, -2], "props": { "width": 1.3, "height": 0.84, "linesPerMm": 600, "blazeDeg": 10.37 } },
+        { "id": "pedestal-continuum", "kind": "prop.box", "position": [2.2, 0.45, 1.6], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-options-cont", "kind": "interact.pad", "position": [2.2, 0.94, 1.6], "props": { "color": "#6ad8ff", "action": "cycle-options", "text": "Change options" } },
         { "id": "laser-continuum", "kind": "prop.laser", "position": [0, 1.05, 4], "props": { "lambdaNm": 0, "targetId": "card-continuum", "power": 0.45 } },
         { "id": "pad-white", "kind": "interact.pad", "position": [0, 0.04, 2.8], "props": { "color": "#e8eef8", "action": "arm-laser", "lambdaNm": 0, "text": "Arm white continuum" } },
-        { "id": "pad-lock-c", "kind": "interact.pad", "position": [2.2, 0.04, 2.8], "props": { "color": "#e8eef8", "action": "lock-spin", "text": "Lock the card" } },
+
         { "id": "pad-off-c", "kind": "interact.pad", "position": [-2.2, 0.04, 2.8], "props": { "color": "#8a9098", "action": "kill-laser", "text": "Beam off" } },
         { "id": "detector-c420", "kind": "prop.detector", "position": [1.64, 1.35, 4.29], "rotation": [0, 3.4, 0], "props": { "lambdaNm": 420, "order": 1, "flag": "continuum-420", "radius": 0.2, "lambdaTolNm": 22, "gratingId": "card-continuum" } },
         { "id": "detector-c460", "kind": "prop.detector", "position": [1.79, 1.35, 4.24], "rotation": [0, 3.42, 0], "props": { "lambdaNm": 460, "order": 1, "flag": "continuum-460", "radius": 0.2, "lambdaTolNm": 22, "gratingId": "card-continuum" } },
@@ -277,12 +293,18 @@
             "holes": [{ "wall": "south", "u": 0 }]
           }
         },
-        { "id": "card-holo", "kind": "prop.grating", "position": [-2.4, 1.35, -2], "props": { "width": 1.1, "height": 0.78, "linesPerMm": 600, "blazeDeg": 0, "hover": false } },
-        { "id": "card-ruled", "kind": "prop.grating", "position": [2.4, 1.35, -2], "props": { "width": 1.1, "height": 0.78, "linesPerMm": 600, "blazeDeg": 10.37, "hover": false } },
+        { "id": "card-holo", "kind": "prop.grating", "position": [-2.4, 1.35, -2], "props": { "width": 1.1, "height": 0.78, "linesPerMm": 600, "blazeDeg": 0, "options": [
+          { "label": "holographic theta_B=0", "blazeDeg": 0, "linesPerMm": 600 }
+        ] } },
+        { "id": "card-ruled", "kind": "prop.grating", "position": [2.4, 1.35, -2], "props": { "width": 1.1, "height": 0.78, "linesPerMm": 600, "blazeDeg": 10.37, "options": [
+          { "label": "blaze +10.37 deg", "blazeDeg": 10.37, "linesPerMm": 600 },
+          { "label": "blaze -10.37 deg", "blazeDeg": -10.37, "linesPerMm": 600 }
+        ] } },
         { "id": "laser-holo", "kind": "prop.laser", "position": [-2.4, 1.05, 3.6], "props": { "lambdaNm": 532, "targetId": "card-holo" } },
         { "id": "laser-ruled", "kind": "prop.laser", "position": [2.4, 1.05, 3.6], "props": { "lambdaNm": 532, "targetId": "card-ruled" } },
         { "id": "pad-arm-blaze", "kind": "interact.pad", "position": [0, 0.04, 3.6], "props": { "color": "#3dff6a", "action": "arm-laser", "lambdaNm": 532, "text": "Arm 532 nm" } },
-        { "id": "pad-flip", "kind": "interact.pad", "position": [2.4, 0.04, 2.4], "props": { "color": "#f0c040", "action": "flip-blaze", "text": "Flip blaze" } },
+        { "id": "pedestal-blaze", "kind": "prop.box", "position": [2.4, 0.45, 1.2], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-options-blaze", "kind": "interact.pad", "position": [2.4, 0.94, 1.2], "props": { "color": "#f0c040", "action": "cycle-options", "text": "Change options" } },
         { "id": "pad-confirm-blaze", "kind": "interact.pad", "position": [0, 0.04, 2.2], "props": { "color": "#f0c040", "action": "confirm-blaze", "text": "Blaze +1 is brighter" } },
         { "id": "detector-holo-plus", "kind": "prop.detector", "position": [-0.8, 1.35, 3.2], "props": { "lambdaNm": 532, "order": 1, "flag": "blaze-holo-plus", "gratingId": "card-holo", "radius": 0.2 } },
         { "id": "detector-holo-minus", "kind": "prop.detector", "position": [-4.0, 1.35, 3.2], "props": { "lambdaNm": 532, "order": -1, "flag": "blaze-holo-minus", "gratingId": "card-holo", "radius": 0.2 } },
@@ -323,10 +345,14 @@
             "holes": [{ "wall": "south", "u": 0 }]
           }
         },
-        { "id": "card-echelle", "kind": "prop.grating", "position": [0, 1.35, -2], "props": { "width": 1.5, "height": 0.9, "linesPerMm": 75, "blazeDeg": 63, "mMin": 12, "mMax": 16, "hover": false } },
+        { "id": "card-echelle", "kind": "prop.grating", "position": [0, 1.35, -2], "props": { "width": 1.5, "height": 0.9, "linesPerMm": 75, "blazeDeg": 63, "mMin": 12, "mMax": 16, "options": [
+          { "label": "orders stacked", "tilt": 0, "linesPerMm": 75, "blazeDeg": 63 },
+          { "label": "cross tilt 8 deg", "tilt": 8, "linesPerMm": 75, "blazeDeg": 63 }
+        ] } },
         { "id": "laser-echelle", "kind": "prop.laser", "position": [0, 1.05, 3.2], "props": { "lambdaNm": 532, "targetId": "card-echelle" } },
         { "id": "pad-arm-e", "kind": "interact.pad", "position": [0, 0.04, 2.2], "props": { "color": "#3dff6a", "action": "arm-laser", "lambdaNm": 532, "text": "Arm 532 nm" } },
-        { "id": "pad-tilt", "kind": "interact.pad", "position": [2.2, 0.04, 2.2], "props": { "color": "#c070ff", "action": "tilt-cross", "text": "Tilt cross-dispersion 8 deg" } },
+        { "id": "pedestal-echelle", "kind": "prop.box", "position": [2.2, 0.45, 1.2], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-options-e", "kind": "interact.pad", "position": [2.2, 0.94, 1.2], "props": { "color": "#c070ff", "action": "cycle-options", "text": "Change options" } },
         { "id": "detector-echelle", "kind": "prop.detector", "position": [3.6, 1.35, 2.8], "rotation": [0, 2.5, 0], "props": { "lambdaNm": 532, "order": 15, "flag": "echelle-hit", "requireTilt": true, "radius": 0.3, "gratingId": "card-echelle" } },
         { "id": "plaque-echelle", "kind": "prop.plaque", "position": [-3.4, 1.6, 3.4], "props": { "color": "#c070ff", "text": "Echelle: coarse d, high m, high R. FSR at m=15, 532 nm is 35.5 nm.", "action": "read" } },
         { "id": "plaque-cross", "kind": "prop.plaque", "position": [3.4, 1.6, 3.4], "props": { "color": "#e8eef8", "text": "High orders pack. A weak cross tilt separates them. The 532 m=15 pad only counts after the tilt.", "action": "read" } },
@@ -358,11 +384,13 @@
             "zMin": -8,
             "zMax": 5,
             "height": 4.4,
-            "holes": [{ "wall": "south", "u": 0 }],
+            "holes": [{ "wall": "south", "u": 0 }, { "wall": "east", "u": 0 }],
             "roundCorners": true
           }
         },
-        { "id": "card-rowland", "kind": "prop.grating", "position": [0, 1.35, 0], "props": { "width": 1.3, "height": 0.84, "linesPerMm": 600, "blazeDeg": 10.37, "hover": false } },
+        { "id": "card-rowland", "kind": "prop.grating", "position": [0, 1.35, 0], "props": { "width": 1.3, "height": 0.84, "linesPerMm": 600, "blazeDeg": 10.37 } },
+        { "id": "pedestal-rowland", "kind": "prop.box", "position": [2.2, 0.45, 2.2], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-options-r", "kind": "interact.pad", "position": [2.2, 0.94, 2.2], "props": { "color": "#6ad8ff", "action": "cycle-options", "text": "Change options" } },
         { "id": "circle-rowland", "kind": "prop.protractor", "position": [0, 0, 0], "props": { "radius": 4 } },
         { "id": "laser-rowland", "kind": "prop.laser", "position": [0, 1.05, 3.2], "props": { "lambdaNm": 532, "targetId": "card-rowland" } },
         { "id": "pad-arm-r", "kind": "interact.pad", "position": [0, 0.04, 3.6], "props": { "color": "#3dff6a", "action": "arm-laser", "lambdaNm": 532, "text": "Arm 532 nm" } },
@@ -370,10 +398,259 @@
         { "id": "detector-off-circle", "kind": "prop.detector", "position": [5.4, 1.35, -3.2], "props": { "lambdaNm": 532, "order": 1, "flag": "rowland-miss", "radius": 0.2, "gratingId": "card-rowland" } },
         { "id": "plaque-rowland", "kind": "prop.plaque", "position": [-4.2, 1.6, 4.4], "props": { "color": "#88a0b8", "text": "Concave grating: Rowland circle. Entrance slit and spectrum share one circle.", "action": "read" } },
         { "id": "plaque-off", "kind": "prop.plaque", "position": [5.4, 1.6, -3.2], "props": { "color": "#6ad8ff", "text": "Off the circle the 532 m=+1 order does not land. Walk the ring.", "action": "read" } },
-        { "id": "frame-rowland-back", "kind": "arch.frame", "position": [0, 1, 5], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#88a0b8", "coversPortalId": "door-rowland-rotunda" } }
+        { "id": "frame-rowland-back", "kind": "arch.frame", "position": [0, 1, 5], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#88a0b8", "coversPortalId": "door-rowland-rotunda" } },
+        { "id": "frame-rowland-disc", "kind": "arch.frame", "position": [8, 1, 0], "rotation": [0, -1.5707963267948966, 0], "props": { "color": "#e8eef8", "coversPortalId": "door-rowland-disc" } }
       ],
       "portals": [
-        { "id": "door-rowland-rotunda", "position": [0, 1, 5], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-rotunda-rowland" }
+        { "id": "door-rowland-rotunda", "position": [0, 1, 5], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-rotunda-rowland" },
+        { "id": "door-rowland-disc", "position": [8, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-disc-rowland", "enabled": false }
+      ]
+    },
+    {
+      "id": "disc",
+      "title": "Pit pitch",
+      "tags": ["interior", "cyber", "optics", "grating"],
+      "origin": [1250, 0, 0],
+      "clearColor": "#0a0c10",
+      "atmosphere": { "density": 0.2 },
+      "entities": [
+        { "id": "sky-disc", "kind": "env.sky", "props": { "color": "#0a0c10" } },
+        { "id": "light-disc", "kind": "env.light", "props": { "ambient": "#141820", "sun": "#e8eef8", "sunIntensity": 0.2, "ambientIntensity": 0.14 } },
+        { "id": "floor-disc", "kind": "env.floor", "props": { "material": "scifi.plate", "size": 22 } },
+        { "id": "shell-disc", "kind": "arch.chamber", "props": { "material": "scifi.plate", "runningLights": true, "stripMaterial": "cyber.strip.white", "halfX": 7, "zMin": -7, "zMax": 4, "height": 4, "holes": [{ "wall": "west", "u": 0 }, { "wall": "north", "u": 0 }] } },
+        { "id": "card-disc", "kind": "prop.grating", "position": [0, 1.35, -2], "props": { "width": 1.2, "height": 0.8, "linesPerMm": 625, "blazeDeg": 0, "options": [
+          { "label": "incidence 40 deg", "yaw": 0.698, "linesPerMm": 625 },
+          { "label": "incidence 50 deg", "yaw": 0.873, "linesPerMm": 625 },
+          { "label": "incidence 60 deg", "yaw": 1.047, "linesPerMm": 625 },
+          { "label": "incidence 70 deg", "yaw": 1.222, "linesPerMm": 625 }
+        ] } },
+        { "id": "pedestal-disc", "kind": "prop.box", "position": [2.2, 0.45, 1.6], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-options-disc", "kind": "interact.pad", "position": [2.2, 0.94, 1.6], "props": { "color": "#6ad8ff", "action": "cycle-options", "text": "Change options" } },
+        { "id": "laser-disc", "kind": "prop.laser", "position": [0, 1.05, 3], "props": { "lambdaNm": 650, "targetId": "card-disc" } },
+        { "id": "pad-arm-disc", "kind": "interact.pad", "position": [0, 0.04, 2.2], "props": { "color": "#ff6a80", "action": "arm-laser", "lambdaNm": 650, "text": "Arm 650 nm" } },
+        { "id": "detector-disc", "kind": "prop.detector", "position": [3.2, 1.35, 2.4], "props": { "lambdaNm": 650, "order": 1, "flag": "disc-pitch", "radius": 0.3, "gratingId": "card-disc" } },
+        { "id": "plaque-disc", "kind": "prop.plaque", "position": [-3.4, 1.6, 3.4], "props": { "color": "#e8eef8", "text": "Pressed discs are gratings. Pit period ~1.6 um, about 625 /mm.", "action": "read" } },
+        { "id": "frame-disc-back", "kind": "arch.frame", "position": [-7, 1, 0], "rotation": [0, 1.5707963267948966, 0], "props": { "color": "#88a0b8", "coversPortalId": "door-disc-rowland" } },
+        { "id": "frame-disc-h", "kind": "arch.frame", "position": [0, 1, -7], "props": { "color": "#ff3b4a", "coversPortalId": "door-disc-hydrogen" } }
+      ],
+      "portals": [
+        { "id": "door-disc-rowland", "position": [-7, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-rowland-disc" },
+        { "id": "door-disc-hydrogen", "position": [0, 1, -7], "yaw": 0, "size": [2, 2], "destinationId": "door-hydrogen-disc", "enabled": false }
+      ]
+    },
+    {
+      "id": "hydrogen",
+      "title": "Balmer",
+      "tags": ["interior", "cyber", "optics", "grating"],
+      "origin": [0, 0, 500],
+      "clearColor": "#100408",
+      "atmosphere": { "density": 0.2 },
+      "entities": [
+        { "id": "sky-h", "kind": "env.sky", "props": { "color": "#100408" } },
+        { "id": "light-h", "kind": "env.light", "props": { "ambient": "#201018", "sun": "#ff3b4a", "sunIntensity": 0.2, "ambientIntensity": 0.14 } },
+        { "id": "floor-h", "kind": "env.floor", "props": { "material": "scifi.hull", "size": 22 } },
+        { "id": "shell-h", "kind": "arch.chamber", "props": { "material": "scifi.hull", "runningLights": true, "stripMaterial": "cyber.strip.red", "halfX": 7, "zMin": -7, "zMax": 4, "height": 4.2, "holes": [{ "wall": "south", "u": 0 }, { "wall": "east", "u": 0 }] } },
+        { "id": "card-h", "kind": "prop.grating", "position": [0, 1.35, -2], "props": { "width": 1.2, "height": 0.8, "linesPerMm": 600, "blazeDeg": 10.37 } },
+        { "id": "pedestal-h", "kind": "prop.box", "position": [2.2, 0.45, 1.6], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-options-h", "kind": "interact.pad", "position": [2.2, 0.94, 1.6], "props": { "color": "#6ad8ff", "action": "cycle-options", "text": "Change options" } },
+        { "id": "lamp-h", "kind": "prop.laser", "position": [0, 1.05, 3], "props": { "lambdaNm": 656.3, "lines": [656.3, 486.1, 434.0, 410.2], "targetId": "card-h", "power": 0.8 } },
+        { "id": "pad-lamp-h", "kind": "interact.pad", "position": [0, 0.04, 2.2], "props": { "color": "#ff3b4a", "action": "arm-lamp", "lambdaNm": 656.3, "text": "Arm Balmer lamp" } },
+        { "id": "det-ha", "kind": "prop.detector", "position": [2.36, 1.35, 2.55], "props": { "lambdaNm": 656.3, "order": 1, "flag": "balmer-ha", "radius": 0.22, "gratingId": "card-h" } },
+        { "id": "det-hb", "kind": "prop.detector", "position": [1.75, 1.35, 2.9], "props": { "lambdaNm": 486.1, "order": 1, "flag": "balmer-hb", "radius": 0.22, "gratingId": "card-h" } },
+        { "id": "det-hg", "kind": "prop.detector", "position": [1.55, 1.35, 3.0], "props": { "lambdaNm": 434, "order": 1, "flag": "balmer-hg", "lambdaTolNm": 2, "radius": 0.2, "gratingId": "card-h" } },
+        { "id": "det-hd", "kind": "prop.detector", "position": [1.47, 1.35, 3.05], "props": { "lambdaNm": 410.2, "order": 1, "flag": "balmer-hd", "radius": 0.2, "gratingId": "card-h" } },
+        { "id": "plaque-h", "kind": "prop.plaque", "position": [-3.4, 1.6, 3.4], "props": { "color": "#ff3b4a", "text": "Balmer series. H-alpha 656.3 nm at 23.2 deg. H-delta 410.2 nm at 14.3 deg. 600 /mm, i=0, m=+1.", "action": "read" } },
+        { "id": "frame-h-back", "kind": "arch.frame", "position": [0, 1, 4], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#e8eef8", "coversPortalId": "door-hydrogen-disc" } },
+        { "id": "frame-h-na", "kind": "arch.frame", "position": [7, 1, 0], "rotation": [0, -1.5707963267948966, 0], "props": { "color": "#f0c040", "coversPortalId": "door-hydrogen-sodium" } }
+      ],
+      "portals": [
+        { "id": "door-hydrogen-disc", "position": [0, 1, 4], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-disc-hydrogen" },
+        { "id": "door-hydrogen-sodium", "position": [7, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-sodium-hydrogen", "enabled": false }
+      ]
+    },
+    {
+      "id": "sodium",
+      "title": "Sodium D",
+      "tags": ["interior", "cyber", "optics", "grating"],
+      "origin": [250, 0, 500],
+      "clearColor": "#100c04",
+      "atmosphere": { "density": 0.18 },
+      "entities": [
+        { "id": "sky-na", "kind": "env.sky", "props": { "color": "#100c04" } },
+        { "id": "light-na", "kind": "env.light", "props": { "ambient": "#20180c", "sun": "#f0c040", "sunIntensity": 0.2, "ambientIntensity": 0.12 } },
+        { "id": "floor-na", "kind": "env.floor", "props": { "material": "scifi.tile", "size": 26 } },
+        { "id": "shell-na", "kind": "arch.chamber", "props": { "material": "scifi.tile", "runningLights": true, "stripMaterial": "cyber.strip.gold", "halfX": 4.2, "zMin": -12, "zMax": 4, "height": 3.8, "holes": [{ "wall": "west", "u": 0 }, { "wall": "east", "u": 0 }] } },
+        { "id": "slit-na", "kind": "prop.slit", "position": [0, 0, 2.8], "props": { "width": 0.04 } },
+        { "id": "card-na", "kind": "prop.grating", "position": [0, 1.35, -4], "props": { "width": 1.3, "height": 0.84, "linesPerMm": 1800, "blazeDeg": 10.37, "options": [
+          { "label": "slit 4 cm (unresolved)", "slitWidth": 0.04, "linesPerMm": 1800 },
+          { "label": "slit 2 cm (R enough)", "slitWidth": 0.02, "linesPerMm": 1800 },
+          { "label": "slit 8 cm (worse)", "slitWidth": 0.08, "linesPerMm": 1800 }
+        ] } },
+        { "id": "pedestal-na", "kind": "prop.box", "position": [2.2, 0.45, 1.2], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-options-na", "kind": "interact.pad", "position": [2.2, 0.94, 1.2], "props": { "color": "#f0c040", "action": "cycle-options", "text": "Change options" } },
+        { "id": "lamp-na", "kind": "prop.laser", "position": [0, 1.05, 3.4], "props": { "lambdaNm": 589.6, "lines": [589.592, 588.995], "targetId": "card-na", "power": 0.7 } },
+        { "id": "pad-lamp-na", "kind": "interact.pad", "position": [0, 0.04, 1.6], "props": { "color": "#f0c040", "action": "arm-lamp", "lambdaNm": 589.6, "text": "Arm sodium lamp" } },
+        { "id": "pad-resolve", "kind": "interact.pad", "position": [-2.2, 0.04, 1.6], "props": { "color": "#e8eef8", "action": "resolve-sodium", "text": "Resolve D1 / D2" } },
+        { "id": "screen-na", "kind": "prop.screen", "position": [0, 1.6, -10], "props": { "width": 1.6, "height": 0.9, "stand": false } },
+        { "id": "plaque-na", "kind": "prop.plaque", "position": [-2.4, 1.6, 3.4], "props": { "color": "#f0c040", "text": "D1 589.592 nm, D2 588.995 nm. R = lambda/d(lambda) ~ 1000. Wide slit fails. Narrow slit resolves.", "action": "read" } },
+        { "id": "frame-na-back", "kind": "arch.frame", "position": [-4.2, 1, 0], "rotation": [0, 1.5707963267948966, 0], "props": { "color": "#ff3b4a", "coversPortalId": "door-sodium-hydrogen" } },
+        { "id": "frame-na-ov", "kind": "arch.frame", "position": [4.2, 1, 0], "rotation": [0, -1.5707963267948966, 0], "props": { "color": "#ff9a3b", "coversPortalId": "door-sodium-overlap" } }
+      ],
+      "portals": [
+        { "id": "door-sodium-hydrogen", "position": [-4.2, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-hydrogen-sodium" },
+        { "id": "door-sodium-overlap", "position": [4.2, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-overlap-sodium", "enabled": false }
+      ]
+    },
+    {
+      "id": "overlap",
+      "title": "Overlap",
+      "tags": ["interior", "cyber", "optics", "grating"],
+      "origin": [500, 0, 500],
+      "clearColor": "#100804",
+      "atmosphere": { "density": 0.2 },
+      "entities": [
+        { "id": "sky-ov", "kind": "env.sky", "props": { "color": "#100804" } },
+        { "id": "light-ov", "kind": "env.light", "props": { "ambient": "#20140c", "sun": "#ff9a3b", "sunIntensity": 0.2, "ambientIntensity": 0.12 } },
+        { "id": "floor-ov", "kind": "env.floor", "props": { "material": "scifi.hazard", "size": 20 } },
+        { "id": "shell-ov", "kind": "arch.chamber", "props": { "material": "scifi.cabin", "runningLights": true, "stripMaterial": "optics.strip", "halfX": 7, "zMin": -7, "zMax": 4, "height": 4, "holes": [{ "wall": "west", "u": 0 }, { "wall": "east", "u": 0 }] } },
+        { "id": "hazard-ov", "kind": "prop.box", "position": [0, 0.04, 0], "props": { "size": [8, 0.08, 1.1], "material": "scifi.hazard" } },
+        { "id": "card-ov", "kind": "prop.grating", "position": [0, 1.35, -2], "props": { "width": 1.2, "height": 0.8, "linesPerMm": 600, "blazeDeg": 10.37, "mMax": 2, "options": [
+          { "label": "no filter", "filterBand": null, "linesPerMm": 600, "mMax": 2 },
+          { "label": "bandpass 500-700 nm", "filterBand": [500, 700], "linesPerMm": 600, "mMax": 2 }
+        ] } },
+        { "id": "pedestal-ov", "kind": "prop.box", "position": [2.2, 0.45, 1.6], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-options-ov", "kind": "interact.pad", "position": [2.2, 0.94, 1.6], "props": { "color": "#ff9a3b", "action": "cycle-options", "text": "Change options" } },
+        { "id": "laser-ov", "kind": "prop.laser", "position": [0, 1.05, 3], "props": { "lambdaNm": 0, "targetId": "card-ov", "power": 0.5 } },
+        { "id": "pad-arm-ov", "kind": "interact.pad", "position": [0, 0.04, 2.2], "props": { "color": "#e8eef8", "action": "arm-laser", "lambdaNm": 0, "text": "Arm continuum" } },
+        { "id": "detector-raw", "kind": "prop.detector", "position": [2.4, 1.35, 2.6], "props": { "lambdaNm": 400, "order": 2, "flag": "overlap-raw", "lambdaTolNm": 30, "radius": 0.24, "gratingId": "card-ov" } },
+        { "id": "detector-filtered", "kind": "prop.detector", "position": [3.0, 1.35, 2.2], "props": { "lambdaNm": 620, "order": 1, "flag": "overlap-red", "lambdaTolNm": 30, "radius": 0.24, "gratingId": "card-ov" } },
+        { "id": "plaque-ov", "kind": "prop.plaque", "position": [-3.4, 1.6, 3.4], "props": { "color": "#ff9a3b", "text": "m*lambda is what the grating sees. 2 x 400 nm = 1 x 800 nm. A 500-700 nm bandpass kills the blue second order.", "action": "read" } },
+        { "id": "frame-ov-back", "kind": "arch.frame", "position": [-7, 1, 0], "rotation": [0, 1.5707963267948966, 0], "props": { "color": "#f0c040", "coversPortalId": "door-overlap-sodium" } },
+        { "id": "frame-ov-p", "kind": "arch.frame", "position": [7, 1, 0], "rotation": [0, -1.5707963267948966, 0], "props": { "color": "#c070ff", "coversPortalId": "door-overlap-polar" } }
+      ],
+      "portals": [
+        { "id": "door-overlap-sodium", "position": [-7, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-sodium-overlap" },
+        { "id": "door-overlap-polar", "position": [7, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-polar-overlap", "enabled": false }
+      ]
+    },
+    {
+      "id": "polar",
+      "title": "Polar",
+      "tags": ["interior", "cyber", "optics", "grating"],
+      "origin": [750, 0, 500],
+      "clearColor": "#080610",
+      "atmosphere": { "density": 0.18 },
+      "entities": [
+        { "id": "sky-p", "kind": "env.sky", "props": { "color": "#080610" } },
+        { "id": "light-p", "kind": "env.light", "props": { "ambient": "#141018", "sun": "#c070ff", "sunIntensity": 0.2, "ambientIntensity": 0.12 } },
+        { "id": "floor-p", "kind": "env.floor", "props": { "material": "scifi.tile", "size": 20 } },
+        { "id": "shell-p", "kind": "arch.chamber", "props": { "material": "scifi.tile", "runningLights": true, "stripMaterial": "optics.strip.violet", "halfX": 7, "zMin": -7, "zMax": 4, "height": 4, "holes": [{ "wall": "west", "u": 0 }, { "wall": "east", "u": 0 }] } },
+        { "id": "card-p", "kind": "prop.grating", "position": [0, 1.35, -2], "props": { "width": 1.2, "height": 0.8, "linesPerMm": 600, "blazeDeg": 10.37 } },
+        { "id": "pedestal-p", "kind": "prop.box", "position": [2.2, 0.45, 1.6], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-options-p", "kind": "interact.pad", "position": [2.2, 0.94, 1.6], "props": { "color": "#6ad8ff", "action": "cycle-options", "text": "Change options" } },
+        { "id": "laser-p", "kind": "prop.laser", "position": [0, 1.05, 3], "props": { "lambdaNm": 532, "targetId": "card-p" } },
+        { "id": "pad-arm-p", "kind": "interact.pad", "position": [0, 0.04, 2.2], "props": { "color": "#3dff6a", "action": "arm-laser", "lambdaNm": 532, "text": "Arm 532 nm" } },
+        { "id": "glass-s", "kind": "prop.glass", "position": [2.4, 0, 1.2], "props": { "width": 1.1, "height": 1.6 } },
+        { "id": "glass-p", "kind": "prop.glass", "position": [-2.4, 0, 1.2], "props": { "width": 1.1, "height": 1.6 } },
+        { "id": "pad-polar", "kind": "interact.pad", "position": [2.4, 0.04, 2.2], "props": { "color": "#c070ff", "action": "confirm-polar", "text": "S is brighter on this ruling" } },
+        { "id": "plaque-p", "kind": "prop.plaque", "position": [-3.4, 1.6, 3.4], "props": { "color": "#c070ff", "text": "Scalar code cannot do full RCWA. We mix two efficiencies. Real gratings are vector. S is brighter on a typical ruling.", "action": "read" } },
+        { "id": "frame-p-back", "kind": "arch.frame", "position": [-7, 1, 0], "rotation": [0, 1.5707963267948966, 0], "props": { "color": "#ff9a3b", "coversPortalId": "door-polar-overlap" } },
+        { "id": "frame-p-inv", "kind": "arch.frame", "position": [7, 1, 0], "rotation": [0, -1.5707963267948966, 0], "props": { "color": "#40e0c0", "coversPortalId": "door-polar-invisible" } }
+      ],
+      "portals": [
+        { "id": "door-polar-overlap", "position": [-7, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-overlap-polar" },
+        { "id": "door-polar-invisible", "position": [7, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-invisible-polar", "enabled": false }
+      ]
+    },
+    {
+      "id": "invisible",
+      "title": "Invisible",
+      "tags": ["interior", "cyber", "optics", "grating"],
+      "origin": [1000, 0, 500],
+      "clearColor": "#040608",
+      "atmosphere": { "density": 0.12 },
+      "entities": [
+        { "id": "sky-inv", "kind": "env.sky", "props": { "color": "#040608" } },
+        { "id": "light-inv", "kind": "env.light", "props": { "ambient": "#0c1014", "sun": "#88a0b8", "sunIntensity": 0.12, "ambientIntensity": 0.08 } },
+        { "id": "floor-inv", "kind": "env.floor", "props": { "material": "scifi.cement", "size": 20 } },
+        { "id": "shell-inv", "kind": "arch.chamber", "props": { "material": "scifi.cement", "runningLights": true, "stripMaterial": "optics.strip", "halfX": 7, "zMin": -7, "zMax": 4, "height": 4, "holes": [{ "wall": "west", "u": 0 }, { "wall": "east", "u": 0 }] } },
+        { "id": "card-inv", "kind": "prop.grating", "position": [0, 1.35, -2], "props": { "width": 1.2, "height": 0.8, "linesPerMm": 600, "blazeDeg": 10.37 } },
+        { "id": "pedestal-inv", "kind": "prop.box", "position": [2.2, 0.45, 1.6], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-options-inv", "kind": "interact.pad", "position": [2.2, 0.94, 1.6], "props": { "color": "#6ad8ff", "action": "cycle-options", "text": "Change options" } },
+        { "id": "laser-uv", "kind": "prop.laser", "position": [-2.2, 1.05, 3], "props": { "lambdaNm": 365, "targetId": "card-inv" } },
+        { "id": "laser-ir", "kind": "prop.laser", "position": [2.2, 1.05, 3], "props": { "lambdaNm": 850, "targetId": "card-inv" } },
+        { "id": "pad-uv", "kind": "interact.pad", "position": [-2.2, 0.04, 2.2], "props": { "color": "#40e0c0", "action": "arm-laser", "lambdaNm": 365, "text": "Arm 365 nm UV" } },
+        { "id": "pad-ir", "kind": "interact.pad", "position": [2.2, 0.04, 2.2], "props": { "color": "#884040", "action": "arm-laser", "lambdaNm": 850, "text": "Arm 850 nm IR" } },
+        { "id": "phosphor", "kind": "prop.detector", "position": [-3.2, 1.35, 1.2], "props": { "lambdaNm": 365, "order": 1, "flag": "seen-uv", "convert": "phosphor", "radius": 0.45, "gratingId": "card-inv" } },
+        { "id": "thermal", "kind": "prop.detector", "position": [3.2, 1.35, 1.2], "props": { "lambdaNm": 850, "order": 1, "flag": "seen-ir", "convert": "thermal", "radius": 0.45, "gratingId": "card-inv" } },
+        { "id": "plaque-inv", "kind": "prop.plaque", "position": [0, 1.6, 3.6], "props": { "color": "#88a0b8", "text": "The grating works outside 380-780 nm. Your eye does not. Phosphor converts UV. A thermal plate converts IR.", "action": "read" } },
+        { "id": "frame-inv-back", "kind": "arch.frame", "position": [-7, 1, 0], "rotation": [0, 1.5707963267948966, 0], "props": { "color": "#c070ff", "coversPortalId": "door-invisible-polar" } },
+        { "id": "frame-inv-slit", "kind": "arch.frame", "position": [7, 1, 0], "rotation": [0, -1.5707963267948966, 0], "props": { "color": "#3dff6a", "coversPortalId": "door-invisible-slit" } }
+      ],
+      "portals": [
+        { "id": "door-invisible-polar", "position": [-7, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-polar-invisible" },
+        { "id": "door-invisible-slit", "position": [7, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-slit-invisible", "enabled": false }
+      ]
+    },
+    {
+      "id": "slit",
+      "title": "Exit slit",
+      "tags": ["interior", "cyber", "optics", "grating"],
+      "origin": [1250, 0, 500],
+      "clearColor": "#06080c",
+      "atmosphere": { "density": 0.16 },
+      "entities": [
+        { "id": "sky-slit", "kind": "env.sky", "props": { "color": "#06080c" } },
+        { "id": "light-slit", "kind": "env.light", "props": { "ambient": "#10141a", "sun": "#3dff6a", "sunIntensity": 0.18, "ambientIntensity": 0.12 } },
+        { "id": "floor-slit", "kind": "env.floor", "props": { "material": "scifi.rubber", "size": 22 } },
+        { "id": "shell-slit", "kind": "arch.chamber", "props": { "material": "scifi.cabin", "runningLights": true, "stripMaterial": "optics.strip", "halfX": 5, "zMin": -10, "zMax": 5, "height": 3.8, "holes": [{ "wall": "west", "u": 0 }, { "wall": "north", "u": 0 }] } },
+        { "id": "slit-enter", "kind": "prop.slit", "position": [0, 0, 3.6], "props": { "width": 0.04 } },
+        { "id": "card-slit", "kind": "prop.grating", "position": [0, 1.35, -2], "props": { "width": 1.2, "height": 0.8, "linesPerMm": 600, "blazeDeg": 10.37, "options": [
+          { "label": "pass 532 nm m=+1", "linesPerMm": 600, "blazeDeg": 10.37 },
+          { "label": "1200 /mm", "linesPerMm": 1200, "blazeDeg": 10.37 }
+        ] } },
+        { "id": "pedestal-slit", "kind": "prop.box", "position": [2.2, 0.45, 1.6], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-options-slit", "kind": "interact.pad", "position": [2.2, 0.94, 1.6], "props": { "color": "#6ad8ff", "action": "cycle-options", "text": "Change options" } },
+        { "id": "laser-slit", "kind": "prop.laser", "position": [0, 1.05, 4.4], "props": { "lambdaNm": 532, "targetId": "card-slit", "enabled": true } },
+        { "id": "detector-exit", "kind": "prop.detector", "position": [1.7, 1.35, 2.2], "rotation": [0, 2.82, 0], "props": { "lambdaNm": 532, "order": 1, "flag": "exit-532", "radius": 0.32, "gratingId": "card-slit" } },
+        { "id": "shutter-slit", "kind": "prop.shutter", "position": [0, 0, -10], "props": { "flag": "exit-532", "portalId": "door-slit-vault" } },
+        { "id": "plaque-slit", "kind": "prop.plaque", "position": [-2.6, 1.6, 4.4], "props": { "color": "#3dff6a", "text": "A monochromator is a grating plus two slits. You are walking the selected lambda.", "action": "read" } },
+        { "id": "frame-slit-back", "kind": "arch.frame", "position": [-5, 1, 0], "rotation": [0, 1.5707963267948966, 0], "props": { "color": "#40e0c0", "coversPortalId": "door-slit-invisible" } },
+        { "id": "frame-slit-vault", "kind": "arch.frame", "position": [0, 1, -10], "props": { "color": "#f0c040", "coversPortalId": "door-slit-vault" } }
+      ],
+      "portals": [
+        { "id": "door-slit-invisible", "position": [-5, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-invisible-slit" },
+        { "id": "door-slit-vault", "position": [0, 1, -10], "yaw": 0, "size": [2, 2], "destinationId": "door-vault-slit", "enabled": false }
+      ]
+    },
+    {
+      "id": "vault",
+      "title": "Return beam",
+      "tags": ["interior", "cyber", "optics", "grating"],
+      "origin": [1500, 0, 500],
+      "clearColor": "#080604",
+      "atmosphere": { "density": 0.14 },
+      "entities": [
+        { "id": "sky-v", "kind": "env.sky", "props": { "color": "#080604" } },
+        { "id": "light-v", "kind": "env.light", "props": { "ambient": "#14120c", "sun": "#f0c040", "sunIntensity": 0.16, "ambientIntensity": 0.1 } },
+        { "id": "floor-v", "kind": "env.floor", "props": { "material": "scifi.gate.floor", "size": 22 } },
+        { "id": "shell-v", "kind": "arch.rotunda", "props": { "material": "scifi.hull", "runningLights": true, "stripMaterial": "optics.strip", "radius": 8, "height": 5.6, "holes": [{ "wall": "south", "u": 0 }] } },
+        { "id": "card-v", "kind": "prop.grating", "position": [0, 1.35, 0], "props": { "width": 1.4, "height": 0.88, "linesPerMm": 600, "blazeDeg": 10.37, "options": [
+          { "label": "normal incidence", "yaw": 0, "blazeDeg": 10.37, "linesPerMm": 600 },
+          { "label": "Littrow 532 nm", "yaw": 0.161, "blazeDeg": 9.2, "linesPerMm": 600 },
+          { "label": "off by 3 deg", "yaw": 0.213, "blazeDeg": 9.2, "linesPerMm": 600 }
+        ] } },
+        { "id": "pedestal-v", "kind": "prop.box", "position": [2.2, 0.45, 2.2], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-options-v", "kind": "interact.pad", "position": [2.2, 0.94, 2.2], "props": { "color": "#f0c040", "action": "cycle-options", "text": "Change options" } },
+        { "id": "laser-v", "kind": "prop.laser", "position": [0, 1.05, 5], "props": { "lambdaNm": 532, "targetId": "card-v", "enabled": true } },
+        { "id": "detector-littrow", "kind": "prop.detector", "position": [0, 1.35, 4.6], "rotation": [0, 3.141592653589793, 0], "props": { "lambdaNm": 532, "order": 1, "flag": "littrow-lock", "radius": 0.16, "toleranceDeg": 1.2, "gratingId": "card-v" } },
+        { "id": "prize-v", "kind": "prop.box", "position": [0, 0.4, -3.4], "props": { "size": [0.5, 0.8, 0.5], "material": "scifi.marble" } },
+        { "id": "plaque-v", "kind": "prop.plaque", "position": [-3.2, 1.6, 6.4], "props": { "color": "#f0c040", "text": "Littrow. i = theta = theta_B. 2 d sin(theta_B) = m lambda. Cycle to the 532 nm return.", "action": "read" } },
+        { "id": "plaque-v2", "kind": "prop.plaque", "position": [3.2, 1.6, 6.4], "props": { "color": "#e8eef8", "text": "You can leave. The card stays.", "action": "read" } },
+        { "id": "frame-v-back", "kind": "arch.frame", "position": [0, 1, 8], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#3dff6a", "coversPortalId": "door-vault-slit" } }
+      ],
+      "portals": [
+        { "id": "door-vault-slit", "position": [0, 1, 8], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-slit-vault" }
       ]
     }
   ]

@@ -106,6 +106,7 @@ describe('world data', () => {
     assert.ok(groups.prop.includes('prop.grating'));
     assert.ok(groups.prop.includes('prop.laser'));
     assert.ok(groups.prop.includes('prop.detector'));
+    assert.ok(groups.prop.includes('prop.shutter'));
   });
 
   it('loads two-rooms and resolves portal links', () => {

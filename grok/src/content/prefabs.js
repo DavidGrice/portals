@@ -1132,19 +1132,19 @@ export const prefabs = {
     addBox(group, rim, 0, -height * 0.5 - 0.02, 0, width + 0.08, 0.04, 0.04);
     addBox(group, rim, -width * 0.5 - 0.02, 0, 0, 0.04, height + 0.08, 0.04);
     addBox(group, rim, width * 0.5 + 0.02, 0, 0, 0.04, height + 0.08, 0.04);
-    if (entity.props?.spin) {
-      group.userData.spin = entity.props.spin;
-    }
     group.userData.grating = {
       linesPerMm,
       blazeDeg,
       mode,
-      hover: entity.props?.hover !== false,
+      hover: false,
       baseY: entity.position?.[1] ?? group.position.y,
-      locked: entity.props?.spin ? false : true,
+      locked: true,
       mMin: entity.props?.mMin ?? null,
       mMax: entity.props?.mMax ?? null,
       crossTilt: false,
+      options: entity.props?.options ?? null,
+      optionIndex: 0,
+      label: entity.props?.options?.[0]?.label ?? `${linesPerMm} /mm ${mode}`,
     };
     return group;
   },
@@ -1178,6 +1178,7 @@ export const prefabs = {
     group.add(spot);
     group.userData.laser = {
       lambdaNm,
+      lines: entity.props?.lines ?? null,
       enabled: entity.props?.enabled === true,
       beamWidth: entity.props?.beamWidth ?? 0.04,
       power: entity.props?.power ?? 1,
@@ -1217,6 +1218,8 @@ export const prefabs = {
       unlockPortalId: entity.props?.unlockPortalId ?? null,
       gratingId: entity.props?.gratingId ?? null,
       requireTilt: entity.props?.requireTilt === true,
+      requireNarrowSlit: entity.props?.requireNarrowSlit === true,
+      convert: entity.props?.convert ?? null,
       lit: false,
       hold: 0,
     };
@@ -1231,6 +1234,27 @@ export const prefabs = {
     addBox(group, metal, -0.55, 1.1, 0, 0.9, 2.2, 0.08);
     addBox(group, metal, 0.55, 1.1, 0, 0.9, 2.2, 0.08);
     group.userData.slit = { width };
+    return group;
+  },
+
+  shutter(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const width = entity.props?.width ?? 2.1;
+    const height = entity.props?.height ?? 2.3;
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(width, height, 0.08),
+      buildMaterial('glass.pane'),
+    );
+    mesh.position.y = height * 0.5;
+    mesh.material.transparent = true;
+    mesh.material.opacity = 0.45;
+    mesh.userData.collider = { type: 'aabb' };
+    group.add(mesh);
+    group.userData.shutter = {
+      flag: entity.props?.flag ?? 'exit-532',
+      portalId: entity.props?.portalId ?? null,
+    };
     return group;
   },
 
