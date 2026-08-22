@@ -1107,6 +1107,40 @@ export const prefabs = {
     return group;
   },
 
+  ring(entity) {
+    const radius = entity.props?.radius ?? 1.85;
+    const tube = entity.props?.tube ?? 0.16;
+    const color = parseColor(entity.props?.color, 0xc8b090);
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const mesh = new THREE.Mesh(
+      new THREE.TorusGeometry(radius, tube, 18, 64),
+      entity.props?.material
+        ? buildMaterial(entity.props.material, { color })
+        : standardMaterial(color, { roughness: 0.28, metalness: 0.88, emissive: color, emissiveIntensity: 0.35 }),
+    );
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    mesh.userData.materialId = entity.props?.material ?? null;
+    group.add(mesh);
+    if (entity.props?.horizon !== false) {
+      const inner = Math.max(0.25, radius - tube * 0.9);
+      const disc = new THREE.Mesh(
+        new THREE.CircleGeometry(inner, 48),
+        buildMaterial(entity.props?.horizonMaterial ?? 'scifi.horizon', { color: 0x88c8ff }),
+      );
+      disc.material.side = THREE.DoubleSide;
+      disc.material.transparent = true;
+      disc.material.depthWrite = false;
+      disc.renderOrder = 1;
+      disc.userData.horizon = true;
+      disc.userData.materialId = entity.props?.horizonMaterial ?? 'scifi.horizon';
+      group.add(disc);
+    }
+    group.userData.ring = { radius, tube };
+    return group;
+  },
+
   model(entity) {
     const group = new THREE.Group();
     applyPose(group, entity);
@@ -1200,6 +1234,31 @@ export async function hydrateModel(group, { load } = {}) {
       }));
     if (!scene) {
       return false;
+    }
+    const wanted = group.userData.model?.size ?? [1, 1, 1];
+    const box = new THREE.Box3().setFromObject(scene);
+    const have = new THREE.Vector3();
+    box.getSize(have);
+    const maxHave = Math.max(have.x, have.y, have.z, 0.001);
+    const maxWant = Math.max(wanted[0] ?? 1, wanted[1] ?? 1, wanted[2] ?? 1);
+    scene.scale.multiplyScalar(maxWant / maxHave);
+    box.setFromObject(scene);
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+    scene.position.sub(center);
+    scene.position.y += (wanted[1] ?? 1) * 0.5;
+    const importedLights = [];
+    scene.traverse((child) => {
+      if (child.isLight) {
+        importedLights.push(child);
+      }
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+    for (const light of importedLights) {
+      light.parent?.remove(light);
     }
     if (proxy) {
       proxy.visible = false;

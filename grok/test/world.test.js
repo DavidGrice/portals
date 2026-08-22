@@ -102,6 +102,7 @@ describe('world data', () => {
     assert.ok(groups.interact.includes('interact.pad'));
     assert.ok(groups.prop.includes('prop.model'));
     assert.ok(groups.prop.includes('prop.npc'));
+    assert.ok(groups.prop.includes('prop.ring'));
   });
 
   it('loads two-rooms and resolves portal links', () => {
@@ -210,6 +211,13 @@ describe('world data', () => {
         }
       });
     }
+    assert.ok(world.rooms[0].entities.some((entity) => entity.id === 'dhd-white' && entity.props?.src?.endsWith('dhd.glb')));
+    assert.ok(world.rooms[0].entities.some((entity) => entity.kind === 'prop.ring'));
+    const gold = world.rooms.find((room) => room.id === 'gold-lane');
+    assert.ok(gold.entities.some((entity) => entity.id === 'ring-gold'));
+    assert.equal(gold.entities.find((entity) => entity.id === 'prize-gold')?.props?.material, 'scifi.marble');
+    assert.equal(world.rooms.find((room) => room.id === 'cyan-lane').entities.find((entity) => entity.id === 'floor-cyan')?.props?.material, 'scifi.plate');
+    assert.equal(world.rooms.find((room) => room.id === 'red-lane').entities.find((entity) => entity.id === 'floor-red')?.props?.material, 'scifi.rubber');
     assert.ok(volumes.has('white-core:plus'));
     assert.ok(volumes.has('cyan-lane:chamber'));
     assert.ok(volumes.has('blue-lane:loft'));
@@ -270,6 +278,7 @@ describe('world data', () => {
     assert.equal(kinds.stone, 'wing');
     assert.equal(kinds.ancient, 'chamber');
     assert.equal(kinds.medieval, 'chamber');
+    assert.ok(world.rooms.find((room) => room.id === 'industrial').entities.some((entity) => entity.kind === 'prop.ring'));
     assert.equal(kinds.industrial, 'plus');
     assert.equal(kinds.present, 'chamber');
     assert.equal(kinds['near-future'], 'loft');

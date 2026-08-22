@@ -7,8 +7,8 @@
   ],
   "clearColor": "#041018",
   "materials": {
-    "floor": "cyber.grid.cyan",
-    "shell": "cyber.grid.cyan",
+    "floor": "scifi.plate",
+    "shell": "scifi.hull",
     "strip": "cyber.strip.cyan",
     "accent": "#2ee6ff"
   },

@@ -176,7 +176,7 @@ describe('audio', () => {
     assert.equal(surfaceForRoom(foyer), 'wood');
     assert.equal(surfaceForRoom(crypt), 'stone');
     const circuit = loadWorld(readJson('data/worlds/circuit-grid.json'), catalog, camera, mockRenderer());
-    assert.equal(surfaceForRoom(circuit.currentRoom), 'grate');
+    assert.equal(surfaceForRoom(circuit.currentRoom), 'metal');
     assert.equal(fireAttenuation(Infinity), 0);
     assert.ok(fireAttenuation(1.5) > 0.7);
     const audio = new GameAudio();

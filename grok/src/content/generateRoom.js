@@ -347,9 +347,14 @@ function placeLandmarks({ kit, topology, roomId, rng, materials, surface = null 
     const region = regions[regionName] ?? [((index % 3) - 1) * 3.2, 0, -index];
     const template = pool[index % pool.length];
     const position = template.position && index < pool.length && !names.length ? template.position : region;
-    const lift = Array.isArray(position) && Number(position[1]) === 0
+    let lift = Array.isArray(position) && Number(position[1]) === 0
       ? [position[0], 0.52, position[2]]
       : position;
+    if (template.kind === 'prop.ring') {
+      const y = Number(template.position?.[1]);
+      const px = Array.isArray(lift) ? lift : [0, 0, 0];
+      lift = [px[0], Number.isFinite(y) && y > 0.8 ? y : 1.85, px[2]];
+    }
     pieces.push({
       ...template,
       id: template.id || `dress-${roomId}-${regionName}-${index}`,
@@ -357,7 +362,7 @@ function placeLandmarks({ kit, topology, roomId, rng, materials, surface = null 
       tags: [...new Set([...(template.tags ?? []), 'landmark', regionName])],
       props: {
         ...(template.props ?? {}),
-        ...(template.props?.material || !surface ? {} : { material: surface }),
+        ...(template.kind === 'prop.ring' || template.props?.material || !surface ? {} : { material: surface }),
         ...(template.props?.color || !materials.accent ? {} : { color: materials.accent }),
         ...(index === 0 && template.kind === 'prop.box' && !template.props?.spin ? { spin: [0, 0.45, 0] } : {}),
       },

@@ -63,6 +63,9 @@ export function resolveMaterial(id, { color, library = materials } = {}) {
     ior: def?.ior ?? 1.5,
     transmission: def?.transmission ?? 0,
     overlay: def?.overlay ?? null,
+    metalnessMapPath: def?.metalnessMap ?? null,
+    emissiveMapPath: def?.emissiveMap ?? null,
+    aoMapPath: def?.aoMap ?? null,
   };
 }
 
@@ -103,7 +106,10 @@ export function buildMaterial(id, extras = {}) {
 
 export function hydrateMaterialMaps(material, spec, { loader, anisotropy = 8 } = {}) {
   const path = spec?.mapPath;
-  if (!material || !path || !loader?.load) {
+  if (!material || !loader?.load) {
+    return material;
+  }
+  if (!path && !spec?.roughnessMapPath && !spec?.metalnessMapPath && !spec?.normalMapPath && !spec?.emissiveMapPath && !spec?.aoMapPath) {
     return material;
   }
   try {
@@ -124,14 +130,24 @@ export function hydrateMaterialMaps(material, spec, { loader, anisotropy = 8 } =
       texture.anisotropy = anisotropy;
       material[key] = texture;
     };
-    apply(loader.load(path), 'map', SRGBColorSpace);
+    if (path) {
+      apply(loader.load(path), 'map', SRGBColorSpace);
+    }
     if (spec.roughnessMapPath) {
       apply(loader.load(spec.roughnessMapPath), 'roughnessMap', null);
+    }
+    if (spec.metalnessMapPath) {
+      apply(loader.load(spec.metalnessMapPath), 'metalnessMap', null);
     }
     if (spec.normalMapPath) {
       apply(loader.load(spec.normalMapPath), 'normalMap', null);
     }
-    material.color.setHex(0xffffff);
+    if (spec.emissiveMapPath) {
+      apply(loader.load(spec.emissiveMapPath), 'emissiveMap', SRGBColorSpace);
+    }
+    if (path) {
+      material.color.setHex(0xffffff);
+    }
     material.needsUpdate = true;
   } catch {
     // recipe maps stay
@@ -147,7 +163,7 @@ export function hydrateRoomMaterials(rooms, { loader = null, anisotropy = 8 } = 
   for (const room of rooms ?? []) {
     room.scene?.traverse((object) => {
       const spec = object.material?.userData?.materialSpec;
-      if (!spec?.mapPath) {
+      if (!spec?.mapPath && !spec?.roughnessMapPath && !spec?.metalnessMapPath && !spec?.normalMapPath && !spec?.emissiveMapPath && !spec?.aoMapPath) {
         return;
       }
       hydrateMaterialMaps(object.material, spec, { loader, anisotropy });

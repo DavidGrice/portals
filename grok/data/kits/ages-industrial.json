@@ -7,8 +7,8 @@
   ],
   "clearColor": "#1a1816",
   "materials": {
-    "floor": "shared.plaster",
-    "shell": "#3a322c",
+    "floor": "scifi.scrap",
+    "shell": "scifi.hull",
     "accent": "#b09070"
   },
   "atmosphere": {
@@ -93,7 +93,20 @@
           0.8,
           0.8
         ],
-        "color": "#b09070"
+        "material": "scifi.armor"
+      }
+    },
+    {
+      "kind": "prop.ring",
+      "position": [
+        0,
+        1.9,
+        -3.4
+      ],
+      "props": {
+        "radius": 1.6,
+        "tube": 0.13,
+        "material": "scifi.gate.ring"
       }
     }
   ],

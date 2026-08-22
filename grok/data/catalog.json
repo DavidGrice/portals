@@ -147,6 +147,11 @@
       "prefab": "model",
       "tags": ["prop", "model"]
     },
+    "prop.ring": {
+      "category": "prop",
+      "prefab": "ring",
+      "tags": ["prop", "scifi"]
+    },
     "prop.npc": {
       "category": "prop",
       "prefab": "npc",

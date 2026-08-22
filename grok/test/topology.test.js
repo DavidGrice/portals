@@ -190,6 +190,17 @@ describe('topologies', () => {
     }
   });
 
+  it('keeps generated ring dressing standing instead of on the floor', () => {
+    const kit = readJson('data/kits/cyber-hub.json');
+    const room = generateRoom({ kit, topology: getTopology('plus'), roomId: 'hub-ring', exitCount: 3 });
+    const rings = room.entities.filter((entity) => entity.kind === 'prop.ring');
+    assert.ok(rings.length >= 1);
+    for (const ring of rings) {
+      assert.ok(ring.position[1] >= 1.8, `ring y ${ring.position[1]}`);
+      assert.equal(ring.props.material, 'scifi.gate.ring');
+    }
+  });
+
   it('places at least four landmarks away from portal AABBs', () => {
     const kit = readJson('data/kits/haunt-hall.json');
     const room = generateRoom({ kit, topology: getTopology('T'), roomId: 'marks', exitCount: 3 });

@@ -7,8 +7,8 @@
   ],
   "clearColor": "#181204",
   "materials": {
-    "floor": "cyber.grid.gold",
-    "shell": "cyber.grid.gold",
+    "floor": "scifi.gate.floor",
+    "shell": "scifi.hull",
     "strip": "cyber.strip.gold",
     "accent": "#f0c040"
   },
@@ -55,6 +55,20 @@
           0.2,
           0
         ]
+      }
+    },
+    {
+      "kind": "prop.ring",
+      "position": [
+        0,
+        1.9,
+        -3.2
+      ],
+      "props": {
+        "radius": 1.5,
+        "tube": 0.13,
+        "material": "scifi.gate.ring",
+        "horizonMaterial": "scifi.plasma"
       }
     }
   ]

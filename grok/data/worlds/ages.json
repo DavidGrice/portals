@@ -197,12 +197,12 @@
       "entities": [
         { "id": "sky-industrial", "kind": "env.sky", "props": { "color": "#1a1c18" } },
         { "id": "light-industrial", "kind": "env.light", "props": { "ambient": "#22241c", "sun": "#c8c060", "sunIntensity": 0.36 } },
-        { "id": "floor-industrial", "kind": "env.floor", "props": { "material": "haunt.iron", "size": 26 } },
+        { "id": "floor-industrial", "kind": "env.floor", "props": { "material": "scifi.scrap", "size": 26 } },
         {
           "id": "shell-industrial",
           "kind": "arch.plus",
           "props": {
-            "material": "haunt.brick",
+            "material": "scifi.hull",
             "arm": 4,
             "zMin": -9,
             "zMax": 6,
@@ -214,7 +214,8 @@
         },
         { "id": "pipe-a", "kind": "prop.pipe", "position": [-2.4, 0, 0], "props": { "length": 6.4, "color": "#6a7068", "lift": 3.4 } },
         { "id": "pipe-b", "kind": "prop.pipe", "position": [2.4, 0, 0], "props": { "length": 6.4, "color": "#7a6848", "lift": 3.8 } },
-        { "id": "cube-industrial", "kind": "prop.box", "position": [5.4, 0.5, 2], "tags": ["landmark"], "props": { "size": [1, 1, 1], "color": "#c8c060" } },
+        { "id": "cube-industrial", "kind": "prop.box", "position": [5.4, 0.5, 2], "tags": ["landmark"], "props": { "size": [1, 1, 1], "material": "scifi.armor" } },
+        { "id": "ring-industrial", "kind": "prop.ring", "position": [0, 2.1, -4.2], "tags": ["landmark"], "props": { "radius": 1.7, "tube": 0.14, "material": "scifi.gate.ring" } },
         { "id": "plaque-industrial", "kind": "prop.plaque", "position": [-2.4, 1.6, 5.4], "props": { "color": "#c8c060", "text": "Industrial", "action": "read" } },
         { "id": "spot-industrial", "kind": "env.spot", "position": [0, 4.6, 0], "props": { "color": "#e8d080", "intensity": 1.2, "distance": 14, "target": [0, -4, 0] } },
         { "id": "frame-industrial-back", "kind": "arch.frame", "position": [0, 1, 6], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#8a7048", "coversPortalId": "door-industrial-medieval" } },

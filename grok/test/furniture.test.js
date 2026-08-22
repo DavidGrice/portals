@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Group, Mesh, PerspectiveCamera } from 'three';
+import { Group, Mesh, PerspectiveCamera, PointLight } from 'three';
 import { hydrateModel, spawnEntity } from '../src/content/prefabs.js';
 import { buildMaterial, hydrateMaterialMaps, resolveMaterial } from '../src/content/materials.js';
 import { loadWorld } from '../src/content/loadWorld.js';
@@ -58,6 +58,16 @@ describe('haunt furniture and textures', () => {
     assert.equal(resolveMaterial('haunt.iron').recipe, 'metal');
     assert.equal(resolveMaterial('ages.dirt').recipe, 'dirt');
     assert.equal(buildMaterial('shared.stone').type, 'MeshPhysicalMaterial');
+    const gate = resolveMaterial('scifi.gate.floor');
+    assert.equal(gate.mapPath, '/assets/textures/scifi/gate-floor.jpg');
+    assert.ok(gate.normalMapPath.endsWith('gate-floor-n.jpg'));
+    assert.equal(resolveMaterial('scifi.hull').mapPath, '/assets/textures/scifi/hull.png');
+    assert.equal(resolveMaterial('scifi.hull').normalMapPath, '/assets/textures/scifi/hull-n.png');
+    assert.equal(resolveMaterial('scifi.hazard').mapPath, '/assets/textures/scifi/hazard.jpg');
+    assert.equal(resolveMaterial('scifi.horizon').mapPath, '/assets/textures/scifi/horizon.jpg');
+    assert.equal(resolveMaterial('scifi.armor').metalnessMapPath, '/assets/textures/scifi/armor-m.png');
+    assert.equal(resolveMaterial('scifi.plasma').emissiveMapPath, '/assets/textures/scifi/plasma-e.png');
+    assert.equal(resolveMaterial('scifi.marble').mapPath, '/assets/textures/scifi/marble.png');
   });
 
   it('packs PBR maps from a canvas element using the 2d context', () => {
@@ -190,5 +200,56 @@ describe('haunt furniture and textures', () => {
     assert.equal(ok, true);
     assert.equal(proxy.visible, false);
     assert.ok(proxy.userData.collider);
+  });
+
+  it('builds a standing ring with an inner horizon disc and no collider', () => {
+    const catalog = readJson('data/catalog.json');
+    const object = spawnEntity({
+      id: 'ring-test',
+      kind: 'prop.ring',
+      position: [0, 1.9, -4],
+      props: { radius: 1.7, tube: 0.14, material: 'scifi.gate.ring' },
+    }, catalog);
+    assert.equal(object.userData.kind, 'prop.ring');
+    assert.equal(object.position.y, 1.9);
+    let torus = null;
+    let disc = null;
+    object.traverse((child) => {
+      if (child.geometry?.type === 'TorusGeometry') {
+        torus = child;
+      }
+      if (child.userData?.horizon) {
+        disc = child;
+      }
+    });
+    assert.ok(torus);
+    assert.ok(disc);
+    assert.equal(disc.userData.materialId, 'scifi.horizon');
+    assert.equal(object.userData.collider, undefined);
+    assert.equal(torus.userData.collider, undefined);
+  });
+
+  it('strips imported GLTF lights so a DHD cannot hitch the room', async () => {
+    const catalog = readJson('data/catalog.json');
+    const object = spawnEntity({
+      id: 'model-lit',
+      kind: 'prop.model',
+      props: { src: '/assets/models/dhd.glb', size: [1, 1, 1] },
+    }, catalog);
+    const fake = new Group();
+    const mesh = new Mesh();
+    const light = new PointLight(0xffffff, 8);
+    fake.add(mesh);
+    fake.add(light);
+    const ok = await hydrateModel(object, { load: async () => fake });
+    assert.equal(ok, true);
+    let lights = 0;
+    object.traverse((child) => {
+      if (child.isLight) {
+        lights += 1;
+      }
+    });
+    assert.equal(lights, 0);
+    assert.equal(mesh.castShadow, true);
   });
 });
