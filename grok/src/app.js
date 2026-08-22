@@ -425,7 +425,8 @@ export function createApp({
     } else if (result?.type === 'stoke' || result?.type === 'toggle' || result?.type === 'read'
       || result?.type === 'cycle-options' || result?.type === 'kill-laser'
       || result?.type === 'confirm-blaze' || result?.type === 'confirm-evanescent'
-      || result?.type === 'confirm-polar' || result?.type === 'resolve-sodium') {
+      || result?.type === 'confirm-polar' || result?.type === 'resolve-sodium'
+      || result?.type === 'identify-lamp') {
       gameAudio.click();
     } else if (result?.type === 'arm-laser' || result?.type === 'arm-lamp') {
       if (typeof gameAudio.laserOn === 'function') {
@@ -508,7 +509,7 @@ export function createApp({
     if (spec?.action === 'tilt-cross') {
       return 'E  Tilt cross-dispersion';
     }
-    if (spec?.action === 'confirm-blaze' || spec?.action === 'confirm-evanescent') {
+    if (spec?.action === 'confirm-blaze' || spec?.action === 'confirm-evanescent' || spec?.action === 'identify-lamp') {
       return spec.text ? `E  ${spec.text}` : 'E  Confirm';
     }
     return spec?.text ? `E  ${spec.text}` : 'E  Look';

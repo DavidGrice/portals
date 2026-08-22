@@ -21,6 +21,7 @@ const OPTICS_ACTIONS = new Set([
   'confirm-evanescent',
   'confirm-polar',
   'resolve-sodium',
+  'identify-lamp',
 ]);
 
 export function findInteract(room, position, { maxDistance = 2 } = {}) {

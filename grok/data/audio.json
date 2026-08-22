@@ -94,7 +94,8 @@
     "polar": "grating",
     "invisible": "grating",
     "slit": "grating",
-    "vault": "grating"
+    "vault": "grating",
+    "identify": "grating"
   },
   "events": [
     { "id": "creak", "clip": "haunt-creak", "synth": "creak", "tags": ["haunt"], "excludeTags": ["cyber", "optics", "grating"], "weight": 1.1, "cooldown": [4.2, 9.5] },

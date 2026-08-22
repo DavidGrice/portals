@@ -9,6 +9,51 @@ export function parseColor(value, fallback = 0xffffff) {
   return parseMaterialColor(value, fallback);
 }
 
+function paintYoungDiagram(mesh) {
+  if (typeof document === 'undefined') {
+    return mesh;
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width = 768;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    return mesh;
+  }
+  ctx.fillStyle = '#041018';
+  ctx.fillRect(0, 0, 768, 256);
+  ctx.fillStyle = '#6ad8ff';
+  ctx.font = '16px monospace';
+  const panels = [
+    { x: 20, title: '1 slit', slits: 1 },
+    { x: 268, title: '2 slits', slits: 2 },
+    { x: 516, title: 'N slits = grating', slits: 11 },
+  ];
+  for (const panel of panels) {
+    ctx.fillText(panel.title, panel.x + 8, 28);
+    ctx.strokeStyle = '#2a4050';
+    ctx.strokeRect(panel.x, 40, 232, 200);
+    const mid = panel.x + 116;
+    for (let i = 0; i < panel.slits; i += 1) {
+      const sx = mid - ((panel.slits - 1) * 7) + i * 14;
+      ctx.fillRect(sx, 56, 3, 52);
+    }
+    ctx.fillStyle = '#3dff6a';
+    const orders = panel.slits === 1 ? [0] : panel.slits === 2 ? [-1, 0, 1] : [-2, -1, 0, 1, 2];
+    const width = panel.slits === 1 ? 36 : panel.slits === 2 ? 10 : 4;
+    for (const m of orders) {
+      const px = mid + m * (panel.slits === 1 ? 0 : 28);
+      ctx.fillRect(px - width * 0.5, 130, width, 88 / (1 + Math.abs(m) * 0.35));
+    }
+    ctx.fillStyle = '#6ad8ff';
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  mesh.material.map = texture;
+  mesh.material.color.setHex(0xffffff);
+  mesh.material.needsUpdate = true;
+  return mesh;
+}
+
 function applyPose(object, entity) {
   if (entity.position) {
     object.position.set(...entity.position);
@@ -930,6 +975,7 @@ export const prefabs = {
       require: entity.props?.require ?? null,
       lambdaNm: entity.props?.lambdaNm ?? null,
       deltaYaw: entity.props?.deltaYaw ?? null,
+      answer: entity.props?.answer ?? null,
     };
     return mesh;
   },
@@ -1286,6 +1332,17 @@ export const prefabs = {
     );
     applyPose(mesh, entity);
     mesh.userData.readout = { text: entity.props?.text ?? 'NO SOURCE' };
+    return mesh;
+  },
+
+  diagram(entity) {
+    const mesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(entity.props?.width ?? 2.6, entity.props?.height ?? 0.9),
+      new THREE.MeshBasicMaterial({ color: 0x041018 }),
+    );
+    applyPose(mesh, entity);
+    mesh.userData.diagram = { kind: entity.props?.kind ?? 'young' };
+    paintYoungDiagram(mesh);
     return mesh;
   },
 

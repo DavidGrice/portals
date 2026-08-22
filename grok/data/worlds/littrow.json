@@ -115,7 +115,8 @@
         },
         { "id": "plaque-periodic", "kind": "prop.plaque", "position": [-2.2, 1.6, 3.2], "props": { "color": "#6ad8ff", "text": "A grating is a periodic boundary. Period d. Order m. Wavelength lambda.", "action": "read" } },
         { "id": "plaque-puzzle", "kind": "prop.plaque", "position": [2.2, 1.6, 3.2], "props": { "color": "#e8eef8", "text": "This hall is a puzzle. Nothing here fights you.", "action": "read" } },
-        { "id": "readout-diagram", "kind": "prop.readout", "position": [0, 2.2, 3.6], "props": { "text": "m = -1, 0, +1" } },
+        { "id": "plaque-fraunhofer", "kind": "prop.plaque", "position": [-2.2, 1.6, -3.4], "props": { "color": "#88a0b8", "text": "We use far-field (Fraunhofer) diffraction. Lasers are geometric. Scalar Kirchhoff, not RCWA.", "action": "read" } },
+        { "id": "diagram-young", "kind": "prop.diagram", "position": [0, 2.15, 3.6], "props": { "kind": "young", "width": 2.6, "height": 0.9 } },
         { "id": "frame-airlock-back", "kind": "arch.frame", "position": [0, 1, -6], "props": { "color": "#6ad8ff", "coversPortalId": "door-airlock-rotunda" } }
       ],
       "portals": [
@@ -449,7 +450,7 @@
         { "id": "sky-h", "kind": "env.sky", "props": { "color": "#100408" } },
         { "id": "light-h", "kind": "env.light", "props": { "ambient": "#201018", "sun": "#ff3b4a", "sunIntensity": 0.2, "ambientIntensity": 0.14 } },
         { "id": "floor-h", "kind": "env.floor", "props": { "material": "scifi.hull", "size": 22 } },
-        { "id": "shell-h", "kind": "arch.chamber", "props": { "material": "scifi.hull", "runningLights": true, "stripMaterial": "cyber.strip.red", "halfX": 7, "zMin": -7, "zMax": 4, "height": 4.2, "holes": [{ "wall": "south", "u": 0 }, { "wall": "east", "u": 0 }] } },
+        { "id": "shell-h", "kind": "arch.chamber", "props": { "material": "scifi.hull", "runningLights": true, "stripMaterial": "cyber.strip.red", "halfX": 7, "zMin": -7, "zMax": 4, "height": 4.2, "holes": [{ "wall": "south", "u": 0 }, { "wall": "east", "u": 0 }, { "wall": "north", "u": 0 }] } },
         { "id": "card-h", "kind": "prop.grating", "position": [0, 1.35, -2], "props": { "width": 1.2, "height": 0.8, "linesPerMm": 600, "blazeDeg": 10.37 } },
         { "id": "pedestal-h", "kind": "prop.box", "position": [2.2, 0.45, 1.6], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
         { "id": "pad-options-h", "kind": "interact.pad", "position": [2.2, 0.94, 1.6], "props": { "color": "#6ad8ff", "action": "cycle-options", "text": "Change options" } },
@@ -461,11 +462,41 @@
         { "id": "det-hd", "kind": "prop.detector", "position": [1.47, 1.35, 3.05], "props": { "lambdaNm": 410.2, "order": 1, "flag": "balmer-hd", "radius": 0.2, "gratingId": "card-h" } },
         { "id": "plaque-h", "kind": "prop.plaque", "position": [-3.4, 1.6, 3.4], "props": { "color": "#ff3b4a", "text": "Balmer series. H-alpha 656.3 nm at 23.2 deg. H-delta 410.2 nm at 14.3 deg. 600 /mm, i=0, m=+1.", "action": "read" } },
         { "id": "frame-h-back", "kind": "arch.frame", "position": [0, 1, 4], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#e8eef8", "coversPortalId": "door-hydrogen-disc" } },
-        { "id": "frame-h-na", "kind": "arch.frame", "position": [7, 1, 0], "rotation": [0, -1.5707963267948966, 0], "props": { "color": "#f0c040", "coversPortalId": "door-hydrogen-sodium" } }
+        { "id": "frame-h-na", "kind": "arch.frame", "position": [7, 1, 0], "rotation": [0, -1.5707963267948966, 0], "props": { "color": "#f0c040", "coversPortalId": "door-hydrogen-sodium" } },
+        { "id": "frame-h-id", "kind": "arch.frame", "position": [0, 1, -7], "props": { "color": "#c070ff", "coversPortalId": "door-hydrogen-identify" } }
       ],
       "portals": [
         { "id": "door-hydrogen-disc", "position": [0, 1, 4], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-disc-hydrogen" },
-        { "id": "door-hydrogen-sodium", "position": [7, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-sodium-hydrogen", "enabled": false }
+        { "id": "door-hydrogen-sodium", "position": [7, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-sodium-hydrogen", "enabled": false },
+        { "id": "door-hydrogen-identify", "position": [0, 1, -7], "yaw": 0, "size": [2, 2], "destinationId": "door-identify-hydrogen", "enabled": false }
+      ]
+    },
+    {
+      "id": "identify",
+      "title": "Unknown lamp",
+      "tags": ["interior", "cyber", "optics", "grating"],
+      "origin": [0, 0, 750],
+      "clearColor": "#0c0814",
+      "atmosphere": { "density": 0.18 },
+      "entities": [
+        { "id": "sky-id", "kind": "env.sky", "props": { "color": "#0c0814" } },
+        { "id": "light-id", "kind": "env.light", "props": { "ambient": "#181022", "sun": "#c070ff", "sunIntensity": 0.2, "ambientIntensity": 0.14 } },
+        { "id": "floor-id", "kind": "env.floor", "props": { "material": "scifi.tile", "size": 20 } },
+        { "id": "shell-id", "kind": "arch.chamber", "props": { "material": "scifi.cabin", "runningLights": true, "stripMaterial": "optics.strip.violet", "halfX": 6, "zMin": -6, "zMax": 4, "height": 4, "holes": [{ "wall": "south", "u": 0 }] } },
+        { "id": "card-id", "kind": "prop.grating", "position": [0, 1.35, -2], "props": { "width": 1.2, "height": 0.8, "linesPerMm": 600, "blazeDeg": 10.37 } },
+        { "id": "pedestal-id", "kind": "prop.box", "position": [2.2, 0.45, 1.6], "props": { "size": [0.7, 0.9, 0.7], "material": "scifi.armor" } },
+        { "id": "pad-options-id", "kind": "interact.pad", "position": [2.2, 0.94, 1.6], "props": { "color": "#6ad8ff", "action": "cycle-options", "text": "Change options" } },
+        { "id": "lamp-id", "kind": "prop.laser", "position": [0, 1.05, 3], "props": { "lambdaNm": 587.6, "lines": [587.6, 667.8, 447.1], "targetId": "card-id", "power": 0.85 } },
+        { "id": "pad-arm-id", "kind": "interact.pad", "position": [0, 0.04, 2.2], "props": { "color": "#c070ff", "action": "arm-lamp", "lambdaNm": 587.6, "text": "Arm unknown lamp" } },
+        { "id": "pad-id-h", "kind": "interact.pad", "position": [-2.4, 0.04, 2.2], "props": { "color": "#ff3b4a", "action": "identify-lamp", "answer": "hydrogen", "text": "Hydrogen?" } },
+        { "id": "pad-id-he", "kind": "interact.pad", "position": [0, 0.04, 0.8], "props": { "color": "#3dff6a", "action": "identify-lamp", "answer": "helium", "text": "Helium?" } },
+        { "id": "pad-id-hg", "kind": "interact.pad", "position": [2.4, 0.04, 2.2], "props": { "color": "#8a9098", "action": "identify-lamp", "answer": "mercury", "text": "Mercury?" } },
+        { "id": "plaque-id", "kind": "prop.plaque", "position": [-3.2, 1.6, 3.4], "props": { "color": "#c070ff", "text": "Fingerprint the lamp from the orders. Hydrogen is Balmer. Mercury is 435.8 / 546.1 / 578. Helium sits near 587.6 nm.", "action": "read" } },
+        { "id": "plaque-id2", "kind": "prop.plaque", "position": [3.2, 1.6, 3.4], "props": { "color": "#e8eef8", "text": "Read the HUD. Match the lines. Wrong pads do nothing.", "action": "read" } },
+        { "id": "frame-id-back", "kind": "arch.frame", "position": [0, 1, 4], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#ff3b4a", "coversPortalId": "door-identify-hydrogen" } }
+      ],
+      "portals": [
+        { "id": "door-identify-hydrogen", "position": [0, 1, 4], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-hydrogen-identify" }
       ]
     },
     {

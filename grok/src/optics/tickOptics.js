@@ -49,6 +49,7 @@ const OPTICS_DOORS = [
   { all: ['polar-s'], portalId: 'door-polar-invisible' },
   { all: ['seen-uv', 'seen-ir'], portalId: 'door-invisible-slit' },
   { all: ['exit-532'], portalId: 'door-slit-vault' },
+  { all: ['balmer'], portalId: 'door-hydrogen-identify' },
 ];
 
 export function defaultGratingOptions(spec = {}) {
@@ -227,6 +228,12 @@ export function syncOpticsDoors(controller) {
   if (flags['balmer-ha'] && flags['balmer-hb'] && flags['balmer-hg'] && flags['balmer-hd']) {
     flags['balmer'] = true;
   }
+  if (flags['littrow-lock']) {
+    flags['free-roam'] = true;
+    for (const portal of controller.allPortals ?? []) {
+      portal.enabled = true;
+    }
+  }
   for (const rule of OPTICS_DOORS) {
     if (rule.all.every((name) => flags[name])) {
       if (rule.set) {
@@ -369,6 +376,13 @@ export function applyOpticsInteract(action, { room, spec, controller } = {}) {
     controller.flags['polar-s'] = true;
     syncOpticsDoors(controller);
     return { type: action, ok: true };
+  }
+  if (action === 'identify-lamp') {
+    const ok = spec?.answer === 'helium';
+    if (ok) {
+      controller.flags['id-lamp'] = true;
+    }
+    return { type: action, ok, answer: spec?.answer ?? null };
   }
   if (action === 'resolve-sodium') {
     let width = 0.04;

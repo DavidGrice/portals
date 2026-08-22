@@ -37,7 +37,7 @@ describe('Littrow', () => {
     const world = getWorldData('littrow');
     assert.equal(world.id, 'littrow');
     assert.equal(world.startRoom, 'rotunda');
-    assert.equal(world.rooms.length, 16);
+    assert.equal(world.rooms.length, 17);
     const catalog = readJson('data/catalog.json');
     const materials = readJson('data/materials.json');
     assert.deepEqual(validateWorld(world, catalog, materials), []);
@@ -182,5 +182,28 @@ describe('Littrow', () => {
     assert.equal(ok.ok, true);
     assert.equal(controller.flags['understood-blaze'], true);
     assert.equal(controller.getPortal('door-rotunda-echelle').enabled, true);
+  });
+
+  it('identifies helium and opens every door after the return beam', () => {
+    const catalog = readJson('data/catalog.json');
+    const world = readJson('data/worlds/littrow.json');
+    assert.ok(world.rooms.some((room) => room.id === 'identify'));
+    assert.ok(world.rooms.find((room) => room.id === 'airlock').entities.some((entity) => entity.kind === 'prop.diagram'));
+    const camera = new PerspectiveCamera(60, 1, 0.05, 280);
+    const controller = loadWorld(world, catalog, camera, mockRenderer());
+    const identify = controller.rooms.find((room) => room.id === 'identify');
+    controller.setCurrentScene('identify');
+    const wrong = applyOpticsInteract('identify-lamp', { room: identify, spec: { answer: 'hydrogen' }, controller });
+    assert.equal(wrong.ok, false);
+    assert.equal(controller.flags['id-lamp'], undefined);
+    const right = applyOpticsInteract('identify-lamp', { room: identify, spec: { answer: 'helium' }, controller });
+    assert.equal(right.ok, true);
+    assert.equal(controller.flags['id-lamp'], true);
+    controller.flags['littrow-lock'] = true;
+    syncOpticsDoors(controller);
+    assert.equal(controller.flags['free-roam'], true);
+    assert.equal(controller.getPortal('door-rotunda-collimator').enabled, true);
+    assert.equal(controller.getPortal('door-slit-vault').enabled, true);
+    assert.equal(controller.getPortal('door-hydrogen-identify').enabled, true);
   });
 });
