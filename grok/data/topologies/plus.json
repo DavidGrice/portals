@@ -3,6 +3,7 @@
   "title": "Cross",
   "kind": "arch.chamber",
   "tags": ["branching", "open"],
+  "openWalls": ["east"],
   "footprint": { "halfX": 9, "zMin": -9, "zMax": 6, "height": 4 },
   "sockets": [
     { "id": "entry", "role": "entry", "wall": "south", "u": 0 },

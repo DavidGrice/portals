@@ -3,6 +3,7 @@
   "title": "Straight hall",
   "kind": "arch.corridor",
   "tags": ["tight"],
+  "openWalls": ["east"],
   "footprint": { "halfX": 8, "zMin": -6.2, "zMax": 5.2, "height": 3.2 },
   "sockets": [
     { "id": "entry", "role": "entry", "wall": "south", "u": 0, "y": 1, "position": [0, 1, 0], "yaw": 3.141592653589793 },

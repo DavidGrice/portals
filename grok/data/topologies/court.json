@@ -3,6 +3,7 @@
   "title": "Open court",
   "kind": "arch.court",
   "tags": ["open"],
+  "openWalls": ["east", "west"],
   "footprint": { "halfX": 11, "zMin": -10, "zMax": 6, "height": 4.4 },
   "sockets": [
     { "id": "entry", "role": "entry", "wall": "south", "u": 0 },

@@ -3,6 +3,7 @@
   "title": "Round chamber",
   "kind": "arch.chamber",
   "tags": ["open"],
+  "openWalls": ["east", "west"],
   "roundCorners": true,
   "ceiling": true,
   "footprint": { "halfX": 8.5, "zMin": -8, "zMax": 6, "height": 4.4 },

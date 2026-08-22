@@ -118,6 +118,35 @@ describe('topologies', () => {
     assert.ok((shell.props.openWalls ?? []).length >= 1);
   });
 
+  it('favors branching open rooms over straight halls', () => {
+    const kit = readJson('data/kits/cyber-cyan.json');
+    const counts = { I: 0, other: 0, open: 0 };
+    for (let i = 0; i < 40; i += 1) {
+      const room = generateRoom({
+        kit,
+        roomId: `bias-${i}`,
+        exitCount: 3,
+        rng: createRng(`bias-${i}`),
+      });
+      if (room.topologyId === 'I') {
+        counts.I += 1;
+      } else {
+        counts.other += 1;
+      }
+      const shell = room.entities.find((entity) => String(entity.kind).startsWith('arch.'));
+      if ((shell?.props?.openWalls ?? []).length) {
+        counts.open += 1;
+      }
+      const floor = room.entities.find((entity) => entity.kind === 'env.floor');
+      const surface = shell?.props?.material ?? null;
+      if (surface && floor) {
+        assert.equal(floor.props.material, surface);
+      }
+    }
+    assert.ok(counts.I <= 16, `too many straight halls ${counts.I}/40`);
+    assert.ok(counts.open >= 12, `too many sealed boxes ${counts.open}/40`);
+  });
+
   it('changes topology when the last four fingerprints match a kit', () => {
     const kit = readJson('data/kits/cyber-cyan.json');
     const first = generateRoom({ kit, roomId: 'fp-a', exitCount: 2, rng: createRng('fp') });

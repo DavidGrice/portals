@@ -392,7 +392,7 @@ describe('portal engine', () => {
     assert.ok(local.z > 0.1, `return hall local z ${local.z}`);
   });
 
-  it('drops through a floor portal and stands in the dest hall', () => {
+  it('drops through a floor portal and lands beside the dest pit', () => {
     const camera = new PerspectiveCamera(60, 1, 0.05, 100);
     const controller = new PortalController({ camera, renderer: mockRenderer() });
     controller.registerScene('room-a', new Scene(), { clearColor: 0x2a3344 });
@@ -420,8 +420,12 @@ describe('portal engine', () => {
     b.updateMatrixWorld(true);
     b.worldToLocal(local);
     assert.ok(local.z > 0.7, `dest local z ${local.z}`);
-    camera.position.set(0, 1, 0);
-    controller.update();
-    assert.equal(controller.currentRoom.id, 'room-b', 'must not bounce while still over the hole');
+    assert.ok(Math.abs(local.x) > 1, `emerge x ${local.x} should sit beside the pit`);
+    const landed = camera.position.clone();
+    for (let i = 0; i < 12; i += 1) {
+      controller.update();
+    }
+    assert.equal(controller.currentRoom.id, 'room-b', 'must not ping-pong after landing beside the pit');
+    assert.ok(camera.position.distanceTo(landed) < 0.05, 'must stay put on solid floor');
   });
 });

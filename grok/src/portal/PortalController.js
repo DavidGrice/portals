@@ -2,7 +2,7 @@ import { Euler, Matrix4, PerspectiveCamera, Plane, Quaternion, Scene, Vector3 } 
 import { Portal } from './Portal.js';
 import { Room } from './Room.js';
 import { Emitter } from '../engine/Emitter.js';
-import { emergeDistance, ignoreCleared, isFloorPortal } from './portalPose.js';
+import { emergeDistance, ignoreCleared, isFloorPortal, landBesideFloorPortal } from './portalPose.js';
 
 const rotationY180 = new Matrix4().makeRotationY(Math.PI);
 const srcToCam = new Matrix4();
@@ -275,6 +275,11 @@ export class PortalController {
 
   _settleInDestHall(destination, standOff = EMERGE_Z) {
     destination.updateMatrixWorld(true);
+    if (isFloorPortal(destination)) {
+      landBesideFloorPortal(destination, this.camera.position, standOff);
+      this.camera.updateMatrixWorld();
+      return;
+    }
     localCurr.copy(this.camera.position);
     destination.worldToLocal(localCurr);
     if (localCurr.z >= standOff) {
@@ -288,6 +293,9 @@ export class PortalController {
 
   _canTraverse(portal) {
     if (!portal.enabled || !portal.destinationPortal?.scene) {
+      return false;
+    }
+    if (portal.portalId && portal.portalId === this._ignorePortalId && isFloorPortal(portal)) {
       return false;
     }
     if (portal.oneWay) {

@@ -31,3 +31,26 @@ export function pickOne(rng, list) {
   }
   return list[Math.floor(rng() * list.length) % list.length];
 }
+
+export function pickWeighted(rng, items, weightOf = () => 1) {
+  if (!items?.length) {
+    return null;
+  }
+  let total = 0;
+  const weights = items.map((item) => {
+    const weight = Math.max(0, Number(weightOf(item)) || 0);
+    total += weight;
+    return weight;
+  });
+  if (total <= 0) {
+    return pickOne(rng, items);
+  }
+  let roll = rng() * total;
+  for (let i = 0; i < items.length; i += 1) {
+    roll -= weights[i];
+    if (roll <= 0) {
+      return items[i];
+    }
+  }
+  return items[items.length - 1];
+}

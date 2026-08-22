@@ -47,3 +47,24 @@ export function ignoreCleared(portal, worldPosition, { wallClear = 0.45 } = {}) 
   }
   return Math.abs(local.z) > wallClear;
 }
+
+export function landBesideFloorPortal(portal, worldPosition, eyeHeight = 1) {
+  if (!portal || !worldPosition) {
+    return worldPosition;
+  }
+  portal.updateMatrixWorld(true);
+  local.copy(worldPosition);
+  portal.worldToLocal(local);
+  const stand = emergeDistance(portal, eyeHeight);
+  if (local.z < stand) {
+    local.z = stand;
+  }
+  const hw = portal.geometry.halfWidth;
+  const hh = portal.geometry.halfHeight;
+  if (Math.abs(local.x) <= hw && Math.abs(local.y) <= hh) {
+    local.x = (local.x >= 0 ? 1 : -1) * (hw + 0.7);
+  }
+  portal.localToWorld(local);
+  worldPosition.copy(local);
+  return worldPosition;
+}

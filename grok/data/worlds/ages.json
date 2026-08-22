@@ -130,7 +130,8 @@
             "zMin": -8,
             "zMax": 6,
             "height": 5.4,
-            "holes": [{ "wall": "west", "u": 1 }, { "wall": "north", "u": 0 }]
+            "holes": [{ "wall": "west", "u": 1 }, { "wall": "north", "u": 0 }],
+            "openWalls": ["east", "south"]
           }
         },
         { "id": "col-a", "kind": "prop.column", "position": [-4.4, 0, 1.4], "props": { "color": "#d4c4a0", "height": 4.6 } },
@@ -168,7 +169,8 @@
             "zMin": -10,
             "zMax": 6,
             "height": 6.6,
-            "holes": [{ "wall": "south", "u": 0 }, { "wall": "north", "u": 0 }, { "wall": "east", "u": -2 }]
+            "holes": [{ "wall": "south", "u": 0 }, { "wall": "north", "u": 0 }, { "wall": "east", "u": -2 }],
+            "openWalls": ["west"]
           }
         },
         { "id": "beam-a", "kind": "prop.box", "position": [0, 5.4, -2], "props": { "size": [8.4, 0.22, 0.28], "material": "haunt.attic" } },
@@ -243,7 +245,8 @@
             "zMin": -7,
             "zMax": 5,
             "height": 3.8,
-            "holes": [{ "wall": "south", "u": 0 }, { "wall": "north", "u": 0 }, { "wall": "east", "u": -3 }]
+            "holes": [{ "wall": "south", "u": 0 }, { "wall": "north", "u": 0 }, { "wall": "east", "u": -3 }],
+            "openWalls": ["west"]
           }
         },
         { "id": "glass-present", "kind": "prop.glass", "position": [6.6, 1.2, 0], "rotation": [0, -1.5707963267948966, 0], "props": { "width": 2.4, "height": 2.2, "color": "#c8dcec" } },
@@ -352,7 +355,8 @@
               { "wall": "north", "u": -4 },
               { "wall": "north", "u": 0 },
               { "wall": "north", "u": 4 }
-            ]
+            ],
+            "openWalls": ["east", "west"]
           }
         },
         { "id": "plaque-gallery", "kind": "prop.plaque", "position": [-6.4, 1.7, 5.4], "props": { "color": "#c8d0d8", "text": "Jump any century.", "action": "read" } },

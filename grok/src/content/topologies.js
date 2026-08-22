@@ -12,8 +12,25 @@ import topologyOpen from '../../data/topologies/open.json' with { type: 'json' }
 import topologyArcade from '../../data/topologies/arcade.json' with { type: 'json' };
 import topologyRound from '../../data/topologies/round.json' with { type: 'json' };
 import topologyStack from '../../data/topologies/stack.json' with { type: 'json' };
-import { pickOne } from './rng.js';
+import { pickWeighted } from './rng.js';
 import { socketWorld } from './volumes.js';
+
+const TOPOLOGY_WEIGHT = {
+  I: 1,
+  L: 2,
+  T: 4,
+  plus: 5,
+  U: 4,
+  court: 5,
+  open: 5,
+  arcade: 4,
+  rotunda: 4,
+  round: 3,
+  alcove: 2,
+  loft: 3,
+  shaft: 2,
+  stack: 3,
+};
 
 const BY_ID = {
   I: topologyI,
@@ -71,7 +88,8 @@ export function pickTopology(rng, { kit, recent = [], allow = null } = {}) {
     recent.map((entry) => String(entry).split('|').slice(0, 2).join('|')),
   );
   const fresh = pool.filter((topology) => !blocked.has(`${topology.id}|${kit?.id ?? ''}`));
-  return pickOne(rng, fresh.length ? fresh : pool) ?? topologyI;
+  const pickFrom = fresh.length ? fresh : pool;
+  return pickWeighted(rng, pickFrom, (topology) => TOPOLOGY_WEIGHT[topology.id] ?? 2) ?? topologyI;
 }
 
 export function roomFingerprint(room) {

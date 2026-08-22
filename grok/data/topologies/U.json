@@ -2,7 +2,8 @@
   "id": "U",
   "title": "Horseshoe",
   "kind": "arch.chamber",
-  "tags": ["branching"],
+  "tags": ["branching", "open"],
+  "openWalls": ["east"],
   "footprint": { "halfX": 9, "zMin": -7, "zMax": 5, "height": 3.6 },
   "sockets": [
     { "id": "entry", "role": "entry", "wall": "south", "u": -4 },

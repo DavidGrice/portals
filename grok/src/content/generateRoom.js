@@ -107,6 +107,16 @@ export function resolveExitSockets(kit) {
 export function pickExitCount(rng, { minExits = 2, maxExits = 4, available = 4 } = {}) {
   const floor = Math.max(1, Math.min(Number(minExits) || 1, available));
   const ceil = Math.max(floor, Math.min(Number(maxExits) || floor, available));
+  if (ceil <= floor) {
+    return floor;
+  }
+  const roll = typeof rng === 'function' ? rng() : Math.random();
+  if (roll < 0.5) {
+    return ceil;
+  }
+  if (roll < 0.8) {
+    return Math.max(floor, ceil - 1);
+  }
   return pickInt(typeof rng === 'function' ? rng : Math.random, floor, ceil);
 }
 
@@ -139,7 +149,10 @@ export function generateRoom({
     : pickTopology(rng, {
       kit,
       recent,
-      allow: [...new Set([...(kit.topologies ?? []), 'open', 'arcade', 'round', 'court', 'loft', 'shaft', 'stack'])],
+      allow: [...new Set([
+        ...(kit.topologies ?? []),
+        'open', 'arcade', 'round', 'court', 'plus', 'T', 'U', 'rotunda', 'loft', 'shaft', 'stack',
+      ])],
     });
   const topo = resolved ?? getTopology('I');
   const footprint = { ...(kit.shell ?? {}), ...(topo.footprint ?? {}) };
@@ -159,7 +172,8 @@ export function generateRoom({
     ?? listEntrySockets(kit)[0]
     ?? { id: 'entry', role: 'entry', position: [0, 1, 0], yaw: Math.PI, wall: 'south' });
   const materials = kit.materials ?? {};
-  const forceSide = ['T', 'plus', 'L'].includes(topo.id);
+  const surface = materials.shell ?? materials.floor ?? null;
+  const forceSide = ['T', 'plus', 'L', 'U', 'court', 'arcade', 'rotunda'].includes(topo.id);
   const chosenExits = chooseExits(exitsAvailable, wanted, rng, { forceSide }).map((socket) => (
     topo.kind === 'arch.corridor' ? snapExitToShell(socket, footprint) : resolveSocket(topo, socket)
   ));
@@ -168,10 +182,13 @@ export function generateRoom({
   const holes = holesFromSockets(holeSockets);
   const shellKind = topo.kind ?? 'arch.corridor';
   const holeWalls = new Set(holes.map((hole) => hole.wall));
-  const openWalls = (topo.openWalls ?? []).filter((wall) => !holeWalls.has(wall));
+  const openWalls = pickOpenWalls(topo, holeWalls, rng);
 
   const lighting = lightSpecForKit(kit);
   const height = Number(footprint.height ?? (topo.tags?.includes('vertical') ? 6.2 : 4.2));
+  const surfaceProps = surface
+    ? { material: surface }
+    : { color: kit.clearColor ?? '#333333' };
   const entities = [
     { id: `sky-${id}`, kind: 'env.sky', props: { color: kit.clearColor ?? '#111111' } },
     {
@@ -189,15 +206,15 @@ export function generateRoom({
       id: `floor-${id}`,
       kind: 'env.floor',
       props: {
-        ...(materials.floor ? { material: materials.floor } : { color: kit.clearColor ?? '#333333' }),
-        size: Math.max(24, (footprint.halfX ?? 8) * 3),
+        ...surfaceProps,
+        size: Math.max(32, (footprint.halfX ?? 8) * 4),
       },
     },
     {
       id: `shell-${id}`,
       kind: shellKind,
       props: {
-        ...(materials.shell ? { material: materials.shell } : {}),
+        ...surfaceProps,
         color: kit.clearColor ?? '#333333',
         halfX: footprint.halfX ?? 8,
         zMin: footprint.zMin ?? -6.2,
@@ -246,13 +263,14 @@ export function generateRoom({
     },
   });
 
-  entities.push(...placeLandmarks({ kit, topology: topo, roomId: id, rng, materials }));
+  entities.push(...placeLandmarks({ kit, topology: topo, roomId: id, rng, materials, surface }));
   entities.push(...placeVertical({
     roomId: id,
     footprint: { ...footprint, height },
     topology: topo,
     materials,
     lighting,
+    surface,
   }));
   for (const [index, point] of lighting.points.entries()) {
     entities.push({
@@ -323,7 +341,7 @@ export function generateRoom({
 
 export { roomFingerprint };
 
-function placeLandmarks({ kit, topology, roomId, rng, materials }) {
+function placeLandmarks({ kit, topology, roomId, rng, materials, surface = null }) {
   const regions = topology.regions ?? {};
   const names = Object.keys(regions);
   const pool = [...(kit.dressing ?? [])];
@@ -340,13 +358,18 @@ function placeLandmarks({ kit, topology, roomId, rng, materials }) {
     const regionName = names[index % Math.max(names.length, 1)] ?? `slot-${index}`;
     const region = regions[regionName] ?? [((index % 3) - 1) * 3.2, 0, -index];
     const template = pool[index % pool.length];
+    const position = template.position && index < pool.length && !names.length ? template.position : region;
+    const lift = Array.isArray(position) && Number(position[1]) === 0
+      ? [position[0], 0.52, position[2]]
+      : position;
     pieces.push({
       ...template,
       id: template.id || `dress-${roomId}-${regionName}-${index}`,
-      position: template.position && index < pool.length && !names.length ? template.position : region,
+      position: lift,
       tags: [...new Set([...(template.tags ?? []), 'landmark', regionName])],
       props: {
         ...(template.props ?? {}),
+        ...(template.props?.material || !surface ? {} : { material: surface }),
         ...(template.props?.color || !materials.accent ? {} : { color: materials.accent }),
         ...(index === 0 && template.kind === 'prop.box' && !template.props?.spin ? { spin: [0, 0.45, 0] } : {}),
       },
@@ -424,12 +447,12 @@ export function lightSpecForKit(kit) {
   };
 }
 
-function placeVertical({ roomId, footprint, topology, materials, lighting }) {
+function placeVertical({ roomId, footprint, topology, materials, lighting, surface = null }) {
   const halfX = footprint.halfX ?? 8;
   const zMin = footprint.zMin ?? -7;
   const zMax = footprint.zMax ?? 5;
   const height = footprint.height ?? 4;
-  const metal = lighting.metal ?? 'metal.iron';
+  const metal = surface ?? lighting.metal ?? 'metal.iron';
   const pieces = [
     {
       id: `beam-a-${roomId}`,
@@ -615,6 +638,21 @@ export function exitWalls(room) {
       .filter((portal) => portal.role === 'exit')
       .map((portal) => portal.wall ?? wallFromSocket({ position: portal.position })),
   )];
+}
+
+function pickOpenWalls(topology, holeWalls, rng) {
+  const declared = (topology?.openWalls ?? []).filter((wall) => !holeWalls.has(wall));
+  const unused = ['east', 'west', 'north', 'south'].filter((wall) => !holeWalls.has(wall) && !declared.includes(wall));
+  const open = [...declared];
+  const preferOpen = Boolean(topology?.tags?.includes('open') || ['court', 'plus', 'arcade', 'U', 'round', 'rotunda', 'open'].includes(topology?.id));
+  const roll = typeof rng === 'function' ? rng() : Math.random();
+  if (unused.length) {
+    open.push(unused[0]);
+    if (unused.length > 1 && (preferOpen || roll > 0.45)) {
+      open.push(unused[1]);
+    }
+  }
+  return [...new Set(open)];
 }
 
 function chooseExits(exits, wanted, rng, { forceSide = false } = {}) {

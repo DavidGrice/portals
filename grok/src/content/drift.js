@@ -92,7 +92,7 @@ export function openDrift({
     depth,
     exitCount: pickExitCount(rng, {
       minExits,
-      maxExits: Math.min(3, maxExits),
+      maxExits,
       available: 4,
     }),
     minExits,

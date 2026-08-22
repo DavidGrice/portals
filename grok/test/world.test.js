@@ -205,6 +205,22 @@ describe('world data', () => {
     assert.equal(controller.getPortal('door-sp').destinationId, 'door-ps');
     assert.ok(Math.abs(controller.getPortal('door-sp').rotation.x + Math.PI / 2) < 0.01);
     assert.ok(controller.rooms.some((room) => room.id === 'well-bottom'));
+    const pit = controller.getPortal('door-sp');
+    controller.setCurrentScene('shaft');
+    controller.setCameraPosition(1250, 1, 2.2);
+    camera.position.set(1250, -0.2, 2.2);
+    controller.update();
+    assert.equal(controller.currentRoom.id, 'well-bottom');
+    const local = camera.position.clone();
+    const dest = controller.getPortal('door-ps');
+    dest.updateMatrixWorld(true);
+    dest.worldToLocal(local);
+    assert.ok(Math.abs(local.x) > 1, `circuit pit emerge x ${local.x}`);
+    for (let i = 0; i < 10; i += 1) {
+      controller.update();
+    }
+    assert.equal(controller.currentRoom.id, 'well-bottom', 'circuit well must not loop');
+    assert.ok(pit.oneWay);
   });
 
   it('loads nine distinct Ages volumes', () => {

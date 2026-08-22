@@ -19,6 +19,8 @@ describe('flashlight', () => {
     assert.ok(light.light.intensity >= 20);
     assert.equal(light.toggle(), false);
     assert.equal(light.light.intensity, 0);
+    assert.equal(light.light.visible, true);
+    assert.equal(light.fill.visible, true);
   });
 
   it('reparents onto the current room scene', () => {
@@ -42,6 +44,8 @@ describe('flashlight', () => {
     assert.equal(light.light.distance, FLASHLIGHT.performanceDistance);
     light.setEnabled(true);
     assert.equal(light.light.intensity, FLASHLIGHT.performanceIntensity);
+    light.applyProfile('ultra');
+    assert.equal(light.light.castShadow, false);
   });
 
   it('aims the beam from the camera', () => {

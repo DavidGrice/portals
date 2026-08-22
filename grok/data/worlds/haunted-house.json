@@ -99,7 +99,7 @@
           "id": "shell-parlor",
           "kind": "arch.chamber",
           "props": {
-            "material": "haunt.wallpaper",
+            "material": "haunt.boards",
             "halfX": 10,
             "zMin": -7,
             "zMax": 6,
@@ -108,7 +108,8 @@
               { "wall": "south", "u": 0 },
               { "wall": "north", "u": 0 },
               { "wall": "east", "u": 1 }
-            ]
+            ],
+            "openWalls": ["west"]
           }
         },
         { "id": "plaque-parlor", "kind": "prop.plaque", "position": [-4.2, 1.7, 5.4], "props": { "color": "#b07070", "text": "Parlor" } },
@@ -149,7 +150,7 @@
           "id": "shell-cellar",
           "kind": "arch.chamber",
           "props": {
-            "material": "haunt.brick",
+            "material": "haunt.cellar",
             "halfX": 6,
             "zMin": -6,
             "zMax": 5,
@@ -157,7 +158,8 @@
             "holes": [
               { "wall": "south", "u": 0 },
               { "wall": "north", "u": 0 }
-            ]
+            ],
+            "openWalls": ["east", "west"]
           }
         },
         { "id": "plaque-cellar", "kind": "prop.plaque", "position": [2.4, 1.4, 4.4], "props": { "color": "#508070", "text": "Cellar" } },

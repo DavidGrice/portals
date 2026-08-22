@@ -20,7 +20,7 @@
           "id": "shell-white",
           "kind": "arch.plus",
           "props": {
-            "material": "cyber.wall",
+            "material": "cyber.grid.white",
             "arm": 3.8,
             "zMin": -10,
             "zMax": 8,
@@ -78,7 +78,8 @@
               { "wall": "south", "u": 0 },
               { "wall": "north", "u": 0 },
               { "wall": "east", "u": -1 }
-            ]
+            ],
+            "openWalls": ["west"]
           }
         },
         { "id": "strip-cyan-l", "kind": "prop.box", "position": [-11.4, 2.2, -2], "props": { "size": [0.1, 0.06, 14], "material": "cyber.strip.cyan", "scroll": [0, 0.22] } },
@@ -116,10 +117,11 @@
             "zMin": -8,
             "zMax": 6,
             "height": 3.1,
-            "holes": [{ "wall": "south", "u": 0 }, { "wall": "north", "u": 0 }]
+            "holes": [{ "wall": "south", "u": 0 }, { "wall": "north", "u": 0 }],
+            "openWalls": ["east", "west"]
           }
         },
-        { "id": "hazard-red", "kind": "prop.box", "position": [0, 0.04, -1], "props": { "size": [2.4, 0.04, 8], "material": "cyber.hazard" } },
+        { "id": "hazard-red", "kind": "prop.box", "position": [0, 0.08, -1], "props": { "size": [2.4, 0.08, 8], "material": "cyber.grid.red" } },
         { "id": "strip-red-l", "kind": "prop.box", "position": [-3, 2.1, -1], "props": { "size": [0.08, 0.05, 12], "material": "cyber.strip.red" } },
         { "id": "strip-red-r", "kind": "prop.box", "position": [3, 2.1, -1], "props": { "size": [0.08, 0.05, 12], "material": "cyber.strip.red" } },
         { "id": "cube-red", "kind": "prop.box", "position": [2.2, 0.35, 2.6], "tags": ["landmark"], "props": { "size": [0.55, 0.7, 0.55], "color": "#ff3b4a" } },
@@ -151,7 +153,8 @@
             "zMin": -8,
             "zMax": 5,
             "height": 5.8,
-            "holes": [{ "wall": "south", "u": 0 }, { "wall": "west", "u": 0 }]
+            "holes": [{ "wall": "south", "u": 0 }, { "wall": "west", "u": 0 }],
+            "openWalls": ["east"]
           }
         },
         { "id": "strip-blue", "kind": "prop.box", "position": [0, 3.6, -2], "props": { "size": [14, 0.05, 0.08], "material": "cyber.strip.blue", "scroll": [0.12, 0] } },
@@ -185,7 +188,8 @@
             "zMin": -7,
             "zMax": 3,
             "height": 4.6,
-            "holes": [{ "wall": "south", "u": 0 }]
+            "holes": [{ "wall": "south", "u": 0 }],
+            "openWalls": ["east", "west"]
           }
         },
         { "id": "strip-gold-l", "kind": "prop.box", "position": [-6.6, 2.6, -2], "props": { "size": [0.1, 0.06, 8], "material": "cyber.strip.gold" } },
@@ -214,12 +218,13 @@
           "id": "shell-shaft",
           "kind": "arch.shaft",
           "props": {
-            "material": "cyber.wall",
+            "material": "cyber.grid.white",
             "halfX": 5,
             "zMin": -5,
             "zMax": 5,
             "height": 10,
             "holes": [{ "wall": "south", "u": 0 }],
+            "openWalls": ["east", "west"],
             "floorHoles": [{ "x": 0, "z": 2.2, "halfX": 1.15, "halfZ": 1.15 }]
           }
         },
@@ -234,7 +239,7 @@
       ],
       "portals": [
         { "id": "door-sw", "position": [0, 1, 5], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-ws" },
-        { "id": "door-sp", "position": [0, 0.04, 2.2], "rotation": [-1.5707963267948966, 0, 0], "size": [2, 2], "destinationId": "door-ps" }
+        { "id": "door-sp", "position": [0, 0.04, 2.2], "rotation": [-1.5707963267948966, 0, 0], "size": [2, 2], "destinationId": "door-ps", "oneWay": true }
       ]
     },
     {
@@ -251,12 +256,13 @@
           "id": "shell-bottom",
           "kind": "arch.chamber",
           "props": {
-            "material": "cyber.wall",
+            "material": "cyber.grid.white",
             "halfX": 5,
             "zMin": -5,
             "zMax": 5,
             "height": 4.2,
             "roundCorners": true,
+            "openWalls": ["east", "west"],
             "floorHoles": [{ "x": 0, "z": 0, "halfX": 1.15, "halfZ": 1.15 }]
           }
         },
@@ -282,12 +288,13 @@
           "id": "shell-ribbon",
           "kind": "arch.court",
           "props": {
-            "material": "cyber.wall",
+            "material": "cyber.grid.cyan",
             "halfX": 11,
             "zMin": -10,
             "zMax": 6,
             "height": 4.2,
-            "holes": [{ "wall": "north", "u": 0 }]
+            "holes": [{ "wall": "north", "u": 0 }],
+            "openWalls": ["east", "west"]
           }
         },
         { "id": "strip-ribbon", "kind": "prop.box", "position": [0, 0.06, -2], "props": { "size": [16, 0.04, 1.1], "material": "cyber.strip.cyan", "scroll": [0.3, 0] } },

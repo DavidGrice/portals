@@ -75,9 +75,10 @@ export class Flashlight {
 
   apply() {
     this.light.intensity = this.enabled ? this.baseIntensity : 0;
-    this.light.visible = this.enabled;
     this.fill.intensity = this.enabled ? this.fillIntensity : 0;
-    this.fill.visible = this.enabled;
+    this.light.visible = true;
+    this.fill.visible = true;
+    this.light.castShadow = false;
     return this;
   }
 
@@ -86,7 +87,7 @@ export class Flashlight {
     this.light.distance = performance ? FLASHLIGHT.performanceDistance : FLASHLIGHT.distance;
     this.baseIntensity = performance ? FLASHLIGHT.performanceIntensity : FLASHLIGHT.intensity;
     this.fillIntensity = performance ? FLASHLIGHT.performanceFill : FLASHLIGHT.fillIntensity;
-    this.light.castShadow = profileId === 'ultra';
+    this.light.castShadow = false;
     this.apply();
     return this;
   }

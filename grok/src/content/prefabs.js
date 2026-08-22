@@ -76,13 +76,20 @@ export const prefabs = {
   floor(entity) {
     const color = parseColor(entity.props?.color, 0x333333);
     const size = entity.props?.size ?? 20;
+    const material = surfaceMaterial(entity, color, { roughness: 0.94, metalness: 0, line: '#1a1d24', cells: 8 });
+    material.polygonOffset = true;
+    material.polygonOffsetFactor = 1;
+    material.polygonOffsetUnits = 4;
+    material.depthWrite = true;
     const mesh = new THREE.Mesh(
       new THREE.PlaneGeometry(size, size),
-      surfaceMaterial(entity, color, { roughness: 0.94, metalness: 0, line: '#1a1d24', cells: 8 }),
+      material,
     );
     mesh.rotation.x = -Math.PI / 2;
     mesh.receiveShadow = true;
     applyPose(mesh, entity);
+    mesh.position.y -= 0.06;
+    mesh.renderOrder = -2;
     mesh.userData.collider = { type: 'bounds', half: size * 0.5 };
     mesh.userData.materialId = entity.props?.material ?? null;
     mesh.userData.surface = entity.props?.surface ?? resolveMaterial(entity.props?.material)?.surface ?? null;
@@ -279,26 +286,35 @@ export const prefabs = {
     const midZ = (zMin + zMax) * 0.5;
 
     const sideOpenings = entity.props?.sideOpenings ?? [];
-    addSideWall(group, material, {
-      x: -(halfX + thickness * 0.5),
-      zMin,
-      zMax,
-      height,
-      thickness,
-      holes: sideOpenings.filter((hole) => Number(hole.side ?? -1) < 0),
-    });
-    addSideWall(group, material, {
-      x: halfX + thickness * 0.5,
-      zMin,
-      zMax,
-      height,
-      thickness,
-      holes: sideOpenings.filter((hole) => Number(hole.side ?? 1) > 0),
-    });
+    const open = new Set(entity.props?.openWalls ?? []);
+    if (!open.has('west')) {
+      addSideWall(group, material, {
+        x: -(halfX + thickness * 0.5),
+        zMin,
+        zMax,
+        height,
+        thickness,
+        holes: sideOpenings.filter((hole) => Number(hole.side ?? -1) < 0),
+      });
+    }
+    if (!open.has('east')) {
+      addSideWall(group, material, {
+        x: halfX + thickness * 0.5,
+        zMin,
+        zMax,
+        height,
+        thickness,
+        holes: sideOpenings.filter((hole) => Number(hole.side ?? 1) > 0),
+      });
+    }
     addBox(group, material, 0, height + thickness * 0.5, midZ, halfX * 2 + thickness * 2, thickness, length, false);
 
     const wallZs = new Set([zMin, zMax, ...openings]);
     for (const z of wallZs) {
+      const wall = z <= zMin ? 'north' : 'south';
+      if (open.has(wall) && !openings.has(z)) {
+        continue;
+      }
       if (openings.has(z)) {
         addOpeningWall(group, material, { z, halfX, height, thickness, holeWidth, holeHeight });
       } else {
@@ -466,6 +482,7 @@ export const prefabs = {
       maxZ: zMax,
       height,
       holes: entity.props?.holes ?? [],
+      openWalls: entity.props?.openWalls ?? [],
     });
     addBox(group, material, 0, 2.25, (zMin - 0.4) * 0.5, halfX * 2 - 0.4, 0.16, Math.abs(zMin) - 1.2);
     addBox(group, material, -halfX + 0.2, 3.1, (zMin - 0.4) * 0.5, 0.12, 0.9, Math.abs(zMin) - 1.2);
@@ -490,6 +507,7 @@ export const prefabs = {
       maxZ: zMax,
       height,
       holes: entity.props?.holes ?? [],
+      openWalls: entity.props?.openWalls ?? [],
       floorHoles: entity.props?.floorHoles ?? [],
     });
     addBox(group, material, -halfX + 1.3, 3.05, 0, 2.4, 0.18, 3.4);
@@ -553,22 +571,31 @@ export const prefabs = {
       { wall: 'west', u: 0 },
       { wall: 'east', u: 0 },
     ];
-    addBox(group, material, 0, -thickness * 0.5, (zMin + zMax) * 0.5, arm * 2, thickness, zMax - zMin);
-    addBox(group, material, (minX + maxX) * 0.5, -thickness * 0.5, 0, maxX - minX, thickness, arm * 2);
-    addBox(group, material, 0, height + thickness * 0.5, (zMin + zMax) * 0.5, arm * 2, thickness, zMax - zMin, false);
-    addBox(group, material, (minX + maxX) * 0.5, height + thickness * 0.5, 0, maxX - minX, thickness, arm * 2, false);
-    addWallWithHoles(group, material, {
-      wall: 'north', minX: -arm, maxX: arm, minZ: zMin, maxZ: zMax, height, thickness, holes,
-    });
-    addWallWithHoles(group, material, {
-      wall: 'south', minX: -arm, maxX: arm, minZ: zMin, maxZ: zMax, height, thickness, holes,
-    });
-    addWallWithHoles(group, material, {
-      wall: 'west', minX, maxX, minZ: -arm, maxZ: arm, height, thickness, holes,
-    });
-    addWallWithHoles(group, material, {
-      wall: 'east', minX, maxX, minZ: -arm, maxZ: arm, height, thickness, holes,
-    });
+    const open = new Set(entity.props?.openWalls ?? []);
+    addBox(group, material, (minX + maxX) * 0.5, -thickness * 0.5, (zMin + zMax) * 0.5, maxX - minX, thickness, zMax - zMin);
+    if (entity.props?.ceiling !== false) {
+      addBox(group, material, (minX + maxX) * 0.5, height + thickness * 0.5, (zMin + zMax) * 0.5, maxX - minX, thickness, zMax - zMin, false);
+    }
+    if (!open.has('north')) {
+      addWallWithHoles(group, material, {
+        wall: 'north', minX: -arm, maxX: arm, minZ: zMin, maxZ: zMax, height, thickness, holes,
+      });
+    }
+    if (!open.has('south')) {
+      addWallWithHoles(group, material, {
+        wall: 'south', minX: -arm, maxX: arm, minZ: zMin, maxZ: zMax, height, thickness, holes,
+      });
+    }
+    if (!open.has('west')) {
+      addWallWithHoles(group, material, {
+        wall: 'west', minX, maxX, minZ: -arm, maxZ: arm, height, thickness, holes,
+      });
+    }
+    if (!open.has('east')) {
+      addWallWithHoles(group, material, {
+        wall: 'east', minX, maxX, minZ: -arm, maxZ: arm, height, thickness, holes,
+      });
+    }
     addBox(group, material, -arm, height * 0.5, (zMin - arm) * 0.5, thickness, height, Math.max(0.2, -arm - zMin));
     addBox(group, material, arm, height * 0.5, (zMin - arm) * 0.5, thickness, height, Math.max(0.2, -arm - zMin));
     addBox(group, material, -arm, height * 0.5, (zMax + arm) * 0.5, thickness, height, Math.max(0.2, zMax - arm));
