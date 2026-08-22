@@ -75,10 +75,14 @@ describe('Littrow', () => {
     }
     assert.ok(card);
     assert.ok(card.userData.grating.height > card.userData.grating.width);
+    assert.ok(card.userData.grating.height / card.userData.grating.width > 1.3);
     assert.equal(card.userData.grating.linesPerMm, 600);
     assert.equal(card.userData.spin, undefined);
     assert.equal(card.userData.grating.hover, true);
+    assert.ok(card.userData.grating.plate);
     assert.ok(faces >= 2);
+    assert.ok(kinds.has('arch.exhibit'));
+    assert.ok(kinds.has('prop.dais'));
     const hot = controller.currentRoom.lasers.filter((laser) => laser.userData.laser.enabled);
     assert.equal(hot.length, 1);
     const lit = tickOptics([controller.currentRoom], { camera, dt: 0.016, controller, elapsed: 0 });

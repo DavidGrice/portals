@@ -63,11 +63,15 @@ const fragmentShader = /* glsl */ `
     } else if (nm < 420.0) {
       factor = 0.3 + 0.7 * (nm - 380.0) / 40.0;
     }
-    return pow(max(vec3(r, g, b) * factor, 0.0), vec3(0.8));
+    return pow(max(vec3(r, g, b) * factor, 0.0), vec3(0.85));
+  }
+
+  float hash21(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
   }
 
   float orderLobe(vec3 viewDir, vec3 diffracted) {
-    return pow(max(dot(viewDir, diffracted), 0.0), 48.0);
+    return pow(max(dot(viewDir, diffracted), 0.0), 28.0);
   }
 
   void main() {
@@ -77,25 +81,39 @@ const fragmentShader = /* glsl */ `
     if (length(tangent) < 0.2) {
       tangent = normalize(cross(vec3(1.0, 0.0, 0.0), n));
     }
-    vec3 light = normalize(uLightDir);
-    vec3 toward = -light;
+    vec3 bitangent = normalize(cross(n, tangent));
+    float visualLines = mix(64.0, 168.0, clamp((uLinesPerMm - 300.0) / 1500.0, 0.0, 1.0));
+    float grooveU = vUv.x * visualLines;
+    float g = fract(grooveU);
+    float blaze = uBlazeDeg * 0.01745329252;
+    vec3 ng = normalize(n + tangent * sin(blaze) * (g - 0.5) * 1.35);
+    vec3 gallery = normalize(vec3(0.18, 0.82, 0.52));
+    vec3 light = normalize(mix(gallery, uLightDir, step(0.5, uLightOn)));
+    float land = smoothstep(0.0, 0.07, g) * (1.0 - smoothstep(0.78, 1.0, g));
+    vec3 color = uBase * (0.07 + 0.16 * land);
+
+    float ndv = max(dot(ng, viewDir), 0.0);
+    float fres = pow(1.0 - ndv, 2.6);
+    float phase = 0.5 + 0.5 * dot(viewDir, tangent);
+    float sweep = fract(phase * 1.85 + vUv.y * 0.22 + uTime * 0.025 + g * 0.04);
+    float nmFoil = mix(405.0, 695.0, sweep);
+    float fill = 0.42 + 0.58 * max(uLightOn, 0.4);
+    color += wavelengthRgb(nmFoil) * (0.18 + 1.05 * fres) * fill;
+    color += land * wavelengthRgb(nmFoil) * 0.12;
+
+    vec3 halfV = normalize(viewDir + gallery);
+    float aniso = pow(max(dot(normalize(mix(ng, bitangent, 0.35)), halfV), 0.0), 70.0);
+    color += aniso * wavelengthRgb(nmFoil) * 0.7;
+    float spec = pow(max(dot(reflect(-light, ng), viewDir), 0.0), 48.0);
+    color += spec * vec3(0.95, 0.97, 1.0) * 0.35;
+
+    float spark = step(0.991, hash21(floor(vUv * vec2(visualLines * 1.4, 70.0)) + floor(uTime * 7.0)));
+    color += spark * vec3(1.0, 0.96, 0.9) * 0.7;
+
+    vec3 toward = -normalize(uLightDir);
     float cosI = clamp(dot(toward, n), -1.0, 1.0);
     float thetaI = sign(dot(toward, tangent)) * acos(cosI);
     float d = 0.001 / max(uLinesPerMm, 1.0);
-    float blaze = uBlazeDeg * 0.01745329252;
-    vec3 facetN = normalize(n * cos(blaze) + tangent * sin(blaze));
-    vec3 color = uBase * 0.28;
-    float groove = 0.5 + 0.5 * sin(vUv.x * uLinesPerMm * 6.28318);
-    color += groove * vec3(0.05, 0.055, 0.06);
-
-    float fres = pow(1.0 - max(dot(n, viewDir), 0.0), 2.4);
-    float foil = fract(vUv.x * 3.4 + vUv.y * 5.1 + viewDir.x * 0.7 + uTime * 0.08);
-    float nmFoil = mix(410.0, 690.0, foil);
-    color += wavelengthRgb(nmFoil) * (0.16 + 0.55 * fres) * (0.35 + 0.65 * max(uLightOn, 0.25));
-
-    float spec = pow(max(dot(reflect(-light, facetN), viewDir), 0.0), 36.0);
-    color += spec * vec3(0.92, 0.94, 1.0) * 0.4;
-
     int samples = uLightLambdaNm > 0.0 ? 1 : 11;
     for (int s = 0; s < 11; s += 1) {
       if (s >= samples) {
@@ -104,7 +122,7 @@ const fragmentShader = /* glsl */ `
       float nm = uLightLambdaNm > 0.0 ? uLightLambdaNm : mix(400.0, 700.0, float(s) / 10.0);
       float lambda = nm * 1e-9;
       vec3 rgb = wavelengthRgb(nm);
-      float weight = max(uLightOn, 0.22) * (uLightLambdaNm > 0.0 ? 1.25 : 0.5);
+      float weight = max(uLightOn, 0.35) * (uLightLambdaNm > 0.0 ? 1.35 : 0.55);
       for (int m = -3; m <= 3; m += 1) {
         float thetaM;
         if (m == 0) {
@@ -119,34 +137,36 @@ const fragmentShader = /* glsl */ `
         vec3 diffracted = normalize(tangent * sin(thetaM) + n * cos(thetaM));
         float lobe = orderLobe(viewDir, diffracted) * weight;
         if (m == 0) {
-          color += lobe * vec3(0.92, 0.94, 0.98);
+          color += lobe * vec3(0.94, 0.96, 1.0);
         } else {
-          color += lobe * rgb;
+          color += lobe * rgb * 1.15;
         }
       }
     }
-    color = min(color, vec3(1.55));
-    gl_FragColor = vec4(color, uMode > 0.5 ? 0.72 : 1.0);
+    color = min(color, vec3(1.8));
+    gl_FragColor = vec4(color, uMode > 0.5 ? 0.78 : 1.0);
   }
 `;
 
 export function createGratingMaterial(spec = {}) {
+  const transmit = spec.mode === 'transmit';
   const material = new ShaderMaterial({
     uniforms: {
       uLinesPerMm: { value: spec.linesPerMm ?? 600 },
       uBlazeDeg: { value: spec.blazeDeg ?? 10.37 },
-      uMode: { value: spec.mode === 'transmit' ? 1 : 0 },
+      uMode: { value: transmit ? 1 : 0 },
       uViewPos: { value: new Vector3(0, 1, 6) },
       uLightDir: { value: new Vector3(0, -0.2, -1) },
       uLightLambdaNm: { value: spec.lambdaNm ?? 0 },
-      uLightOn: { value: spec.lightOn ?? 0.55 },
+      uLightOn: { value: spec.lightOn ?? 0.7 },
       uTime: { value: 0 },
-      uBase: { value: new Color(0x2a3038) },
+      uBase: { value: new Color(0x12151a) },
     },
     vertexShader,
     fragmentShader,
     side: DoubleSide,
-    transparent: spec.mode === 'transmit',
+    transparent: transmit,
+    depthWrite: !transmit,
   });
   material.userData.gratingMaterial = true;
   return material;
@@ -165,6 +185,7 @@ export function syncGratingMaterial(material, spec = {}) {
   if (spec.mode != null) {
     material.uniforms.uMode.value = spec.mode === 'transmit' ? 1 : 0;
     material.transparent = spec.mode === 'transmit';
+    material.depthWrite = spec.mode !== 'transmit';
   }
   if (spec.lambdaNm != null) {
     material.uniforms.uLightLambdaNm.value = spec.lambdaNm;

@@ -169,6 +169,75 @@ function rotundaWallName(index) {
   return ['north', 'northeast', 'east', 'southeast', 'south', 'southwest', 'west', 'northwest'][index] ?? 'north';
 }
 
+function roundedRectPath(Ctor, width, height, radius) {
+  const path = new Ctor();
+  const x = -width * 0.5;
+  const y = -height * 0.5;
+  const r = Math.min(radius, width * 0.22, height * 0.16);
+  path.moveTo(x + r, y);
+  path.lineTo(x + width - r, y);
+  path.quadraticCurveTo(x + width, y, x + width, y + r);
+  path.lineTo(x + width, y + height - r);
+  path.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+  path.lineTo(x + r, y + height);
+  path.quadraticCurveTo(x, y + height, x, y + height - r);
+  path.lineTo(x, y + r);
+  path.quadraticCurveTo(x, y, x + r, y);
+  return path;
+}
+
+function foilMaterial(id) {
+  const material = buildMaterial(id);
+  material.iridescence = 1;
+  material.iridescenceIOR = 1.18;
+  if (material.iridescenceThicknessRange?.set) {
+    material.iridescenceThicknessRange.set(140, 520);
+  }
+  material.clearcoat = Math.max(material.clearcoat ?? 0, 0.72);
+  material.clearcoatRoughness = 0.14;
+  return material;
+}
+
+export function paintCardPlate(mesh, text) {
+  if (!mesh?.material || typeof document === 'undefined') {
+    return mesh;
+  }
+  const line = String(text ?? '');
+  if (mesh.userData.plateText === line && mesh.userData.platePainted) {
+    return mesh;
+  }
+  mesh.userData.plateText = line;
+  let canvas = mesh.userData.plateCanvas;
+  if (!canvas) {
+    canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 96;
+    mesh.userData.plateCanvas = canvas;
+  }
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    return mesh;
+  }
+  ctx.fillStyle = '#120e08';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = '#e8c86a';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(8, 8, canvas.width - 16, canvas.height - 16);
+  ctx.fillStyle = '#f0d080';
+  ctx.font = 'bold 36px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(line.slice(0, 28), canvas.width * 0.5, 58);
+  if (!mesh.userData.plateTexture) {
+    mesh.userData.plateTexture = new THREE.CanvasTexture(canvas);
+    mesh.material.map = mesh.userData.plateTexture;
+    mesh.material.color.setHex(0xffffff);
+  }
+  mesh.userData.plateTexture.needsUpdate = true;
+  mesh.userData.platePainted = true;
+  mesh.material.needsUpdate = true;
+  return mesh;
+}
+
 function surfaceMaterial(entity, fallbackColor, extras = {}) {
   if (entity.props?.material) {
     return buildMaterial(entity.props.material, { color: fallbackColor, ...extras });
@@ -685,6 +754,108 @@ export const prefabs = {
     return group;
   },
 
+  exhibit(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const material = volumeMaterial(entity);
+    const inner = entity.props?.innerMaterial
+      ? buildMaterial(entity.props.innerMaterial)
+      : material;
+    const radius = entity.props?.radius ?? 10;
+    const height = entity.props?.height ?? 7.4;
+    const thickness = entity.props?.thickness ?? 0.3;
+    const sides = 16;
+    const floor = new THREE.Mesh(
+      new THREE.CylinderGeometry(radius + 0.45, radius + 0.5, thickness, 48),
+      material,
+    );
+    floor.position.y = -thickness * 0.5;
+    floor.receiveShadow = true;
+    floor.castShadow = false;
+    floor.userData.collider = { type: 'aabb' };
+    group.add(floor);
+    const ceiling = new THREE.Mesh(
+      new THREE.CylinderGeometry(radius + 0.45, radius + 0.45, thickness, 48),
+      material,
+    );
+    ceiling.position.y = height + thickness * 0.5;
+    ceiling.castShadow = false;
+    group.add(ceiling);
+    for (let i = 0; i < sides; i += 1) {
+      const angle = (i / sides) * Math.PI * 2;
+      const x = Math.sin(angle) * radius;
+      const z = -Math.cos(angle) * radius;
+      const span = (2 * Math.PI * radius) / sides + 0.05;
+      const north = i === 0;
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(span, height, thickness),
+        i % 2 === 0 ? material : inner,
+      );
+      mesh.position.set(x, height * 0.5, z);
+      mesh.rotation.y = -angle;
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.userData.collider = { type: 'aabb' };
+      if (north) {
+        mesh.scale.x = 0.28;
+        mesh.position.y = height * 0.82;
+        mesh.scale.y = 0.36;
+      }
+      group.add(mesh);
+      if (!north) {
+        const rib = new THREE.Mesh(
+          new THREE.BoxGeometry(0.08, height - 0.3, 0.12),
+          buildMaterial('optics.foil'),
+        );
+        rib.position.set(x * 0.985, height * 0.5, z * 0.985);
+        rib.rotation.y = -angle;
+        rib.castShadow = false;
+        group.add(rib);
+      }
+    }
+    attachRunningLights(group, entity, {
+      minX: -radius, maxX: radius, minZ: -radius, maxZ: radius, height,
+    });
+    group.userData.volume = { kind: 'exhibit', radius, height };
+    return group;
+  },
+
+  dais(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const radius = entity.props?.radius ?? 2.5;
+    const height = entity.props?.height ?? 0.16;
+    const metal = buildMaterial(entity.props?.material ?? 'scifi.hull');
+    const disc = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius * 1.06, height, 48), metal);
+    disc.position.y = height * 0.5;
+    disc.receiveShadow = true;
+    disc.castShadow = true;
+    group.add(disc);
+    const well = new THREE.Mesh(
+      new THREE.CylinderGeometry(radius * 0.52, radius * 0.52, 0.03, 40),
+      buildMaterial('optics.card'),
+    );
+    well.position.y = height + 0.01;
+    well.receiveShadow = true;
+    group.add(well);
+    const lip = new THREE.Mesh(
+      new THREE.TorusGeometry(radius, 0.045, 10, 64),
+      buildMaterial(entity.props?.stripMaterial ?? 'optics.strip'),
+    );
+    lip.rotation.x = Math.PI / 2;
+    lip.position.y = height + 0.02;
+    lip.userData.runningLight = true;
+    group.add(lip);
+    const inner = new THREE.Mesh(
+      new THREE.TorusGeometry(radius * 0.52, 0.03, 8, 48),
+      buildMaterial('optics.foil'),
+    );
+    inner.rotation.x = Math.PI / 2;
+    inner.position.y = height + 0.03;
+    group.add(inner);
+    return group;
+  },
+
   plus(entity) {
     const group = new THREE.Group();
     applyPose(group, entity);
@@ -1160,53 +1331,112 @@ export const prefabs = {
   grating(entity) {
     const group = new THREE.Group();
     applyPose(group, entity);
-    const width = entity.props?.width ?? 1.22;
-    const height = entity.props?.height ?? 1.78;
-    const thickness = entity.props?.thickness ?? 0.04;
+    const width = entity.props?.width ?? 1.62;
+    const height = entity.props?.height ?? 2.36;
+    const thickness = entity.props?.thickness ?? 0.058;
     const linesPerMm = entity.props?.linesPerMm ?? 600;
     const blazeDeg = entity.props?.blazeDeg ?? 10.37;
     const mode = entity.props?.mode ?? 'reflect';
     const portrait = height >= width * 0.95;
-    const border = portrait ? Math.min(0.09, width * 0.075) : 0.04;
-    const nameH = portrait ? 0.13 : 0;
-    const artW = Math.max(0.18, width - border * 2);
-    const artH = Math.max(0.18, height - border * 2 - nameH);
+    const corner = portrait ? 0.09 : 0.05;
+    const border = portrait ? Math.min(0.12, width * 0.09) : 0.05;
+    const nameH = portrait ? 0.2 : 0;
+    const artW = Math.max(0.2, width - border * 2);
+    const artH = Math.max(0.2, height - border * 2 - nameH);
+    const artY = portrait ? -nameH * 0.42 : 0;
+    const label = entity.props?.options?.[0]?.label ?? `${linesPerMm} /mm ${mode}`;
     const stock = buildMaterial('optics.card');
-    const body = new THREE.Mesh(new THREE.BoxGeometry(width, height, thickness), stock);
+    stock.color.setHex(0x16181c);
+    stock.metalness = 0.92;
+    stock.roughness = 0.22;
+    const bodyShape = roundedRectPath(THREE.Shape, width * 0.98, height * 0.98, corner);
+    const body = new THREE.Mesh(
+      new THREE.ExtrudeGeometry(bodyShape, {
+        depth: thickness * 0.72,
+        bevelEnabled: true,
+        bevelThickness: 0.006,
+        bevelSize: 0.008,
+        bevelSegments: 2,
+        curveSegments: 10,
+      }),
+      stock,
+    );
+    body.position.z = -thickness * 0.36;
     body.castShadow = true;
     body.receiveShadow = true;
     body.userData.collider = { type: 'aabb' };
     group.add(body);
-    const gratingMat = createGratingMaterial({ linesPerMm, blazeDeg, mode, lightOn: 0.55 });
-    const artY = portrait ? -nameH * 0.5 : 0;
-    const face = new THREE.Mesh(new THREE.PlaneGeometry(artW, artH), gratingMat);
-    face.position.set(0, artY, thickness * 0.5 + 0.0016);
+
+    const frameShape = roundedRectPath(THREE.Shape, width, height, corner);
+    frameShape.holes.push(roundedRectPath(THREE.Path, artW + 0.01, artH + nameH + 0.02, corner * 0.55));
+    const rim = foilMaterial(portrait ? 'optics.foil' : 'optics.rim');
+    const frame = new THREE.Mesh(
+      new THREE.ExtrudeGeometry(frameShape, {
+        depth: thickness,
+        bevelEnabled: true,
+        bevelThickness: 0.01,
+        bevelSize: 0.012,
+        bevelSegments: 2,
+        curveSegments: 12,
+      }),
+      rim,
+    );
+    frame.position.z = -thickness * 0.5;
+    frame.castShadow = true;
+    frame.receiveShadow = true;
+    group.add(frame);
+
+    const gratingMat = createGratingMaterial({ linesPerMm, blazeDeg, mode, lightOn: 0.72 });
+    const faceShape = roundedRectPath(THREE.Shape, artW, artH, corner * 0.45);
+    const faceGeo = new THREE.ShapeGeometry(faceShape, 18);
+    const face = new THREE.Mesh(faceGeo, gratingMat);
+    face.position.set(0, artY, thickness * 0.5 + 0.002);
     face.castShadow = false;
     face.receiveShadow = false;
     face.userData.gratingFace = true;
     group.add(face);
-    const back = new THREE.Mesh(new THREE.PlaneGeometry(artW, artH), gratingMat);
-    back.position.set(0, artY, -(thickness * 0.5 + 0.0016));
+    const back = new THREE.Mesh(faceGeo, gratingMat);
+    back.position.set(0, artY, -(thickness * 0.5 + 0.002));
     back.rotation.y = Math.PI;
     back.castShadow = false;
     back.receiveShadow = false;
     back.userData.gratingFace = true;
     group.add(back);
-    const rim = buildMaterial(portrait ? 'optics.foil' : 'optics.rim');
-    const t = Math.max(0.028, border * 0.5);
-    addBox(group, rim, 0, height * 0.5 - t * 0.5, 0, width + 0.012, t, thickness + 0.02, false);
-    addBox(group, rim, 0, -height * 0.5 + t * 0.5, 0, width + 0.012, t, thickness + 0.02, false);
-    addBox(group, rim, -width * 0.5 + t * 0.5, 0, 0, t, height + 0.012, thickness + 0.02, false);
-    addBox(group, rim, width * 0.5 - t * 0.5, 0, 0, t, height + 0.012, thickness + 0.02, false);
+
+    let plate = null;
     if (portrait) {
-      const plate = new THREE.Mesh(
-        new THREE.BoxGeometry(artW, Math.max(0.06, nameH * 0.7), 0.01),
-        rim,
+      plate = new THREE.Mesh(
+        new THREE.PlaneGeometry(artW * 0.92, Math.max(0.1, nameH * 0.62)),
+        new THREE.MeshStandardMaterial({ color: 0x120e08, roughness: 0.35, metalness: 0.6 }),
       );
-      plate.position.set(0, height * 0.5 - border - nameH * 0.42, thickness * 0.5 + 0.006);
+      plate.position.set(0, height * 0.5 - border - nameH * 0.42, thickness * 0.5 + 0.004);
       plate.castShadow = false;
       group.add(plate);
+      paintCardPlate(plate, label);
+
+      const halo = new THREE.Mesh(
+        new THREE.PlaneGeometry(width * 1.55, height * 1.45),
+        new THREE.MeshBasicMaterial({
+          color: 0x6ad8ff,
+          transparent: true,
+          opacity: 0.07,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+          side: THREE.DoubleSide,
+        }),
+      );
+      halo.position.z = -0.08;
+      halo.renderOrder = -1;
+      halo.userData.cardHalo = true;
+      group.add(halo);
+
+      const glow = new THREE.PointLight(0xe8c86a, 0.55, 3.6, 2);
+      glow.position.set(0, 0.1, 0.35);
+      glow.userData.localLight = true;
+      glow.castShadow = false;
+      group.add(glow);
     }
+
     group.userData.grating = {
       linesPerMm,
       blazeDeg,
@@ -1219,9 +1449,10 @@ export const prefabs = {
       crossTilt: false,
       options: entity.props?.options ?? null,
       optionIndex: 0,
-      label: entity.props?.options?.[0]?.label ?? `${linesPerMm} /mm ${mode}`,
+      label,
       width,
       height,
+      plate,
     };
     return group;
   },
@@ -1235,22 +1466,35 @@ export const prefabs = {
       ? 0xe8eef8
       : (Math.round(rgb.r * 255) << 16) + (Math.round(rgb.g * 255) << 8) + Math.round(rgb.b * 255);
     const metal = buildMaterial('scifi.cabin');
-    addBox(group, metal, 0, 0.18, 0.2, 0.16, 0.16, 0.7);
+    const stand = buildMaterial('scifi.armor');
+    addBox(group, stand, 0, 0.06, 0.12, 0.42, 0.08, 0.42);
+    const yoke = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.34, 12), metal);
+    yoke.position.set(0, 0.24, 0.12);
+    group.add(yoke);
+    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.07, 0.62, 16), metal);
+    barrel.rotation.x = -Math.PI / 2;
+    barrel.position.set(0, 0.42, 0.08);
+    barrel.castShadow = true;
+    group.add(barrel);
+    const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.078, 0.078, 0.06, 16), foilMaterial('optics.rim'));
+    collar.rotation.x = -Math.PI / 2;
+    collar.position.set(0, 0.42, 0.36);
+    group.add(collar);
     const aperture = new THREE.Mesh(
-      new THREE.CircleGeometry(0.07, 20),
+      new THREE.CircleGeometry(0.048, 24),
       new THREE.MeshStandardMaterial({
         color: color || 0x888888,
         emissive: color || 0x222222,
         emissiveIntensity: 0.08,
-        roughness: 0.3,
+        roughness: 0.18,
         metalness: 0.2,
       }),
     );
-    aperture.position.set(0, 0.18, -0.16);
+    aperture.position.set(0, 0.42, 0.4);
     aperture.userData.laserAperture = true;
     group.add(aperture);
-    const spot = new THREE.SpotLight(color || 0xffffff, 0, 18, 0.04, 0.15, 1);
-    spot.position.set(0, 0.18, -0.16);
+    const spot = new THREE.SpotLight(color || 0xffffff, 0, 22, 0.035, 0.12, 1);
+    spot.position.set(0, 0.42, 0.4);
     spot.castShadow = false;
     group.add(spot);
     group.userData.laser = {

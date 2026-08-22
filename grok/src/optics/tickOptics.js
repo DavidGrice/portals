@@ -21,6 +21,7 @@ import {
   wavelengthToRgb,
 } from './grating.js';
 import { syncGratingMaterial } from './gratingMaterial.js';
+import { paintCardPlate } from '../content/prefabs.js';
 
 const GROOVE_CYCLE = [300, 600, 1200, 1800];
 const CONTINUUM_BINS = [420, 460, 500, 540, 580, 620, 660, 700];
@@ -112,6 +113,9 @@ export function applyGratingOption(grating, option, room) {
       });
     }
   });
+  if (spec.plate) {
+    paintCardPlate(spec.plate, spec.label ?? option.label ?? '');
+  }
   for (const readout of room?.readouts ?? []) {
     if (readout.userData?.readout) {
       readout.userData.readout.text = option.label ?? spec.label ?? '';
@@ -424,11 +428,11 @@ function ensureBeam(room, index) {
   let mesh = room.orderBeams[index];
   if (!mesh) {
     mesh = new Mesh(
-      new CylinderGeometry(0.018, 0.018, 1, 8, 1, true),
+      new CylinderGeometry(0.022, 0.022, 1, 12, 1, true),
       new MeshBasicMaterial({
         color: 0xffffff,
         transparent: true,
-        opacity: 0.55,
+        opacity: 0.7,
         blending: AdditiveBlending,
         depthWrite: false,
       }),
@@ -443,12 +447,12 @@ function ensureBeam(room, index) {
   return mesh;
 }
 
-function placeBeam(mesh, origin, direction, length, color, opacity = 0.55) {
-  const len = Math.max(0.2, Math.min(length, 14));
+function placeBeam(mesh, origin, direction, length, color, opacity = 0.55, radiusScale = 1) {
+  const len = Math.max(0.2, Math.min(length, 16));
   mesh.visible = opacity > 0.02;
   mesh.material.color.setHex(color);
   mesh.material.opacity = opacity;
-  mesh.scale.set(1, len, 1);
+  mesh.scale.set(radiusScale, len, radiusScale);
   scratchDir.set(direction[0], direction[1], direction[2]).normalize();
   mesh.quaternion.setFromUnitVectors(Y_UP, scratchDir);
   mesh.position.set(
@@ -609,6 +613,27 @@ function emitOrders(room, grating, laser, incident, beamIndex, hits, controller,
     scratchCard.z + n[2] * 0.04,
   ];
 
+  laser.getWorldPosition(scratchLight);
+  scratchDir.set(origin[0] - scratchLight.x, origin[1] - scratchLight.y, origin[2] - scratchLight.z);
+  const incidentLen = scratchDir.length();
+  if (incidentLen > 0.2) {
+    scratchDir.multiplyScalar(1 / incidentLen);
+    const incRgb = wavelengthToRgb(lambdaNm === 0 ? 550 : (lineList?.[0] ?? lambdaNm));
+    const incMesh = ensureBeam(room, index);
+    placeBeam(
+      incMesh,
+      [scratchLight.x, scratchLight.y, scratchLight.z],
+      [scratchDir.x, scratchDir.y, scratchDir.z],
+      incidentLen,
+      rgbColor(incRgb.r != null ? incRgb : { r: 0.91, g: 0.93, b: 0.97 }),
+      0.82,
+      2.15,
+    );
+    incMesh.userData.order = 'incident';
+    incMesh.userData.gratingId = grating.name;
+    index += 1;
+  }
+
   const emit = (m, nm, color, opacity) => {
     const thetaM = diffractionAngle(d, wavelengthMeters(nm), m, thetaI, { mode: spec.mode });
     if (thetaM == null) {
@@ -617,7 +642,7 @@ function emitOrders(room, grating, laser, incident, beamIndex, hits, controller,
     const dir = diffractedDirection(n, tan, thetaM);
     const eta = blazeEfficiency(thetaI, thetaM, thetaB);
     const mesh = ensureBeam(room, index);
-    placeBeam(mesh, origin, dir, 10, color, Math.max(0.12, opacity * (0.35 + 0.65 * eta)));
+    placeBeam(mesh, origin, dir, 12, color, Math.max(0.18, opacity * (0.45 + 0.7 * eta)), m === 0 ? 1.35 : 1.15);
     mesh.userData.order = m;
     mesh.userData.lambdaNm = nm;
     mesh.userData.thetaDeg = toDeg(thetaM);
@@ -679,7 +704,7 @@ export function tickOptics(rooms, { camera, dt = 0.016, controller, elapsed = 0 
     }
 
     const armed = (room.lasers ?? []).filter((entry) => entry.userData.laser.enabled);
-    const lightOn = armed.length ? 1 : 0.28;
+    const lightOn = armed.length ? 1 : 0.62;
     const firstLaser = armed[0] ?? null;
     if (firstLaser) {
       const target = gratingForLaser(room, firstLaser);
@@ -694,7 +719,7 @@ export function tickOptics(rooms, { camera, dt = 0.016, controller, elapsed = 0 
     for (const grating of room.gratings) {
       const spec = grating.userData.grating;
       if (spec.hover) {
-        grating.position.y = spec.baseY + Math.sin(elapsed * 0.7) * 0.03;
+        grating.position.y = spec.baseY + Math.sin(elapsed * 0.52) * 0.06 + Math.sin(elapsed * 1.15) * 0.014;
       }
       grating.updateMatrixWorld(true);
       grating.traverse((child) => {

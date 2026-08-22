@@ -67,6 +67,16 @@
       "prefab": "rotunda",
       "tags": ["architecture"]
     },
+    "arch.exhibit": {
+      "category": "architecture",
+      "prefab": "exhibit",
+      "tags": ["architecture", "optics"]
+    },
+    "prop.dais": {
+      "category": "prop",
+      "prefab": "dais",
+      "tags": ["prop", "optics"]
+    },
     "arch.plus": {
       "category": "architecture",
       "prefab": "plus",
