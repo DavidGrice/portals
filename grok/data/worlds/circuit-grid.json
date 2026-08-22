@@ -21,6 +21,8 @@
           "kind": "arch.plus",
           "props": {
             "material": "cyber.grid.white",
+            "runningLights": true,
+            "stripMaterial": "cyber.strip.white",
             "arm": 3.8,
             "zMin": -10,
             "zMax": 8,
@@ -70,6 +72,8 @@
           "kind": "arch.chamber",
           "props": {
             "material": "cyber.grid.cyan",
+            "runningLights": true,
+            "stripMaterial": "cyber.strip.cyan",
             "halfX": 12,
             "zMin": -10,
             "zMax": 6,
@@ -113,6 +117,8 @@
           "kind": "arch.chamber",
           "props": {
             "material": "cyber.grid.red",
+            "runningLights": true,
+            "stripMaterial": "cyber.strip.red",
             "halfX": 3.2,
             "zMin": -8,
             "zMax": 6,
@@ -149,6 +155,8 @@
           "kind": "arch.loft",
           "props": {
             "material": "cyber.grid.blue",
+            "runningLights": true,
+            "stripMaterial": "cyber.strip.blue",
             "halfX": 8,
             "zMin": -8,
             "zMax": 5,
@@ -184,6 +192,8 @@
           "kind": "arch.chamber",
           "props": {
             "material": "cyber.grid.gold",
+            "runningLights": true,
+            "stripMaterial": "cyber.strip.gold",
             "halfX": 7,
             "zMin": -7,
             "zMax": 3,
@@ -219,6 +229,8 @@
           "kind": "arch.shaft",
           "props": {
             "material": "cyber.grid.white",
+            "runningLights": true,
+            "stripMaterial": "cyber.strip.white",
             "halfX": 5,
             "zMin": -5,
             "zMax": 5,
@@ -257,6 +269,8 @@
           "kind": "arch.chamber",
           "props": {
             "material": "cyber.grid.white",
+            "runningLights": true,
+            "stripMaterial": "cyber.strip.white",
             "halfX": 5,
             "zMin": -5,
             "zMax": 5,
@@ -289,6 +303,8 @@
           "kind": "arch.court",
           "props": {
             "material": "cyber.grid.cyan",
+            "runningLights": true,
+            "stripMaterial": "cyber.strip.cyan",
             "halfX": 11,
             "zMin": -10,
             "zMax": 6,

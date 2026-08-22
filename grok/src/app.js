@@ -549,7 +549,7 @@ export function createApp({
         updateDebug(roomId);
       }
     });
-    const offCross = next.controller.on('portal:cross', ({ portal, portalId, from, to }) => {
+    const offCross = next.controller.on('portal:cross', ({ portal, portalId, from, to, floorDrop }) => {
       lastCross = `${from} → ${to} via ${portalId ?? '?'}`;
       if (next.controller.currentRoom?.tags?.includes('generated') || next.controller.drift) {
         const destRoom = next.controller.rooms.find((entry) => entry.id === to);
@@ -558,6 +558,12 @@ export function createApp({
           gameAudio.slam(doorTheme(destRoom));
         }
         disposeRejectedSiblings(next.controller, fromRoom, to);
+      }
+      if (floorDrop && next.player) {
+        next.player.onGround = false;
+        if (next.player.velocity.y > -7) {
+          next.player.velocity.y = -7;
+        }
       }
       gameAudio.whoosh(doorTheme(next.controller.rooms.find((entry) => entry.id === to)));
       const dest = next.controller.rooms.find((entry) => entry.id === to);

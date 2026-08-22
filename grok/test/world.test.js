@@ -216,11 +216,23 @@ describe('world data', () => {
     dest.updateMatrixWorld(true);
     dest.worldToLocal(local);
     assert.ok(Math.abs(local.x) > 1, `circuit pit emerge x ${local.x}`);
+    assert.ok(local.z > 1.4, `circuit fall height ${local.z}`);
+    const up = camera.up.clone().applyQuaternion(camera.quaternion);
+    assert.ok(up.y > 0.7, `circuit drop must stay upright ${up.y}`);
     for (let i = 0; i < 10; i += 1) {
       controller.update();
     }
     assert.equal(controller.currentRoom.id, 'well-bottom', 'circuit well must not loop');
     assert.ok(pit.oneWay);
+    let lights = 0;
+    for (const room of controller.rooms) {
+      room.scene.traverse((object) => {
+        if (object.userData.runningLight) {
+          lights += 1;
+        }
+      });
+    }
+    assert.ok(lights >= 48, `circuit running lights ${lights}`);
   });
 
   it('loads nine distinct Ages volumes', () => {

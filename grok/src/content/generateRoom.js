@@ -227,6 +227,8 @@ export function generateRoom({
         openWalls,
         roundCorners: topo.roundCorners !== false && shellKind !== 'arch.corridor',
         ceiling: topo.ceiling !== false && !topo.tags?.includes('sky'),
+        runningLights: Boolean(materials.strip),
+        stripMaterial: materials.strip ?? null,
       },
     },
     {
@@ -237,20 +239,6 @@ export function generateRoom({
     },
   ];
 
-  if (materials.strip) {
-    entities.push({
-      id: `strip-l-${id}`,
-      kind: 'prop.box',
-      position: [-(footprint.halfX ?? 8) + 0.3, 2.35, -0.5],
-      props: { size: [0.08, 0.05, 10.8], material: materials.strip, scroll: [0, 0.18] },
-    });
-    entities.push({
-      id: `strip-r-${id}`,
-      kind: 'prop.box',
-      position: [(footprint.halfX ?? 8) - 0.3, 2.35, -0.5],
-      props: { size: [0.08, 0.05, 10.8], material: materials.strip, scroll: [0, 0.18] },
-    });
-  }
   entities.push({
     id: `spinner-${id}`,
     kind: 'prop.box',

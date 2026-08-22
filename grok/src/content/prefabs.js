@@ -16,6 +16,69 @@ function applyPose(object, entity) {
   }
 }
 
+function addRunningLights(group, {
+  minX,
+  maxX,
+  minZ,
+  maxZ,
+  height = 4,
+  y0 = 0,
+  materialId,
+  speed = 0.32,
+} = {}) {
+  if (!materialId || !group) {
+    return;
+  }
+  const inset = 0.11;
+  const t = 0.05;
+  const x0 = (minX + maxX) * 0.5;
+  const z0 = (minZ + maxZ) * 0.5;
+  const innerW = Math.max(0.5, maxX - minX - inset * 2);
+  const innerD = Math.max(0.5, maxZ - minZ - inset * 2);
+  const yFloor = y0 + 0.07;
+  const yCeil = y0 + Math.max(height - 0.08, yFloor + 0.4);
+  const yMid = y0 + height * 0.5;
+  const segments = [
+    { p: [x0, yFloor, minZ + inset], s: [innerW, t, t], scroll: [speed, 0] },
+    { p: [x0, yFloor, maxZ - inset], s: [innerW, t, t], scroll: [-speed, 0] },
+    { p: [minX + inset, yFloor, z0], s: [t, t, innerD], scroll: [0, speed] },
+    { p: [maxX - inset, yFloor, z0], s: [t, t, innerD], scroll: [0, -speed] },
+    { p: [x0, yCeil, minZ + inset], s: [innerW, t, t], scroll: [-speed, 0] },
+    { p: [x0, yCeil, maxZ - inset], s: [innerW, t, t], scroll: [speed, 0] },
+    { p: [minX + inset, yCeil, z0], s: [t, t, innerD], scroll: [0, -speed] },
+    { p: [maxX - inset, yCeil, z0], s: [t, t, innerD], scroll: [0, speed] },
+    { p: [minX + inset, yMid, minZ + inset], s: [t, height - 0.18, t], scroll: [0, speed * 0.55] },
+    { p: [maxX - inset, yMid, minZ + inset], s: [t, height - 0.18, t], scroll: [0, speed * 0.55] },
+    { p: [minX + inset, yMid, maxZ - inset], s: [t, height - 0.18, t], scroll: [0, -speed * 0.55] },
+    { p: [maxX - inset, yMid, maxZ - inset], s: [t, height - 0.18, t], scroll: [0, -speed * 0.55] },
+  ];
+  for (const spec of segments) {
+    const mat = buildMaterial(materialId, { roughness: 0.16, metalness: 0.28 });
+    if (mat.emissiveIntensity < 1.2) {
+      mat.emissiveIntensity = 1.35;
+    }
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(...spec.s), mat);
+    mesh.position.set(...spec.p);
+    mesh.userData.scroll = spec.scroll;
+    mesh.userData.runningLight = true;
+    mesh.castShadow = false;
+    mesh.receiveShadow = false;
+    group.add(mesh);
+  }
+}
+
+function attachRunningLights(group, entity, bounds) {
+  if (entity.props?.runningLights === false) {
+    return;
+  }
+  const materialId = entity.props?.stripMaterial
+    ?? (entity.props?.runningLights ? 'cyber.strip.cyan' : null);
+  if (!materialId) {
+    return;
+  }
+  addRunningLights(group, { ...bounds, materialId });
+}
+
 export const FRAME = {
   outer: 2.16,
   thickness: 0.08,
@@ -321,6 +384,9 @@ export const prefabs = {
         addBox(group, material, 0, height * 0.5, z, halfX * 2, height, thickness);
       }
     }
+    attachRunningLights(group, entity, {
+      minX: -halfX, maxX: halfX, minZ: zMin, maxZ: zMax, height,
+    });
     return group;
   },
 
@@ -343,6 +409,9 @@ export const prefabs = {
       roundCorners: entity.props?.roundCorners !== false,
       ceiling: entity.props?.ceiling !== false,
       floorHoles: entity.props?.floorHoles ?? [],
+    });
+    attachRunningLights(group, entity, {
+      minX: -halfX, maxX: halfX, minZ: zMin, maxZ: zMax, height: entity.props?.height ?? 4,
     });
     group.userData.volume = { kind: 'chamber', halfX, zMin, zMax, open: entity.props?.openWalls ?? [] };
     return group;
@@ -368,6 +437,9 @@ export const prefabs = {
       openWalls,
       roundCorners: true,
       ceiling: false,
+    });
+    attachRunningLights(group, entity, {
+      minX: -halfX, maxX: halfX, minZ: zMin, maxZ: zMax, height: entity.props?.height ?? 3.6,
     });
     group.userData.volume = { kind: 'open', halfX, zMin, zMax, openWalls };
     return group;
@@ -395,6 +467,7 @@ export const prefabs = {
     });
     addColonnade(group, material, { x: -halfX, z0: zMin + 1.2, z1: zMax - 1.2, height });
     addColonnade(group, material, { x: halfX, z0: zMin + 1.2, z1: zMax - 1.2, height });
+    attachRunningLights(group, entity, { minX: -halfX, maxX: halfX, minZ: zMin, maxZ: zMax, height });
     group.userData.volume = { kind: 'arcade', halfX, zMin, zMax };
     return group;
   },
@@ -463,6 +536,7 @@ export const prefabs = {
       floor: false,
       ceiling: false,
     });
+    attachRunningLights(group, entity, { minX: -halfX, maxX: halfX, minZ: zMin, maxZ: zMax, height });
     group.userData.volume = { kind: 'court', halfX, zMin, zMax };
     return group;
   },
@@ -488,6 +562,7 @@ export const prefabs = {
     addBox(group, material, -halfX + 0.2, 3.1, (zMin - 0.4) * 0.5, 0.12, 0.9, Math.abs(zMin) - 1.2);
     addBox(group, material, halfX - 0.2, 3.1, (zMin - 0.4) * 0.5, 0.12, 0.9, Math.abs(zMin) - 1.2);
     addStairs(group, material, { x: 0, z0: 1.2, z1: -2.2, y0: 0.08, y1: 2.2, width: 1.8, steps: 9 });
+    attachRunningLights(group, entity, { minX: -halfX, maxX: halfX, minZ: zMin, maxZ: zMax, height });
     group.userData.volume = { kind: 'loft', halfX, zMin, zMax };
     return group;
   },
@@ -512,6 +587,7 @@ export const prefabs = {
     });
     addBox(group, material, -halfX + 1.3, 3.05, 0, 2.4, 0.18, 3.4);
     addBox(group, material, halfX - 1.3, 6.05, -0.6, 2.4, 0.18, 3.4);
+    attachRunningLights(group, entity, { minX: -halfX, maxX: halfX, minZ: zMin, maxZ: zMax, height });
     group.userData.volume = { kind: 'shaft', halfX, zMin, zMax, height };
     return group;
   },
@@ -550,6 +626,9 @@ export const prefabs = {
       }
       group.add(mesh);
     }
+    attachRunningLights(group, entity, {
+      minX: -radius, maxX: radius, minZ: -radius, maxZ: radius, height,
+    });
     group.userData.volume = { kind: 'rotunda', radius, height };
     return group;
   },
@@ -604,6 +683,7 @@ export const prefabs = {
     addBox(group, material, (minX - arm) * 0.5, height * 0.5, arm, Math.max(0.2, -arm - minX), height, thickness);
     addBox(group, material, (maxX + arm) * 0.5, height * 0.5, -arm, Math.max(0.2, maxX - arm), height, thickness);
     addBox(group, material, (maxX + arm) * 0.5, height * 0.5, arm, Math.max(0.2, maxX - arm), height, thickness);
+    attachRunningLights(group, entity, { minX, maxX, minZ: zMin, maxZ: zMax, height });
     group.userData.volume = { kind: 'plus', arm, zMin, zMax, minX, maxX, height };
     return group;
   },

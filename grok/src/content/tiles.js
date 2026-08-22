@@ -106,19 +106,28 @@ export function makeStripeTexture({
   line = '#6a8090',
   cells = 8,
   size = 256,
-  repeat = [4, 4],
+  repeat = [10, 1],
 } = {}) {
   const ctx = makeContext(size);
   if (!ctx) {
     return null;
   }
-  ctx.fillStyle = color;
+  ctx.fillStyle = '#05060a';
   ctx.fillRect(0, 0, size, size);
-  const step = size / cells;
-  ctx.fillStyle = line;
-  for (let i = 0; i < cells; i += 2) {
-    ctx.fillRect(0, i * step, size, step * 0.35);
+  const dashes = Math.max(6, cells);
+  const step = size / dashes;
+  for (let i = 0; i < dashes; i += 1) {
+    const hot = i % 4 === 0;
+    ctx.fillStyle = hot ? line : color;
+    ctx.globalAlpha = hot ? 1 : 0.45;
+    ctx.fillRect(0, i * step, size, step * (hot ? 0.42 : 0.18));
+    if (hot) {
+      ctx.globalAlpha = 0.55;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, i * step, size, step * 0.08);
+    }
   }
+  ctx.globalAlpha = 1;
   return finishTexture(ctx.canvas, repeat);
 }
 

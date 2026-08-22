@@ -2,7 +2,7 @@ import { Euler, Matrix4, PerspectiveCamera, Plane, Quaternion, Scene, Vector3 } 
 import { Portal } from './Portal.js';
 import { Room } from './Room.js';
 import { Emitter } from '../engine/Emitter.js';
-import { emergeDistance, ignoreCleared, isFloorPortal, landBesideFloorPortal } from './portalPose.js';
+import { dropThroughFloor, emergeDistance, ignoreCleared, isFloorPortal, landBesideFloorPortal } from './portalPose.js';
 
 const rotationY180 = new Matrix4().makeRotationY(Math.PI);
 const srcToCam = new Matrix4();
@@ -220,28 +220,30 @@ export class PortalController {
   }
 
   teleport(portal) {
-    // Dest view from the last pose still on the approach side. After the
-    // plane crossing the current pose looks back at the dest door.
-    this.camera.matrixWorld.copy(this._lastCameraWorld);
-    this.camera.matrixWorldInverse.copy(this.camera.matrixWorld).invert();
-    this.computePortalViewMatrix(portal, this.camera).decompose(teleportPos, teleportQuat, teleportScale);
-    this._applyCameraPose(teleportPos, teleportQuat);
-    this._settleInDestHall(
-      portal.destinationPortal,
-      isFloorPortal(portal) || isFloorPortal(portal.destinationPortal)
-        ? emergeDistance(portal)
-        : EMERGE_Z,
-    );
+    const dest = portal.destinationPortal;
+    const floorDrop = isFloorPortal(portal) || isFloorPortal(dest);
+    if (floorDrop) {
+      dropThroughFloor(dest, this.camera, { fallHeight: 2.7 });
+    } else {
+      // Dest view from the last pose still on the approach side. After the
+      // plane crossing the current pose looks back at the dest door.
+      this.camera.matrixWorld.copy(this._lastCameraWorld);
+      this.camera.matrixWorldInverse.copy(this.camera.matrixWorld).invert();
+      this.computePortalViewMatrix(portal, this.camera).decompose(teleportPos, teleportQuat, teleportScale);
+      this._applyCameraPose(teleportPos, teleportQuat);
+      this._settleInDestHall(dest, EMERGE_Z);
+    }
     const fromId = this._currentRoom?.id ?? null;
-    const toId = this._getRoom(portal.destinationPortal.scene)?.id ?? portal.destinationPortal.scene.name;
+    const toId = this._getRoom(dest.scene)?.id ?? dest.scene.name;
     this.setCurrentScene(toId);
-    this._ignorePortalId = portal.destinationPortal?.portalId ?? null;
+    this._ignorePortalId = dest?.portalId ?? null;
     this._rememberCameraPose();
     this._events.emit('portal:cross', {
       portal,
       portalId: portal.portalId,
       from: fromId,
       to: toId,
+      floorDrop,
     });
   }
 
@@ -452,8 +454,10 @@ export class PortalController {
 
       const destCamera = this._portalCamera;
       this._copyCameraOptics(destCamera);
-      destCamera.matrixWorld.copy(this.computePortalViewMatrix(portal, camera));
-      this._stabilizeDestCamera(destCamera, destination);
+      destCamera.matrixWorld.copy(this._destViewMatrix(portal, camera));
+      if (!(isFloorPortal(portal) && isFloorPortal(destination))) {
+        this._stabilizeDestCamera(destCamera, destination);
+      }
       const nextClip = this.buildDestClipPlane(destination, destCamera);
       if (level === 0) {
         destCamera.matrixWorld.decompose(teleportPos, teleportQuat, teleportScale);
@@ -535,10 +539,37 @@ export class PortalController {
     }
     destCamera.matrixAutoUpdate = false;
     destCamera.matrixWorldAutoUpdate = false;
-    destCamera.matrixWorld.copy(this.computePortalViewMatrix(portal));
-    this._stabilizeDestCamera(destCamera, destination);
+    destCamera.matrixWorld.copy(this._destViewMatrix(portal));
+    if (!(isFloorPortal(portal) && isFloorPortal(destination))) {
+      this._stabilizeDestCamera(destCamera, destination);
+    }
     destCamera.matrixWorldInverse.copy(destCamera.matrixWorld).invert();
     return this.buildDestClipPlane(destination, destCamera);
+  }
+
+  _destViewMatrix(portal, sourceCamera = this.camera) {
+    if (isFloorPortal(portal) && isFloorPortal(portal.destinationPortal)) {
+      return this.computeFloorWellViewMatrix(portal, sourceCamera);
+    }
+    return this.computePortalViewMatrix(portal, sourceCamera);
+  }
+
+  computeFloorWellViewMatrix(portal, sourceCamera = this.camera) {
+    const dst = portal.destinationPortal;
+    portal.updateMatrixWorld(true);
+    dst.updateMatrixWorld(true);
+    localCurr.copy(sourceCamera.position);
+    portal.worldToLocal(localCurr);
+    const height = Math.max(0.45, localCurr.z);
+    dstWorldPos.setFromMatrixPosition(dst.matrixWorld);
+    dstWorldPos.y += height;
+    poseEuler.setFromQuaternion(sourceCamera.quaternion, 'YXZ');
+    poseEuler.x = Math.max(-1.45, Math.min(-0.85, poseEuler.x || -1.2));
+    poseEuler.z = 0;
+    teleportQuat.setFromEuler(poseEuler);
+    teleportScale.set(1, 1, 1);
+    viewMatrix.compose(dstWorldPos, teleportQuat, teleportScale);
+    return viewMatrix;
   }
 
   computePortalViewMatrix(portal, sourceCamera = this.camera) {

@@ -1,7 +1,8 @@
-import { Vector3 } from 'three';
+import { Euler, Vector3 } from 'three';
 
 const normal = new Vector3();
 const local = new Vector3();
+const dropEuler = new Euler(0, 0, 0, 'YXZ');
 
 export function isFloorPortal(portal) {
   if (!portal) {
@@ -67,4 +68,23 @@ export function landBesideFloorPortal(portal, worldPosition, eyeHeight = 1) {
   portal.localToWorld(local);
   worldPosition.copy(local);
   return worldPosition;
+}
+
+export function dropThroughFloor(destination, camera, { fallHeight = 2.7, eyeHeight = 1 } = {}) {
+  if (!destination || !camera) {
+    return camera;
+  }
+  destination.updateMatrixWorld(true);
+  dropEuler.setFromQuaternion(camera.quaternion, 'YXZ');
+  dropEuler.x = Math.max(-0.55, Math.min(0.12, dropEuler.x));
+  dropEuler.z = 0;
+  camera.rotation.order = 'YXZ';
+  camera.quaternion.setFromEuler(dropEuler);
+  camera.rotation.copy(dropEuler);
+  const stand = emergeDistance(destination, eyeHeight);
+  local.set(destination.geometry.halfWidth + 0.75, 0, Math.max(fallHeight, stand + 1.15));
+  destination.localToWorld(local);
+  camera.position.copy(local);
+  camera.updateMatrixWorld();
+  return camera;
 }

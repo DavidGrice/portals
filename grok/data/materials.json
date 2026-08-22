@@ -77,37 +77,45 @@
       "recipe": "stripe",
       "color": "#2ee6ff",
       "line": "#8af4ff",
+      "repeat": [12, 1],
+      "cells": 10,
       "roughness": 0.2,
       "metalness": 0.4,
       "emissive": "#2ee6ff",
-      "emissiveIntensity": 1.4
+      "emissiveIntensity": 1.6
     },
     "cyber.strip.red": {
       "recipe": "stripe",
       "color": "#ff3b4a",
       "line": "#ff8a92",
+      "repeat": [12, 1],
+      "cells": 10,
       "roughness": 0.2,
       "metalness": 0.4,
       "emissive": "#ff3b4a",
-      "emissiveIntensity": 1.4
+      "emissiveIntensity": 1.6
     },
     "cyber.strip.white": {
       "recipe": "stripe",
       "color": "#e8eef8",
       "line": "#ffffff",
+      "repeat": [12, 1],
+      "cells": 10,
       "roughness": 0.2,
       "metalness": 0.4,
       "emissive": "#e8eef8",
-      "emissiveIntensity": 1.2
+      "emissiveIntensity": 1.45
     },
     "cyber.strip.blue": {
       "recipe": "stripe",
       "color": "#3b7cff",
       "line": "#8ab0ff",
+      "repeat": [12, 1],
+      "cells": 10,
       "roughness": 0.2,
       "metalness": 0.4,
       "emissive": "#3b7cff",
-      "emissiveIntensity": 1.4
+      "emissiveIntensity": 1.6
     },
     "cyber.grid.gold": {
       "recipe": "circuit",
@@ -147,10 +155,12 @@
       "recipe": "stripe",
       "color": "#f0c040",
       "line": "#ffe08a",
+      "repeat": [12, 1],
+      "cells": 10,
       "roughness": 0.2,
       "metalness": 0.45,
       "emissive": "#f0c040",
-      "emissiveIntensity": 1.4
+      "emissiveIntensity": 1.6
     },
     "ages.dirt": {
       "recipe": "dirt",

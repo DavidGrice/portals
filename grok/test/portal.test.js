@@ -415,17 +415,20 @@ describe('portal engine', () => {
     camera.position.set(0, -0.05, 0);
     controller.update();
     assert.equal(controller.currentRoom.id, 'room-b');
-    assert.ok(camera.position.y >= 0.8, `eye ${camera.position.y}`);
+    assert.ok(camera.position.y >= 2, `fall height ${camera.position.y}`);
     const local = camera.position.clone();
     b.updateMatrixWorld(true);
     b.worldToLocal(local);
-    assert.ok(local.z > 0.7, `dest local z ${local.z}`);
+    assert.ok(local.z > 1.5, `dest local z ${local.z}`);
     assert.ok(Math.abs(local.x) > 1, `emerge x ${local.x} should sit beside the pit`);
+    const up = new Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+    assert.ok(up.y > 0.75, `camera must stay upright, up.y=${up.y}`);
+    assert.ok(Math.abs(camera.rotation.z) < 0.08, `roll ${camera.rotation.z}`);
     const landed = camera.position.clone();
     for (let i = 0; i < 12; i += 1) {
       controller.update();
     }
-    assert.equal(controller.currentRoom.id, 'room-b', 'must not ping-pong after landing beside the pit');
-    assert.ok(camera.position.distanceTo(landed) < 0.05, 'must stay put on solid floor');
+    assert.equal(controller.currentRoom.id, 'room-b', 'must not ping-pong after dropping through');
+    assert.ok(camera.position.distanceTo(landed) < 0.05, 'must stay put until gravity runs');
   });
 });
