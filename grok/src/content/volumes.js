@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
-export const HOLE_WIDTH = 2.5;
-export const HOLE_HEIGHT = 2.35;
+export const HOLE_WIDTH = 2.7;
+export const HOLE_HEIGHT = 2.4;
 
 export function addBox(group, material, x, y, z, sx, sy, sz, collide = true) {
   const mesh = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), material);
@@ -232,17 +232,21 @@ export function addStairs(group, material, {
 }) {
   const dz = (z1 - z0) / steps;
   const dy = (y1 - y0) / steps;
+  const tread = Math.max(Math.abs(dz) * 0.82, 0.16);
+  const rise = Math.max(Math.abs(dy) * 0.55, 0.06);
   for (let i = 0; i < steps; i += 1) {
-    addBox(
+    const mesh = addBox(
       group,
       material,
       x,
-      y0 + dy * (i + 0.5),
+      y0 + dy * (i + 1) - rise * 0.5,
       z0 + dz * (i + 0.5),
-      width,
-      Math.max(Math.abs(dy), 0.12),
-      Math.max(Math.abs(dz), 0.18),
+      width * 0.92,
+      rise,
+      tread,
     );
+    mesh.userData.collider = { type: 'aabb', walkable: true };
+    mesh.userData.stair = true;
   }
 }
 

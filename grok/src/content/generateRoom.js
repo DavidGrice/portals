@@ -467,7 +467,8 @@ function placeVertical({ roomId, footprint, topology, materials, lighting, surfa
       props: { size: [0.12, 0.16, Math.max(2, zMax - zMin - 1)], material: metal },
     },
   ];
-  if (height >= 5.2 || topology?.tags?.includes('vertical')) {
+  const builtInWalk = ['loft', 'stack', 'shaft'].includes(topology?.id);
+  if (!builtInWalk && (height >= 5.2 || topology?.tags?.includes('vertical'))) {
     pieces.push(
       {
         id: `catwalk-${roomId}`,

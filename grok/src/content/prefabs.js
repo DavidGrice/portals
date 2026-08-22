@@ -16,6 +16,20 @@ function applyPose(object, entity) {
   }
 }
 
+const runningLightMaterials = new Map();
+
+function runningLightMaterial(materialId) {
+  let material = runningLightMaterials.get(materialId);
+  if (!material) {
+    material = buildMaterial(materialId, { roughness: 0.16, metalness: 0.28 });
+    if (material.emissiveIntensity < 1.2) {
+      material.emissiveIntensity = 1.35;
+    }
+    runningLightMaterials.set(materialId, material);
+  }
+  return material;
+}
+
 function addRunningLights(group, {
   minX,
   maxX,
@@ -52,14 +66,14 @@ function addRunningLights(group, {
     { p: [minX + inset, yMid, maxZ - inset], s: [t, height - 0.18, t], scroll: [0, -speed * 0.55] },
     { p: [maxX - inset, yMid, maxZ - inset], s: [t, height - 0.18, t], scroll: [0, -speed * 0.55] },
   ];
+  const mat = runningLightMaterial(materialId);
   for (const spec of segments) {
-    const mat = buildMaterial(materialId, { roughness: 0.16, metalness: 0.28 });
-    if (mat.emissiveIntensity < 1.2) {
-      mat.emissiveIntensity = 1.35;
-    }
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(...spec.s), mat);
     mesh.position.set(...spec.p);
-    mesh.userData.scroll = spec.scroll;
+    if (!mat.userData.runningScroll) {
+      mesh.userData.scroll = spec.scroll;
+      mat.userData.runningScroll = true;
+    }
     mesh.userData.runningLight = true;
     mesh.castShadow = false;
     mesh.receiveShadow = false;
@@ -153,7 +167,6 @@ export const prefabs = {
     applyPose(mesh, entity);
     mesh.position.y -= 0.06;
     mesh.renderOrder = -2;
-    mesh.userData.collider = { type: 'bounds', half: size * 0.5 };
     mesh.userData.materialId = entity.props?.material ?? null;
     mesh.userData.surface = entity.props?.surface ?? resolveMaterial(entity.props?.material)?.surface ?? null;
     return mesh;
@@ -194,8 +207,8 @@ export const prefabs = {
     const directional = new THREE.DirectionalLight(sun, entity.props?.sunIntensity ?? 1.05);
     const aim = entity.props?.aim ?? [6, 11, 4];
     directional.position.set(...aim);
-    directional.castShadow = true;
-    directional.shadow.mapSize.set(2048, 2048);
+    directional.castShadow = Boolean(entity.props?.shadows !== false);
+    directional.shadow.mapSize.set(1024, 1024);
     directional.shadow.bias = -0.00035;
     directional.shadow.normalBias = 0.03;
     directional.shadow.camera.near = 0.4;
@@ -524,18 +537,6 @@ export const prefabs = {
       ceiling: false,
       openWalls: (entity.props?.openWalls ?? ['east', 'west']).filter((wall) => !holeWalls.has(wall)),
     });
-    const inner = 3.2;
-    addRectVolume(group, material, {
-      minX: -inner,
-      maxX: inner,
-      minZ: -inner - 1,
-      maxZ: inner - 1,
-      height: 0.95,
-      y0: 0,
-      holes: [],
-      floor: false,
-      ceiling: false,
-    });
     attachRunningLights(group, entity, { minX: -halfX, maxX: halfX, minZ: zMin, maxZ: zMax, height });
     group.userData.volume = { kind: 'court', halfX, zMin, zMax };
     return group;
@@ -558,10 +559,14 @@ export const prefabs = {
       holes: entity.props?.holes ?? [],
       openWalls: entity.props?.openWalls ?? [],
     });
-    addBox(group, material, 0, 2.25, (zMin - 0.4) * 0.5, halfX * 2 - 0.4, 0.16, Math.abs(zMin) - 1.2);
-    addBox(group, material, -halfX + 0.2, 3.1, (zMin - 0.4) * 0.5, 0.12, 0.9, Math.abs(zMin) - 1.2);
-    addBox(group, material, halfX - 0.2, 3.1, (zMin - 0.4) * 0.5, 0.12, 0.9, Math.abs(zMin) - 1.2);
-    addStairs(group, material, { x: 0, z0: 1.2, z1: -2.2, y0: 0.08, y1: 2.2, width: 1.8, steps: 9 });
+    const stairEnd = -2.35;
+    const walkZ0 = zMin + 0.35;
+    const walkMid = (walkZ0 + stairEnd) * 0.5;
+    const walkDepth = Math.max(1.6, Math.abs(stairEnd - walkZ0));
+    addBox(group, material, 0, 2.25, walkMid, halfX * 2 - 0.8, 0.14, walkDepth);
+    addBox(group, material, -halfX + 0.2, 2.72, walkMid, 0.1, 0.72, walkDepth);
+    addBox(group, material, halfX - 0.2, 2.72, walkMid, 0.1, 0.72, walkDepth);
+    addStairs(group, material, { x: 0, z0: 1.35, z1: stairEnd, y0: 0, y1: 2.18, width: 1.55, steps: 10 });
     attachRunningLights(group, entity, { minX: -halfX, maxX: halfX, minZ: zMin, maxZ: zMax, height });
     group.userData.volume = { kind: 'loft', halfX, zMin, zMax };
     return group;
@@ -1037,7 +1042,7 @@ export const prefabs = {
     log(0.22, 0.08, 0.22);
     log(0.28, 0, -0.32);
 
-    const count = entity.props?.flames ?? 56;
+    const count = entity.props?.flames ?? 18;
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(count * 3);
     const lives = new Float32Array(count);

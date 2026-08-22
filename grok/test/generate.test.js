@@ -46,7 +46,7 @@ describe('room compiler', () => {
       exitCount: 2,
     });
     assert.ok((stacked.entities.find((entity) => entity.kind === 'arch.loft')?.props?.height ?? 0) >= 6);
-    assert.ok(stacked.entities.some((entity) => entity.id?.includes('catwalk')));
+    assert.ok(stacked.entities.some((entity) => entity.kind === 'arch.loft'));
     assert.ok(stacked.entities.some((entity) => entity.kind === 'env.point'));
     assert.ok(stacked.entities.filter((entity) => entity.kind.startsWith('prop.')).length >= 8);
     assert.deepEqual(allocateOrigin(2, 1), [500, 0, 250]);

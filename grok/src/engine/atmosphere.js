@@ -61,35 +61,76 @@ export function setMoteDensity(room, density) {
 }
 
 export function tickAtmosphere(rooms, { elapsed = 0, dt = 0.016 } = {}) {
-  for (const room of rooms) {
+  for (const room of rooms ?? []) {
+    if (!room) {
+      continue;
+    }
     tickMotes(room, elapsed);
     tickBursts(room, dt);
     tickFires(room, elapsed, dt);
   }
 }
 
+export function indexRoomFx(room) {
+  if (!room?.scene) {
+    return room;
+  }
+  const fires = [];
+  const npcs = [];
+  const tickables = [];
+  room.scene.traverse((object) => {
+    if (object.userData?.fire) {
+      fires.push(object);
+    }
+    if (object.userData?.npc?.lookAtPlayer) {
+      npcs.push(object);
+    }
+    if (object.userData?.spin || object.userData?.scroll) {
+      tickables.push(object);
+    }
+  });
+  room.fires = fires;
+  room.npcs = npcs;
+  room.tickables = tickables;
+  return room;
+}
+
 export function nearestFireDistance(room, position) {
-  if (!room?.scene || !position) {
+  if (!position) {
     return Infinity;
   }
+  let fires = room?.fires;
+  if (!fires) {
+    fires = [];
+    room?.scene?.traverse((object) => {
+      if (object.userData?.fire && !object.userData.fire.candle) {
+        fires.push(object);
+      }
+    });
+  }
   let best = Infinity;
-  room.scene.traverse((object) => {
-    if (!object.userData?.fire || object.userData.fire.candle) {
-      return;
+  for (const object of fires) {
+    if (object.userData?.fire?.candle) {
+      continue;
     }
     object.getWorldPosition(fireWorld);
     best = Math.min(best, fireWorld.distanceTo(position));
-  });
+  }
   return best;
 }
 
 export function tickFires(room, elapsed = 0, dt = 0.016) {
-  room?.scene?.traverse((object) => {
+  const fires = room?.fires;
+  if (!fires?.length) {
+    return;
+  }
+  for (const object of fires) {
     const spec = object.userData?.fire;
     if (!spec) {
-      return;
+      continue;
     }
-    const flicker = 0.78 + Math.sin(elapsed * (spec.candle ? 14 : 9) + spec.seed) * 0.14 + Math.random() * 0.08;
+    const flicker = 0.78 + Math.sin(elapsed * (spec.candle ? 14 : 9) + spec.seed) * 0.14
+      + ((spec.seed * 12.9898 + elapsed) % 1) * 0.08;
     object.traverse((child) => {
       if (child.userData?.fireLight) {
         child.intensity = spec.base * flicker;
@@ -101,20 +142,20 @@ export function tickFires(room, elapsed = 0, dt = 0.016) {
       const positions = child.geometry.attributes.position.array;
       const { lives, rise } = flames;
       for (let i = 0; i < lives.length; i += 1) {
-        lives[i] += dt * (0.7 + Math.random() * 0.8);
+        lives[i] += dt * (0.9 + (i % 5) * 0.08);
         positions[i * 3 + 1] += rise * dt;
         positions[i * 3] += Math.sin(elapsed * 6 + i) * 0.01;
         if (lives[i] > 1) {
           lives[i] = 0;
-          positions[i * 3] = (Math.random() - 0.5) * 0.52;
-          positions[i * 3 + 1] = 0.24 + Math.random() * 0.08;
-          positions[i * 3 + 2] = (Math.random() - 0.5) * 0.16;
+          positions[i * 3] = ((i % 7) / 7 - 0.5) * 0.52;
+          positions[i * 3 + 1] = 0.24 + (i % 5) * 0.016;
+          positions[i * 3 + 2] = ((i % 5) / 5 - 0.5) * 0.16;
         }
       }
       child.geometry.attributes.position.needsUpdate = true;
       child.material.opacity = 0.55 + flicker * 0.35;
     });
-  });
+  }
 }
 
 export function spawnCrossBurst(room, position, color = 0xffffff) {
@@ -222,13 +263,14 @@ export function tickNpcs(rooms, camera) {
   }
   let count = 0;
   for (const room of rooms ?? []) {
-    room.scene?.traverse((object) => {
-      if (!object.userData?.npc?.lookAtPlayer) {
-        return;
-      }
+    const npcs = room?.npcs;
+    if (!npcs?.length) {
+      continue;
+    }
+    for (const object of npcs) {
       object.lookAt(camera.position.x, object.position.y, camera.position.z);
       count += 1;
-    });
+    }
   }
   return count;
 }

@@ -1,8 +1,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3 } from 'three';
-import { Player, Portal, Room, collectColliders, findInteract, resolveColliders, runInteract } from '../src/engine/index.js';
+import { BoxGeometry, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, Vector3 } from 'three';
+import { Player, Portal, Room, collectColliders, findInteract, findSupportY, resolveColliders, runInteract } from '../src/engine/index.js';
 import { FRAME, prefabs } from '../src/content/prefabs.js';
+import { HOLE_WIDTH, addStairs } from '../src/content/volumes.js';
 
 describe('player', () => {
   it('stays on the floor at eye height', () => {
@@ -120,7 +121,37 @@ describe('player', () => {
     resolveColliders(hole, { radius: 0.28, eyeHeight: 1 }, collectColliders(room));
     assert.ok(Math.abs(hole.x) < 0.001, `hole pushed x=${hole.x}`);
     assert.ok(Math.abs(hole.z) < 0.001, `hole pushed z=${hole.z}`);
-    assert.ok(2.5 > FRAME.outer, 'opening must stay wider than the metal frame');
+    assert.ok(HOLE_WIDTH > FRAME.outer, 'opening must stay wider than the metal frame');
+  });
+
+  it('climbs stairs without getting stuck in overlapping treads', () => {
+    const scene = new Scene();
+    const group = new Group();
+    addStairs(group, new MeshBasicMaterial(), {
+      x: 0, z0: 1.4, z1: -2.2, y0: 0, y1: 2.18, width: 1.55, steps: 10,
+    });
+    scene.add(group);
+    scene.updateMatrixWorld(true);
+    const room = new Room({ id: 'stairs', scene });
+    const stairCols = collectColliders(room);
+    assert.ok(stairCols.length >= 8, `stair colliders ${stairCols.length}`);
+    assert.ok(stairCols.some((entry) => entry.walkable), 'stairs must be walkable');
+    const camera = new PerspectiveCamera();
+    camera.position.set(0, 1, 1.22);
+    const firstSupport = findSupportY(camera.position, { eyeHeight: 1, velocity: { y: 0 } }, stairCols, 1);
+    assert.ok(firstSupport > 0.05, `first tread support ${firstSupport} from ${JSON.stringify(stairCols[0])}`);
+    const player = new Player({ camera, eyeHeight: 1, gravity: 40, moveSpeed: 4 });
+    const controls = {
+      moveForward(distance) {
+        camera.position.z -= distance;
+      },
+      moveRight() {},
+    };
+    for (let i = 0; i < 16; i += 1) {
+      player.step(0.05, { forward: 1 }, controls, room);
+    }
+    assert.ok(camera.position.y > 1.8, `should climb, y=${camera.position.y} z=${camera.position.z}`);
+    assert.ok(Math.abs(camera.position.x) < 0.35, `sideways push x=${camera.position.x}`);
   });
 
   it('falls through an open floor portal instead of standing on it', () => {

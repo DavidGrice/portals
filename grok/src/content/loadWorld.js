@@ -1,7 +1,7 @@
 import { Scene } from 'three';
 import { PortalController } from '../engine/index.js';
 import { parseColor, spawnEntity } from './prefabs.js';
-import { attachMotes, setMoteDensity, tintGlow } from '../engine/atmosphere.js';
+import { attachMotes, indexRoomFx, setMoteDensity, tintGlow } from '../engine/atmosphere.js';
 import { applyClimateToScene, climateForDepth } from './climate.js';
 
 export function withOrigin(vec, origin) {
@@ -92,14 +92,19 @@ export function loadWorld(world, catalog, camera, renderer) {
 
 export function dressRooms(controller) {
   for (const room of controller.rooms) {
-    attachMotes(room, {
-      color: room.clearColor,
-      origin: room.origin ?? [0, 0, 0],
-      half: [7.2, 1.35, 5.6],
-      weather: room.atmosphere?.weather ?? weatherForTags(room.tags ?? []),
-    });
-    setMoteDensity(room, room.atmosphere?.density ?? 1);
-    applyClimateToScene(room, room.climate ?? climateForDepth(room.depth ?? 0));
+    if (!room.motes) {
+      attachMotes(room, {
+        color: room.clearColor,
+        origin: room.origin ?? [0, 0, 0],
+        half: [7.2, 1.35, 5.6],
+        weather: room.atmosphere?.weather ?? weatherForTags(room.tags ?? []),
+      });
+      setMoteDensity(room, room.atmosphere?.density ?? 1);
+      applyClimateToScene(room, room.climate ?? climateForDepth(room.depth ?? 0));
+    }
+    if (!room.fires) {
+      indexRoomFx(room);
+    }
     room.scene.traverse((object) => {
       if (!object.userData.portalFrame || !object.userData.coversPortalId) {
         return;

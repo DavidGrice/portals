@@ -2,6 +2,32 @@ import { MeshPhysicalMaterial, RepeatWrapping, SRGBColorSpace, Vector2 } from 't
 import materials from '../../data/materials.json' with { type: 'json' };
 import { makeCloudTexture, makeRecipePbr, makeRecipeTexture } from './tiles.js';
 
+const recipeMapCache = new Map();
+
+function recipeMaps(spec) {
+  const key = `${spec.recipe}|${spec.color}|${spec.line}|${spec.cells}|${spec.repeat?.[0]}|${spec.repeat?.[1]}`;
+  let pbr = recipeMapCache.get(key);
+  if (!pbr) {
+    pbr = makeRecipePbr(spec.recipe, {
+      color: hex(spec.color),
+      line: spec.line,
+      cells: spec.cells,
+      repeat: spec.repeat,
+    }) ?? {
+      map: makeRecipeTexture(spec.recipe, {
+        color: hex(spec.color),
+        line: spec.line,
+        cells: spec.cells,
+        repeat: spec.repeat,
+      }),
+      roughnessMap: null,
+      normalMap: null,
+    };
+    recipeMapCache.set(key, pbr);
+  }
+  return pbr;
+}
+
 export function listMaterials(library = materials) {
   return Object.keys(library?.materials ?? {});
 }
@@ -44,17 +70,7 @@ export function buildMaterial(id, extras = {}) {
   const spec = resolveMaterial(id, extras);
   const pbr = extras.map
     ? { map: extras.map, roughnessMap: extras.roughnessMap ?? null, normalMap: extras.normalMap ?? null }
-    : (makeRecipePbr(spec.recipe, {
-      color: hex(spec.color),
-      line: spec.line,
-      cells: spec.cells,
-      repeat: spec.repeat,
-    }) ?? { map: makeRecipeTexture(spec.recipe, {
-      color: hex(spec.color),
-      line: spec.line,
-      cells: spec.cells,
-      repeat: spec.repeat,
-    }) });
+    : recipeMaps(spec);
   const hasMap = Boolean(pbr.map);
   const material = new MeshPhysicalMaterial({
     color: hasMap ? 0xffffff : spec.color,
@@ -151,33 +167,44 @@ export function parseColor(value, fallback = 0xffffff) {
   return fallback;
 }
 
+function tickMaterialObject(object, dt) {
+  let count = 0;
+  const spin = object.userData?.spin;
+  if (spin) {
+    object.rotation.x += (spin[0] ?? 0) * dt;
+    object.rotation.y += (spin[1] ?? 0) * dt;
+    object.rotation.z += (spin[2] ?? 0) * dt;
+    count += 1;
+  }
+  const scroll = object.userData?.scroll;
+  if (!scroll) {
+    return count;
+  }
+  const maps = [object.material?.map, object.material?.roughnessMap, object.material?.normalMap];
+  for (const map of maps) {
+    if (!map) {
+      continue;
+    }
+    map.offset.x = (map.offset.x + (scroll[0] ?? 0) * dt) % 1;
+    map.offset.y = (map.offset.y + (scroll[1] ?? 0) * dt) % 1;
+  }
+  return count + 1;
+}
+
 export function tickMaterials(rooms, dt = 0.016) {
   if (!rooms?.length) {
     return 0;
   }
   let count = 0;
   for (const room of rooms) {
+    if (room.tickables) {
+      for (const object of room.tickables) {
+        count += tickMaterialObject(object, dt);
+      }
+      continue;
+    }
     room.scene?.traverse((object) => {
-      const spin = object.userData?.spin;
-      if (spin) {
-        object.rotation.x += (spin[0] ?? 0) * dt;
-        object.rotation.y += (spin[1] ?? 0) * dt;
-        object.rotation.z += (spin[2] ?? 0) * dt;
-        count += 1;
-      }
-      const scroll = object.userData?.scroll;
-      const maps = [object.material?.map, object.material?.roughnessMap, object.material?.normalMap];
-      if (!scroll) {
-        return;
-      }
-      for (const map of maps) {
-        if (!map) {
-          continue;
-        }
-        map.offset.x = (map.offset.x + (scroll[0] ?? 0) * dt) % 1;
-        map.offset.y = (map.offset.y + (scroll[1] ?? 0) * dt) % 1;
-      }
-      count += 1;
+      count += tickMaterialObject(object, dt);
     });
   }
   return count;

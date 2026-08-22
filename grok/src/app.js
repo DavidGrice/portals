@@ -542,7 +542,7 @@ export function createApp({
         }
       }
       next.flashlight?.attach(room?.scene);
-      if (next.gadgets && next.renderer) {
+      if (next.gadgets && next.renderer && settings.profile !== 'performance') {
         tickScreens(next.gadgets, { controller: next.controller, renderer: next.renderer, force: true });
       }
       if (debugEnabled()) {
@@ -602,6 +602,22 @@ export function createApp({
     };
   }
 
+  function liveFxRooms() {
+    const current = session?.controller?.currentRoom;
+    if (!current) {
+      return [];
+    }
+    const rooms = [current];
+    for (const portal of current.portals ?? []) {
+      const destScene = portal.destinationPortal?.scene;
+      const dest = destScene && session.controller.rooms.find((entry) => entry.scene === destScene);
+      if (dest && !rooms.includes(dest)) {
+        rooms.push(dest);
+      }
+    }
+    return rooms;
+  }
+
   function loop() {
     raf = requestAnimationFrame(loop);
     if (!session) {
@@ -654,9 +670,10 @@ export function createApp({
       updateInteractHud();
       session.controller.update();
     }
-    tickAtmosphere(session.controller.rooms, { elapsed: clock.elapsedTime, dt });
-    tickMaterials(session.controller.rooms, dt);
-    tickNpcs(session.controller.rooms, session.camera);
+    const fxRooms = liveFxRooms();
+    tickAtmosphere(fxRooms, { elapsed: clock.elapsedTime, dt });
+    tickMaterials(fxRooms, dt);
+    tickNpcs(fxRooms, session.camera);
 
     session.postAA.begin();
     session.controller.render();

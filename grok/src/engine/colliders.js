@@ -26,19 +26,29 @@ export function collectColliders(room) {
       return;
     }
     if (spec.type === 'aabb') {
+      const cached = !object.userData.spin && object.userData.worldCollider;
+      if (cached) {
+        colliders.push(cached);
+        return;
+      }
       worldBox.setFromObject(object);
       if (worldBox.isEmpty()) {
         return;
       }
-      colliders.push({
+      const entry = {
         type: 'aabb',
+        walkable: Boolean(spec.walkable),
         minX: worldBox.min.x,
         maxX: worldBox.max.x,
         minY: worldBox.min.y,
         maxY: worldBox.max.y,
         minZ: worldBox.min.z,
         maxZ: worldBox.max.z,
-      });
+      };
+      if (!object.userData.spin) {
+        object.userData.worldCollider = entry;
+      }
+      colliders.push(entry);
       return;
     }
     if (spec.type === 'bounds') {
@@ -101,13 +111,14 @@ export function isOnAabbTop(position, collider, { eyeHeight = 1, velocityY = 0, 
   const feet = position.y - eyeHeight;
   const top = collider.maxY;
   const prevFeet = (prevY ?? position.y) - eyeHeight;
+  const window = collider.walkable ? 0.46 : LAND_WINDOW;
   if (velocityY > 0 && feet > top) {
     return false;
   }
-  if (prevFeet >= top - LAND_WINDOW && feet <= top + SNAP_DOWN) {
+  if (prevFeet >= top - window && feet <= top + SNAP_DOWN) {
     return true;
   }
-  return feet <= top + SNAP_DOWN && feet >= top - LAND_WINDOW;
+  return feet <= top + SNAP_DOWN && feet >= top - window;
 }
 
 export function findSupportY(position, body, colliders, prevY = position.y) {
@@ -146,6 +157,9 @@ export function resolveColliders(position, body = {}, colliders) {
       continue;
     }
 
+    if (collider.walkable) {
+      continue;
+    }
     // Above or landing on the top: walkable, never a side wall.
     if (overlapsSupport(position, collider) && feet >= collider.maxY - LAND_WINDOW) {
       continue;

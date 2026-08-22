@@ -90,6 +90,15 @@ export function createSession({
     });
     controller.setSize(width, height);
     postAA.setSize(width, height, typeof nextRenderer.getPixelRatio === 'function' ? nextRenderer.getPixelRatio() : 1);
+    if (typeof nextRenderer.compile === 'function') {
+      for (const room of controller.rooms) {
+        try {
+          nextRenderer.compile(room.scene, nextCamera);
+        } catch {
+          // headless / mock renderers
+        }
+      }
+    }
 
     return {
       settings: nextSettings,
