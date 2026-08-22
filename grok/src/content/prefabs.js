@@ -942,10 +942,10 @@ export const prefabs = {
     const frame = entity.props?.frameMaterial
       ? buildMaterial(entity.props.frameMaterial)
       : standardMaterial(frameColor, { roughness: 0.32, metalness: 0.62 });
-    addBox(group, frame, 0, height / 2, 0, width + frameT, frameT, depth);
-    addBox(group, frame, 0, -height / 2, 0, width + frameT, frameT, depth);
-    addBox(group, frame, -width / 2, 0, 0, frameT, height, depth);
-    addBox(group, frame, width / 2, 0, 0, frameT, height, depth);
+    addBox(group, frame, 0, height / 2, 0, width + frameT, frameT, depth, false);
+    addBox(group, frame, 0, -height / 2, 0, width + frameT, frameT, depth, false);
+    addBox(group, frame, -width / 2, 0, 0, frameT, height, depth, false);
+    addBox(group, frame, width / 2, 0, 0, frameT, height, depth, false);
 
     const pane = new THREE.Mesh(
       new THREE.PlaneGeometry(width - frameT, height - frameT),

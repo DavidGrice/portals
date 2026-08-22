@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PerspectiveCamera } from 'three';
-import { applyLook, Emitter, GraphicsSettings, Portal, PortalController, Room } from '../src/engine/index.js';
+import { applyLook, Emitter, GraphicsSettings, Player, Portal, PortalController, Room } from '../src/engine/index.js';
 import { loadWorld, kindsByCategory } from '../src/content/loadWorld.js';
 import { listMaterials, resolveMaterial } from '../src/content/materials.js';
 import { listWorlds } from '../src/ui/worlds.js';
@@ -126,6 +126,22 @@ describe('world data', () => {
     assert.ok(world.rooms.length >= 5);
     assert.equal(controller.getPortal('door-de').enabled, false);
     assert.equal(controller.getPortal('door-ed').destinationId, 'door-de');
+    camera.position.set(0, 1, 4);
+    const player = new Player({ camera, eyeHeight: 1, gravity: 20, moveSpeed: 6 });
+    const walk = {
+      moveForward(distance) {
+        camera.position.z -= distance;
+      },
+      moveRight() {},
+    };
+    for (let i = 0; i < 40; i += 1) {
+      player.step(0.05, { forward: 1 }, walk, controller.currentRoom);
+      controller.update();
+      if (controller.currentRoom.id === 'room-b') {
+        break;
+      }
+    }
+    assert.equal(controller.currentRoom.id, 'room-b', `four halls main door blocked at z=${camera.position.z}`);
     assert.ok(Math.abs(a.position.x - b.position.x) > 200, 'A and B halls must not share an origin');
     assert.ok(Math.abs(bc.position.x - cb.position.x) > 200, 'B and C halls must not share an origin');
     assert.ok(Math.abs(cd.position.x - dc.position.x) > 200, 'C and D halls must not share an origin');

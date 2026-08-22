@@ -17,6 +17,7 @@ export function collectColliders(room) {
     return colliders;
   }
 
+  room.scene.updateMatrixWorld(true);
   room.scene.traverse((object) => {
     if (object.userData.portalOccluder) {
       return;
@@ -26,16 +27,11 @@ export function collectColliders(room) {
       return;
     }
     if (spec.type === 'aabb') {
-      const cached = !object.userData.spin && object.userData.worldCollider;
-      if (cached) {
-        colliders.push(cached);
-        return;
-      }
       worldBox.setFromObject(object);
       if (worldBox.isEmpty()) {
         return;
       }
-      const entry = {
+      colliders.push({
         type: 'aabb',
         walkable: Boolean(spec.walkable),
         minX: worldBox.min.x,
@@ -44,11 +40,7 @@ export function collectColliders(room) {
         maxY: worldBox.max.y,
         minZ: worldBox.min.z,
         maxZ: worldBox.max.z,
-      };
-      if (!object.userData.spin) {
-        object.userData.worldCollider = entry;
-      }
-      colliders.push(entry);
+      });
       return;
     }
     if (spec.type === 'bounds') {
