@@ -7,6 +7,7 @@ import { Group, Mesh, PerspectiveCamera } from 'three';
 import { hydrateModel, spawnEntity } from '../src/content/prefabs.js';
 import { buildMaterial, hydrateMaterialMaps, resolveMaterial } from '../src/content/materials.js';
 import { loadWorld } from '../src/content/loadWorld.js';
+import { makeWoodSet } from '../src/content/tiles-pbr.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -57,6 +58,51 @@ describe('haunt furniture and textures', () => {
     assert.equal(resolveMaterial('haunt.iron').recipe, 'metal');
     assert.equal(resolveMaterial('ages.dirt').recipe, 'dirt');
     assert.equal(buildMaterial('shared.stone').type, 'MeshPhysicalMaterial');
+  });
+
+  it('packs PBR maps from a canvas element using the 2d context', () => {
+    const previous = globalThis.document;
+    function stubCanvas(size = 16) {
+      const pixels = new Uint8ClampedArray(size * size * 4).fill(140);
+      const ctx = {
+        fillStyle: '',
+        canvas: null,
+        fillRect() {},
+        getImageData() {
+          return { data: pixels, width: size, height: size };
+        },
+        putImageData() {},
+        createImageData(width, height) {
+          return { data: new Uint8ClampedArray(width * height * 4), width, height };
+        },
+      };
+      const canvas = {
+        width: size,
+        height: size,
+        getContext() {
+          return ctx;
+        },
+      };
+      ctx.canvas = canvas;
+      return canvas;
+    }
+    globalThis.document = {
+      createElement() {
+        return stubCanvas(16);
+      },
+    };
+    try {
+      const set = makeWoodSet({ size: 16, cells: 4, repeat: [1, 1] });
+      assert.ok(set.map);
+      assert.ok(set.roughnessMap);
+      assert.ok(set.normalMap);
+    } finally {
+      if (previous === undefined) {
+        delete globalThis.document;
+      } else {
+        globalThis.document = previous;
+      }
+    }
   });
 
   it('uses measured Chaos metal F0 values and a glass IOR of 1.5', () => {

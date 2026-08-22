@@ -73,8 +73,9 @@ function finish(canvas, { repeat = [4, 4], colorSpace = SRGBColorSpace, anisotro
 
 export function heightToNormal(height, strength = 2.4) {
   const { width: w, height: h } = height;
-  const src = height.getContext('2d').getImageData(0, 0, w, h).data;
-  const out = height.createImageData(w, h);
+  const ctx = height.getContext('2d');
+  const src = ctx.getImageData(0, 0, w, h).data;
+  const out = ctx.createImageData(w, h);
   const sample = (x, y) => src[(((y + h) % h) * w + ((x + w) % w)) * 4] / 255;
   for (let y = 0; y < h; y += 1) {
     for (let x = 0; x < w; x += 1) {
@@ -97,8 +98,9 @@ export function heightToNormal(height, strength = 2.4) {
 
 export function heightToRoughness(height, { invert = false, contrast = 1.1, lift = 0.28 } = {}) {
   const { width: w, height: h } = height;
-  const src = height.getContext('2d').getImageData(0, 0, w, h).data;
-  const out = height.createImageData(w, h);
+  const ctx = height.getContext('2d');
+  const src = ctx.getImageData(0, 0, w, h).data;
+  const out = ctx.createImageData(w, h);
   for (let i = 0; i < src.length; i += 4) {
     let v = src[i] / 255;
     v = invert ? 1 - v : v;
@@ -327,15 +329,19 @@ function emptySet() {
 
 function pack(albedoCtx, heightCtx, repeat, normalStrength, roughnessOpts) {
   const map = finish(albedoCtx.canvas, { repeat, colorSpace: SRGBColorSpace });
-  const roughnessMap = finish(heightToRoughness(heightCtx.canvas, roughnessOpts), {
-    repeat,
-    colorSpace: LinearSRGBColorSpace,
-  });
-  const normalMap = finish(heightToNormal(heightCtx.canvas, normalStrength), {
-    repeat,
-    colorSpace: LinearSRGBColorSpace,
-  });
-  return { map, roughnessMap, normalMap };
+  try {
+    const roughnessMap = finish(heightToRoughness(heightCtx.canvas, roughnessOpts), {
+      repeat,
+      colorSpace: LinearSRGBColorSpace,
+    });
+    const normalMap = finish(heightToNormal(heightCtx.canvas, normalStrength), {
+      repeat,
+      colorSpace: LinearSRGBColorSpace,
+    });
+    return { map, roughnessMap, normalMap };
+  } catch {
+    return { map, roughnessMap: null, normalMap: null };
+  }
 }
 
 export function makePbrSet(recipe, options = {}) {

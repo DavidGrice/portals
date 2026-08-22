@@ -14,6 +14,7 @@ export function createSession({
   world,
   catalog,
   renderer = null,
+  createRenderer = createPortalRenderer,
   camera = null,
   mount = null,
   pose = null,
@@ -23,86 +24,96 @@ export function createSession({
   const nextSettings = settings ?? GraphicsSettings.load();
   const nextCamera = camera ?? new PerspectiveCamera(nextSettings.fov, width / Math.max(height, 1), 0.05, 280);
   const ownsRenderer = !renderer;
-  const nextRenderer = renderer ?? createPortalRenderer({
-    antialias: nextSettings.hardwareAa,
-    pixelRatio: nextSettings.pixelRatio === 'device' ? undefined : Number(nextSettings.pixelRatio),
-    shadows: nextSettings.shadows,
-  });
+  let nextRenderer = renderer;
 
-  if (ownsRenderer && mount) {
-    mount.insertBefore(nextRenderer.domElement, mount.firstChild);
-  } else if (ownsRenderer && typeof document !== 'undefined') {
-    document.body.insertBefore(nextRenderer.domElement, document.body.firstChild);
-  }
-
-  if (world?.multiplayer && (world.id === 'drift' || world.generated)) {
-    throw new Error('Drift cannot host multiplayer');
-  }
-  const resolvedWorld = world?.id === 'drift' || world?.generated
-    ? openDrift({ seed: pose?.seed, depth: pose?.depth ?? 0, kitId: pose?.kitId })
-    : world;
-  const controller = loadWorld(resolvedWorld, catalog, nextCamera, nextRenderer);
-  if (typeof document !== 'undefined') {
-    import('three').then(({ TextureLoader }) => {
-      hydrateRoomMaterials(controller.rooms, {
-        loader: new TextureLoader(),
-        anisotropy: nextSettings.anisotropy ?? 4,
-      });
-    }).catch(() => {});
-  }
-  controller.drift = resolvedWorld?.id === 'drift'
-    ? {
-      seed: resolvedWorld.seed,
-      depth: resolvedWorld.depth ?? 0,
-      origins: resolvedWorld.originPool ?? createOriginPool(),
-      recent: resolvedWorld.recent ?? [],
-      seq: 0,
+  try {
+    nextRenderer ??= createRenderer({
+      antialias: nextSettings.hardwareAa,
+      pixelRatio: nextSettings.pixelRatio === 'device' ? undefined : Number(nextSettings.pixelRatio),
+      shadows: nextSettings.shadows,
+    });
+    if (ownsRenderer && mount) {
+      mount.insertBefore(nextRenderer.domElement, mount.firstChild);
+    } else if (ownsRenderer && typeof document !== 'undefined') {
+      document.body.insertBefore(nextRenderer.domElement, document.body.firstChild);
     }
-    : null;
-  if (pose) {
-    applyPose({ camera: nextCamera, controller }, pose);
+
+    if (world?.multiplayer && (world.id === 'drift' || world.generated)) {
+      throw new Error('Drift cannot host multiplayer');
+    }
+    const resolvedWorld = world?.id === 'drift' || world?.generated
+      ? openDrift({ seed: pose?.seed, depth: pose?.depth ?? 0, kitId: pose?.kitId })
+      : world;
+    const controller = loadWorld(resolvedWorld, catalog, nextCamera, nextRenderer);
+    if (typeof document !== 'undefined') {
+      import('three').then(({ TextureLoader }) => {
+        hydrateRoomMaterials(controller.rooms, {
+          loader: new TextureLoader(),
+          anisotropy: nextSettings.anisotropy ?? 4,
+        });
+      }).catch(() => {});
+    }
+    controller.drift = resolvedWorld?.id === 'drift'
+      ? {
+        seed: resolvedWorld.seed,
+        depth: resolvedWorld.depth ?? 0,
+        origins: resolvedWorld.originPool ?? createOriginPool(),
+        recent: resolvedWorld.recent ?? [],
+        seq: 0,
+      }
+      : null;
+    if (pose) {
+      applyPose({ camera: nextCamera, controller }, pose);
+    }
+    const postAA = ownsRenderer ? new PostAA(nextRenderer) : stubPostAA();
+    const controls = createControls(nextCamera, nextRenderer.domElement);
+    controls.pointerSpeed = 0;
+    const player = new Player({
+      camera: nextCamera,
+      eyeHeight: 1,
+      moveSpeed: nextSettings.moveSpeed,
+      jumpSpeed: nextSettings.jumpSpeed,
+    });
+    const gadgets = attachGadgets(controller);
+    const flashlight = new Flashlight(nextCamera);
+    flashlight.applyProfile(nextSettings.profile);
+    flashlight.attach(controller.currentRoom?.scene);
+
+    nextSettings.apply({
+      camera: nextCamera,
+      renderer: nextRenderer,
+      controller,
+      player,
+      postAA,
+      controls,
+      flashlight,
+    });
+    controller.setSize(width, height);
+    postAA.setSize(width, height, typeof nextRenderer.getPixelRatio === 'function' ? nextRenderer.getPixelRatio() : 1);
+
+    return {
+      settings: nextSettings,
+      camera: nextCamera,
+      renderer: nextRenderer,
+      controller,
+      player,
+      postAA,
+      controls,
+      gadgets,
+      flashlight,
+      ownsRenderer,
+      dispose() {
+        disposeSession(this);
+      },
+    };
+  } catch (error) {
+    if (ownsRenderer && nextRenderer) {
+      nextRenderer.dispose?.();
+      nextRenderer.forceContextLoss?.();
+      nextRenderer.domElement?.remove?.();
+    }
+    throw error;
   }
-  const postAA = ownsRenderer ? new PostAA(nextRenderer) : stubPostAA();
-  const controls = createControls(nextCamera, nextRenderer.domElement);
-  controls.pointerSpeed = 0;
-  const player = new Player({
-    camera: nextCamera,
-    eyeHeight: 1,
-    moveSpeed: nextSettings.moveSpeed,
-    jumpSpeed: nextSettings.jumpSpeed,
-  });
-  const gadgets = attachGadgets(controller);
-  const flashlight = new Flashlight(nextCamera);
-  flashlight.applyProfile(nextSettings.profile);
-  flashlight.attach(controller.currentRoom?.scene);
-
-  nextSettings.apply({
-    camera: nextCamera,
-    renderer: nextRenderer,
-    controller,
-    player,
-    postAA,
-    controls,
-    flashlight,
-  });
-  controller.setSize(width, height);
-  postAA.setSize(width, height, typeof nextRenderer.getPixelRatio === 'function' ? nextRenderer.getPixelRatio() : 1);
-
-  return {
-    settings: nextSettings,
-    camera: nextCamera,
-    renderer: nextRenderer,
-    controller,
-    player,
-    postAA,
-    controls,
-    gadgets,
-    flashlight,
-    ownsRenderer,
-    dispose() {
-      disposeSession(this);
-    },
-  };
 }
 
 export function disposeSession(session) {

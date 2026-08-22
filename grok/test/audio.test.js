@@ -62,6 +62,43 @@ describe('audio', () => {
     assert.equal(audio.muted, true);
   });
 
+  it('resume does not wait for clip hydrate', async () => {
+    const previous = globalThis.AudioContext;
+    globalThis.AudioContext = class {
+      state = 'running';
+      resume() {
+        return Promise.resolve();
+      }
+    };
+    const audio = new GameAudio();
+    let hydrateStarted = false;
+    let hydrateFinished = false;
+    audio.ctx = { state: 'running', currentTime: 0 };
+    audio._ensureGraph = () => {};
+    audio.hydrate = async () => {
+      hydrateStarted = true;
+      await new Promise((resolve) => {
+        setTimeout(resolve, 200);
+      });
+      hydrateFinished = true;
+      return 0;
+    };
+    try {
+      const started = Date.now();
+      const result = await audio.resume();
+      assert.equal(result, true);
+      assert.equal(hydrateStarted, true);
+      assert.equal(hydrateFinished, false);
+      assert.ok(Date.now() - started < 150);
+    } finally {
+      if (previous) {
+        globalThis.AudioContext = previous;
+      } else {
+        delete globalThis.AudioContext;
+      }
+    }
+  });
+
   it('uses a deeper haunt bed and wind in the attic', () => {
     assert.equal(bedForRoom('foyer'), 'haunt');
     assert.equal(bedForRoom('crypt'), 'hauntDeep');

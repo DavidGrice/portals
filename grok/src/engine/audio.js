@@ -193,7 +193,7 @@ export class GameAudio {
     this._ensureGraph();
     this.muted = false;
     this.applyVolumes();
-    await this.hydrate();
+    this.hydrate().catch(() => {});
     return true;
   }
 

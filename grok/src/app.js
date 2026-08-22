@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import world from '../data/worlds/two-rooms.json';
-import catalog from '../data/catalog.json';
+import world from '../data/worlds/two-rooms.json' with { type: 'json' };
+import catalog from '../data/catalog.json' with { type: 'json' };
 import { GraphicsSettings, probeCapabilities } from './engine/index.js';
 import { applyLook } from './engine/look.js';
 import { emptyPadButtons, firstGamepad, readGamepad } from './engine/gamepad.js';
@@ -290,10 +290,10 @@ export function createApp({
     }
 
     setLoading('Creating GPU context…');
-    await gameAudio.resume();
-    gameAudio.applyVolumes(settings);
-    await frame();
     try {
+      await gameAudio.resume();
+      gameAudio.applyVolumes(settings);
+      await frame();
       setLoading('Loading halls…');
       selectedWorldId = worldId || selectedWorldId;
       const save = useSave ? loadSave() : null;
@@ -322,8 +322,19 @@ export function createApp({
       loop();
     } catch (error) {
       console.error(error);
-      setLoading('Could not start the halls. Check the console.');
-      quitToMenu();
+      unbindSession();
+      session?.dispose?.();
+      session = null;
+      gameAudio.mute();
+      cancelAnimationFrame(raf);
+      raf = 0;
+      state = APP_STATES.menu;
+      setHudVisible(false);
+      setMenuVisible(true);
+      showMenuCard('worlds');
+      if (loadingStatus) {
+        loadingStatus.textContent = 'Could not start the halls. Check the console.';
+      }
     }
     return state;
   }

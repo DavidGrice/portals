@@ -1,5 +1,5 @@
-import world from '../data/worlds/two-rooms.json';
-import catalog from '../data/catalog.json';
+import world from '../data/worlds/two-rooms.json' with { type: 'json' };
+import catalog from '../data/catalog.json' with { type: 'json' };
 import { loadWorld } from './content/loadWorld.js';
 
 export function createDemo(camera, renderer) {
