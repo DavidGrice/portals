@@ -496,6 +496,18 @@ export function createApp({
     if (spec?.action === 'kill-laser') {
       return 'E  Beam off';
     }
+    if (spec?.action === 'set-slit') {
+      return 'E  Cycle slit';
+    }
+    if (spec?.action === 'flip-blaze') {
+      return 'E  Flip blaze';
+    }
+    if (spec?.action === 'tilt-cross') {
+      return 'E  Tilt cross-dispersion';
+    }
+    if (spec?.action === 'confirm-blaze' || spec?.action === 'confirm-evanescent') {
+      return spec.text ? `E  ${spec.text}` : 'E  Confirm';
+    }
     return spec?.text ? `E  ${spec.text}` : 'E  Look';
   }
 

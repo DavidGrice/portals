@@ -1142,6 +1142,9 @@ export const prefabs = {
       hover: entity.props?.hover !== false,
       baseY: entity.position?.[1] ?? group.position.y,
       locked: entity.props?.spin ? false : true,
+      mMin: entity.props?.mMin ?? null,
+      mMax: entity.props?.mMax ?? null,
+      crossTilt: false,
     };
     return group;
   },
@@ -1151,7 +1154,9 @@ export const prefabs = {
     applyPose(group, entity);
     const lambdaNm = entity.props?.lambdaNm ?? 532;
     const rgb = wavelengthToRgb(lambdaNm);
-    const color = (Math.round(rgb.r * 255) << 16) + (Math.round(rgb.g * 255) << 8) + Math.round(rgb.b * 255);
+    const color = lambdaNm === 0
+      ? 0xe8eef8
+      : (Math.round(rgb.r * 255) << 16) + (Math.round(rgb.g * 255) << 8) + Math.round(rgb.b * 255);
     const metal = buildMaterial('scifi.cabin');
     addBox(group, metal, 0, 0.18, 0.2, 0.16, 0.16, 0.7);
     const aperture = new THREE.Mesh(
@@ -1210,6 +1215,8 @@ export const prefabs = {
       radius: entity.props?.radius ?? 0.22,
       flag: entity.props?.flag ?? null,
       unlockPortalId: entity.props?.unlockPortalId ?? null,
+      gratingId: entity.props?.gratingId ?? null,
+      requireTilt: entity.props?.requireTilt === true,
       lit: false,
       hold: 0,
     };

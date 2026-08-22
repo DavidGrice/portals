@@ -10,7 +10,7 @@ import { runInteract } from '../src/engine/interact.js';
 import { bedForRoom } from '../src/engine/audio.js';
 import { listWorlds, getWorldData } from '../src/ui/worlds.js';
 import { validateWorld } from '../scripts/validate-world.js';
-import { lockGratingSpin } from '../src/optics/tickOptics.js';
+import { lockGratingSpin, syncOpticsDoors, tickOptics, applyOpticsInteract } from '../src/optics/tickOptics.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -37,7 +37,7 @@ describe('Littrow', () => {
     const world = getWorldData('littrow');
     assert.equal(world.id, 'littrow');
     assert.equal(world.startRoom, 'rotunda');
-    assert.equal(world.rooms.length, 3);
+    assert.equal(world.rooms.length, 8);
     const catalog = readJson('data/catalog.json');
     const materials = readJson('data/materials.json');
     assert.deepEqual(validateWorld(world, catalog, materials), []);
@@ -107,5 +107,76 @@ describe('Littrow', () => {
     assert.equal(laser.userData.laser.lambdaNm, 532);
     const detector = spawnEntity({ id: 'd', kind: 'prop.detector', props: { order: 1, lambdaNm: 532 } }, catalog);
     assert.equal(detector.userData.detector.order, 1);
+  });
+
+  it('keeps lab doors sealed until the optics flags fire', () => {
+    const world = readJson('data/worlds/littrow.json');
+    const catalog = readJson('data/catalog.json');
+    const camera = new PerspectiveCamera(60, 1, 0.05, 280);
+    const controller = loadWorld(world, catalog, camera, mockRenderer());
+    assert.equal(controller.getPortal('door-rotunda-collimator').enabled, false);
+    assert.equal(controller.getPortal('door-rotunda-continuum').enabled, false);
+    assert.equal(controller.getPortal('door-rotunda-blaze').enabled, false);
+    assert.equal(controller.getPortal('door-rotunda-echelle').enabled, false);
+    assert.equal(controller.getPortal('door-rotunda-rowland').enabled, false);
+    controller.flags = { 'found-zero': true };
+    syncOpticsDoors(controller);
+    assert.equal(controller.getPortal('door-rotunda-collimator').enabled, true);
+    controller.flags['diode-405'] = true;
+    controller.flags['diode-532'] = true;
+    controller.flags['diode-633'] = true;
+    syncOpticsDoors(controller);
+    assert.equal(controller.flags['three-diodes'], true);
+    assert.equal(controller.getPortal('door-rotunda-continuum').enabled, true);
+  });
+
+  it('locks the collimator card and keeps 532 nm first order at 18.6 deg', () => {
+    const world = readJson('data/worlds/littrow.json');
+    const collimator = world.rooms.find((room) => room.id === 'collimator');
+    const card = collimator.entities.find((entity) => entity.id === 'card-collimator');
+    assert.equal(card.props.hover, false);
+    assert.equal(card.props.spin, undefined);
+    const echelle = world.rooms.find((room) => room.id === 'echelle').entities.find((entity) => entity.id === 'card-echelle');
+    assert.equal(echelle.props.linesPerMm, 75);
+    assert.equal(echelle.props.mMin, 12);
+    assert.equal(echelle.props.blazeDeg, 63);
+  });
+
+  it('emits a continuum rainbow of first-order bins and needs tilt for echelle', () => {
+    const catalog = readJson('data/catalog.json');
+    const world = readJson('data/worlds/littrow.json');
+    const camera = new PerspectiveCamera(60, 1, 0.05, 280);
+    const controller = loadWorld(world, catalog, camera, mockRenderer());
+    const continuum = controller.rooms.find((room) => room.id === 'continuum');
+    controller.setCurrentScene('continuum');
+    applyOpticsInteract('arm-laser', { room: continuum, spec: { lambdaNm: 0 }, controller });
+    const result = tickOptics([continuum], { camera, dt: 0.016, controller, elapsed: 0 });
+    assert.ok(result.beams >= 8, `continuum beams ${result.beams}`);
+    const echelle = controller.rooms.find((room) => room.id === 'echelle');
+    controller.setCurrentScene('echelle');
+    applyOpticsInteract('arm-laser', { room: echelle, spec: { lambdaNm: 532 }, controller });
+    const before = tickOptics([echelle], { camera, dt: 0.016, controller, elapsed: 0 });
+    const hit = applyOpticsInteract('tilt-cross', { room: echelle, spec: {}, controller });
+    assert.equal(hit.type, 'tilt-cross');
+    assert.ok(echelle.gratings[0].userData.grating.crossTilt);
+    const after = tickOptics([echelle], { camera, dt: 0.016, controller, elapsed: 0 });
+    assert.ok(after.beams >= 1);
+    assert.ok(before.beams >= 1);
+  });
+
+  it('confirms blaze only after the ruled +1 detector flag', () => {
+    const catalog = readJson('data/catalog.json');
+    const world = readJson('data/worlds/littrow.json');
+    const camera = new PerspectiveCamera(60, 1, 0.05, 280);
+    const controller = loadWorld(world, catalog, camera, mockRenderer());
+    const blaze = controller.rooms.find((room) => room.id === 'blaze');
+    controller.setCurrentScene('blaze');
+    const denied = applyOpticsInteract('confirm-blaze', { room: blaze, spec: {}, controller });
+    assert.equal(denied.ok, false);
+    controller.flags['blaze-ruled-plus'] = true;
+    const ok = applyOpticsInteract('confirm-blaze', { room: blaze, spec: {}, controller });
+    assert.equal(ok.ok, true);
+    assert.equal(controller.flags['understood-blaze'], true);
+    assert.equal(controller.getPortal('door-rotunda-echelle').enabled, true);
   });
 });

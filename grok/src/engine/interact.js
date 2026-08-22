@@ -15,6 +15,9 @@ const OPTICS_ACTIONS = new Set([
   'yaw-right',
   'read-angle',
   'arm-lamp',
+  'tilt-cross',
+  'confirm-blaze',
+  'confirm-evanescent',
 ]);
 
 export function findInteract(room, position, { maxDistance = 2 } = {}) {
