@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { buildMaterial, parseColor as parseMaterialColor, resolveMaterial } from './materials.js';
 import { makeRecipeTexture } from './tiles.js';
-import { addRectVolume, addStairs, addWallWithHoles } from './volumes.js';
+import { addColonnade, addRectVolume, addStairs, addWallWithHoles } from './volumes.js';
 
 export function parseColor(value, fallback = 0xffffff) {
   return parseMaterialColor(value, fallback);
@@ -104,6 +104,9 @@ export const prefabs = {
     mesh.userData.collider = { type: 'aabb' };
     if (entity.props?.scroll) {
       mesh.userData.scroll = entity.props.scroll;
+    }
+    if (entity.props?.spin) {
+      mesh.userData.spin = entity.props.spin;
     }
     return mesh;
   },
@@ -317,8 +320,62 @@ export const prefabs = {
       height: entity.props?.height ?? 4,
       thickness: entity.props?.thickness ?? 0.24,
       holes: entity.props?.holes ?? [],
+      openWalls: entity.props?.openWalls ?? [],
+      roundCorners: entity.props?.roundCorners !== false,
+      ceiling: entity.props?.ceiling !== false,
     });
-    group.userData.volume = { kind: 'chamber', halfX, zMin, zMax };
+    group.userData.volume = { kind: 'chamber', halfX, zMin, zMax, open: entity.props?.openWalls ?? [] };
+    return group;
+  },
+
+  open(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const material = volumeMaterial(entity);
+    const halfX = entity.props?.halfX ?? 10;
+    const zMin = entity.props?.zMin ?? -9;
+    const zMax = entity.props?.zMax ?? 6;
+    const holes = entity.props?.holes ?? [];
+    const holeWalls = new Set(holes.map((hole) => hole.wall));
+    const openWalls = (entity.props?.openWalls ?? ['east', 'west']).filter((wall) => !holeWalls.has(wall));
+    addRectVolume(group, material, {
+      minX: -halfX,
+      maxX: halfX,
+      minZ: zMin,
+      maxZ: zMax,
+      height: entity.props?.height ?? 3.6,
+      holes,
+      openWalls,
+      roundCorners: true,
+      ceiling: false,
+    });
+    group.userData.volume = { kind: 'open', halfX, zMin, zMax, openWalls };
+    return group;
+  },
+
+  arcade(entity) {
+    const group = new THREE.Group();
+    applyPose(group, entity);
+    const material = volumeMaterial(entity);
+    const halfX = entity.props?.halfX ?? 9;
+    const zMin = entity.props?.zMin ?? -9;
+    const zMax = entity.props?.zMax ?? 6;
+    const height = entity.props?.height ?? 4.2;
+    const holes = entity.props?.holes ?? [];
+    addRectVolume(group, material, {
+      minX: -halfX,
+      maxX: halfX,
+      minZ: zMin,
+      maxZ: zMax,
+      height,
+      holes,
+      openWalls: ['east', 'west'],
+      roundCorners: true,
+      ceiling: entity.props?.ceiling !== false,
+    });
+    addColonnade(group, material, { x: -halfX, z0: zMin + 1.2, z1: zMax - 1.2, height });
+    addColonnade(group, material, { x: halfX, z0: zMin + 1.2, z1: zMax - 1.2, height });
+    group.userData.volume = { kind: 'arcade', halfX, zMin, zMax };
     return group;
   },
 
@@ -361,13 +418,18 @@ export const prefabs = {
     const zMin = entity.props?.zMin ?? -10;
     const zMax = entity.props?.zMax ?? 6;
     const height = entity.props?.height ?? 4.4;
+    const holes = entity.props?.holes ?? [];
+    const holeWalls = new Set(holes.map((hole) => hole.wall));
     addRectVolume(group, material, {
       minX: -halfX,
       maxX: halfX,
       minZ: zMin,
       maxZ: zMax,
       height,
-      holes: entity.props?.holes ?? [],
+      holes,
+      roundCorners: true,
+      ceiling: false,
+      openWalls: (entity.props?.openWalls ?? ['east', 'west']).filter((wall) => !holeWalls.has(wall)),
     });
     const inner = 3.2;
     addRectVolume(group, material, {

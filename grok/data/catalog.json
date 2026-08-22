@@ -72,6 +72,16 @@
       "prefab": "plus",
       "tags": ["architecture"]
     },
+    "arch.open": {
+      "category": "architecture",
+      "prefab": "open",
+      "tags": ["architecture", "open"]
+    },
+    "arch.arcade": {
+      "category": "architecture",
+      "prefab": "arcade",
+      "tags": ["architecture", "open"]
+    },
     "prop.plaque": {
       "category": "prop",
       "prefab": "plaque",

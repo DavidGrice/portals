@@ -136,7 +136,11 @@ export function generateRoom({
   const id = roomId || `${kit.id}-${depth}-${branch}`;
   const resolved = topology?.id
     ? (typeof topology === 'string' ? getTopology(topology) : topology)
-    : pickTopology(rng, { kit, recent });
+    : pickTopology(rng, {
+      kit,
+      recent,
+      allow: [...new Set([...(kit.topologies ?? []), 'open', 'arcade', 'round', 'court'])],
+    });
   const topo = resolved ?? getTopology('I');
   const footprint = { ...(kit.shell ?? {}), ...(topo.footprint ?? {}) };
   const kitExits = resolveExitSockets(kit);
@@ -163,6 +167,8 @@ export function generateRoom({
   const { openings, sideOpenings } = openingsFromSockets(holeSockets);
   const holes = holesFromSockets(holeSockets);
   const shellKind = topo.kind ?? 'arch.corridor';
+  const holeWalls = new Set(holes.map((hole) => hole.wall));
+  const openWalls = (topo.openWalls ?? []).filter((wall) => !holeWalls.has(wall));
 
   const entities = [
     { id: `sky-${id}`, kind: 'env.sky', props: { color: kit.clearColor ?? '#111111' } },
@@ -198,6 +204,9 @@ export function generateRoom({
         openings,
         sideOpenings,
         holes,
+        openWalls,
+        roundCorners: topo.roundCorners !== false && shellKind !== 'arch.corridor',
+        ceiling: topo.ceiling !== false && !topo.tags?.includes('sky'),
       },
     },
     {
@@ -213,15 +222,26 @@ export function generateRoom({
       id: `strip-l-${id}`,
       kind: 'prop.box',
       position: [-(footprint.halfX ?? 8) + 0.3, 2.35, -0.5],
-      props: { size: [0.08, 0.05, 10.8], material: materials.strip },
+      props: { size: [0.08, 0.05, 10.8], material: materials.strip, scroll: [0, 0.18] },
     });
     entities.push({
       id: `strip-r-${id}`,
       kind: 'prop.box',
       position: [(footprint.halfX ?? 8) - 0.3, 2.35, -0.5],
-      props: { size: [0.08, 0.05, 10.8], material: materials.strip },
+      props: { size: [0.08, 0.05, 10.8], material: materials.strip, scroll: [0, 0.18] },
     });
   }
+  entities.push({
+    id: `spinner-${id}`,
+    kind: 'prop.box',
+    position: [0, 1.1, (footprint.zMin ?? -6) * 0.35],
+    tags: ['landmark', 'motion'],
+    props: {
+      size: [0.55, 1.6, 0.55],
+      color: materials.accent ?? '#cfd3e5',
+      spin: [0, 0.7, 0],
+    },
+  });
 
   entities.push(...placeLandmarks({ kit, topology: topo, roomId: id, rng, materials }));
 
@@ -310,6 +330,7 @@ function placeLandmarks({ kit, topology, roomId, rng, materials }) {
       props: {
         ...(template.props ?? {}),
         ...(template.props?.color || !materials.accent ? {} : { color: materials.accent }),
+        ...(index === 0 && template.kind === 'prop.box' && !template.props?.spin ? { spin: [0, 0.45, 0] } : {}),
       },
     });
   }

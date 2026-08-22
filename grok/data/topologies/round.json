@@ -1,0 +1,21 @@
+{
+  "id": "round",
+  "title": "Round chamber",
+  "kind": "arch.chamber",
+  "tags": ["open"],
+  "roundCorners": true,
+  "ceiling": true,
+  "footprint": { "halfX": 8.5, "zMin": -8, "zMax": 6, "height": 4.4 },
+  "sockets": [
+    { "id": "entry", "role": "entry", "wall": "south", "u": 0 },
+    { "id": "exit-a", "role": "exit", "wall": "north", "u": 0 },
+    { "id": "exit-b", "role": "exit", "wall": "west", "u": -1 },
+    { "id": "exit-c", "role": "exit", "wall": "east", "u": -1 }
+  ],
+  "regions": {
+    "entry-left": [-5.2, 0, 3.2],
+    "center": [0, 0, -0.6],
+    "hearth-wall": [5.4, 0, 2.4],
+    "far-corner": [-5.6, 0, -5.8]
+  }
+}

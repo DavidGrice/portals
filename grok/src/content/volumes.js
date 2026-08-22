@@ -15,6 +15,18 @@ export function addBox(group, material, x, y, z, sx, sy, sz, collide = true) {
   return mesh;
 }
 
+export function addCylinder(group, material, x, y, z, radius, height, collide = true) {
+  const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, height, 14), material);
+  mesh.position.set(x, y, z);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  if (collide) {
+    mesh.userData.collider = { type: 'aabb' };
+  }
+  group.add(mesh);
+  return mesh;
+}
+
 export function wallAxis(wall) {
   return wall === 'west' || wall === 'east' ? 'z' : 'x';
 }
@@ -91,11 +103,17 @@ export function addRectVolume(group, material, {
   ceiling = true,
   holeWidth = HOLE_WIDTH,
   holeHeight = HOLE_HEIGHT,
+  openWalls = [],
+  roundCorners = false,
+  cornerRadius = 0.9,
 }) {
   const midX = (minX + maxX) * 0.5;
   const midZ = (minZ + maxZ) * 0.5;
   const width = maxX - minX;
   const depth = maxZ - minZ;
+  const radius = roundCorners ? Math.min(cornerRadius, width * 0.22, depth * 0.22) : 0;
+  const inset = radius;
+  const open = new Set(openWalls ?? []);
   if (floor) {
     addBox(group, material, midX, y0 - thickness * 0.5, midZ, width + thickness, thickness, depth + thickness);
   }
@@ -103,12 +121,15 @@ export function addRectVolume(group, material, {
     addBox(group, material, midX, y0 + height + thickness * 0.5, midZ, width + thickness, thickness, depth + thickness, false);
   }
   for (const wall of ['north', 'south', 'west', 'east']) {
+    if (open.has(wall)) {
+      continue;
+    }
     addWallWithHoles(group, material, {
       wall,
-      minX,
-      maxX,
-      minZ,
-      maxZ,
+      minX: minX + (wall === 'north' || wall === 'south' ? inset : 0),
+      maxX: maxX - (wall === 'north' || wall === 'south' ? inset : 0),
+      minZ: minZ + (wall === 'west' || wall === 'east' ? inset : 0),
+      maxZ: maxZ - (wall === 'west' || wall === 'east' ? inset : 0),
       y0,
       height,
       thickness,
@@ -117,7 +138,42 @@ export function addRectVolume(group, material, {
       holeHeight,
     });
   }
-  return { minX, maxX, minZ, maxZ, height, y0 };
+  if (radius > 0.05) {
+    const y = y0 + height * 0.5;
+    const corners = [
+      [minX + radius, minZ + radius],
+      [maxX - radius, minZ + radius],
+      [minX + radius, maxZ - radius],
+      [maxX - radius, maxZ - radius],
+    ];
+    for (const [x, z] of corners) {
+      const post = addCylinder(group, material, x, y, z, radius, height);
+      post.userData.roundCorner = true;
+    }
+  }
+  return { minX, maxX, minZ, maxZ, height, y0, openWalls: [...open], roundCorners: radius > 0 };
+}
+
+export function addColonnade(group, material, {
+  x,
+  z0,
+  z1,
+  y0 = 0,
+  height = 3.2,
+  radius = 0.22,
+  spacing = 2.6,
+}) {
+  const span = z1 - z0;
+  const count = Math.max(2, Math.round(Math.abs(span) / spacing) + 1);
+  const posts = [];
+  for (let i = 0; i < count; i += 1) {
+    const t = count === 1 ? 0.5 : i / (count - 1);
+    const z = z0 + span * t;
+    const post = addCylinder(group, material, x, y0 + height * 0.5, z, radius, height);
+    post.userData.colonnade = true;
+    posts.push(post);
+  }
+  return posts;
 }
 
 export function addStairs(group, material, {

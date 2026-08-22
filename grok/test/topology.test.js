@@ -17,7 +17,7 @@ function readJson(relative) {
 describe('topologies', () => {
   it('ships ten shapes with at least three sockets on different walls', () => {
     const list = listTopologies();
-    assert.equal(list.length, 10);
+    assert.equal(list.length, 13);
     for (const topology of list) {
       const sockets = topologySockets(topology);
       const exits = sockets.filter((socket) => socket.role === 'exit');
@@ -44,7 +44,7 @@ describe('topologies', () => {
 
   it('builds each volume prefab with walkable colliders and declared holes', () => {
     const catalog = readJson('data/catalog.json');
-    const kinds = ['arch.chamber', 'arch.wing', 'arch.court', 'arch.loft', 'arch.shaft', 'arch.rotunda'];
+    const kinds = ['arch.chamber', 'arch.wing', 'arch.court', 'arch.loft', 'arch.shaft', 'arch.rotunda', 'arch.open', 'arch.arcade'];
     for (const kind of kinds) {
       const object = spawnEntity({
         id: kind,
@@ -65,6 +65,57 @@ describe('topologies', () => {
       assert.ok(boxes >= 4, `${kind} has no collision`);
       assert.equal(object.userData.volume?.kind != null || kind === 'arch.wing', true);
     }
+  });
+
+  it('opens walls, rounds corners, and puts motion in compiled rooms', () => {
+    const catalog = readJson('data/catalog.json');
+    const open = spawnEntity({
+      id: 'open-test',
+      kind: 'arch.open',
+      props: { holes: [{ wall: 'south', u: 0 }, { wall: 'north', u: 0 }] },
+    }, catalog);
+    const chamber = spawnEntity({
+      id: 'box-test',
+      kind: 'arch.chamber',
+      props: { holes: [{ wall: 'south', u: 0 }, { wall: 'north', u: 0 }], roundCorners: false, openWalls: [] },
+    }, catalog);
+    let openCorners = 0;
+    let boxCorners = 0;
+    let openPosts = 0;
+    open.traverse((child) => {
+      if (child.userData?.roundCorner) {
+        openCorners += 1;
+      }
+      if (child.userData?.colonnade) {
+        openPosts += 1;
+      }
+    });
+    chamber.traverse((child) => {
+      if (child.userData?.roundCorner) {
+        boxCorners += 1;
+      }
+    });
+    assert.ok(openCorners >= 4, 'open volume needs round corners');
+    assert.equal(boxCorners, 0);
+    const arcade = spawnEntity({
+      id: 'arc-test',
+      kind: 'arch.arcade',
+      props: { holes: [{ wall: 'south', u: 0 }, { wall: 'north', u: 0 }] },
+    }, catalog);
+    let columns = 0;
+    arcade.traverse((child) => {
+      if (child.userData?.colonnade) {
+        columns += 1;
+      }
+    });
+    assert.ok(columns >= 4, 'arcade needs a colonnade instead of side walls');
+    const kit = readJson('data/kits/haunt-parlor.json');
+    const room = generateRoom({ kit, topology: getTopology('open'), roomId: 'motion-open', exitCount: 2 });
+    assert.equal(room.topologyId, 'open');
+    assert.ok(room.entities.some((entity) => entity.props?.spin));
+    assert.ok(room.entities.some((entity) => entity.kind === 'arch.open'));
+    const shell = room.entities.find((entity) => entity.kind === 'arch.open');
+    assert.ok((shell.props.openWalls ?? []).length >= 1);
   });
 
   it('changes topology when the last four fingerprints match a kit', () => {

@@ -158,6 +158,13 @@ export function tickMaterials(rooms, dt = 0.016) {
   let count = 0;
   for (const room of rooms) {
     room.scene?.traverse((object) => {
+      const spin = object.userData?.spin;
+      if (spin) {
+        object.rotation.x += (spin[0] ?? 0) * dt;
+        object.rotation.y += (spin[1] ?? 0) * dt;
+        object.rotation.z += (spin[2] ?? 0) * dt;
+        count += 1;
+      }
       const scroll = object.userData?.scroll;
       const maps = [object.material?.map, object.material?.roughnessMap, object.material?.normalMap];
       if (!scroll) {

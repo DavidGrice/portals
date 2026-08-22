@@ -9,6 +9,9 @@
     { "id": "loft", "file": "loft.json" },
     { "id": "shaft", "file": "shaft.json" },
     { "id": "rotunda", "file": "rotunda.json" },
-    { "id": "alcove", "file": "alcove.json" }
+    { "id": "alcove", "file": "alcove.json" },
+    { "id": "open", "file": "open.json" },
+    { "id": "arcade", "file": "arcade.json" },
+    { "id": "round", "file": "round.json" }
   ]
 }

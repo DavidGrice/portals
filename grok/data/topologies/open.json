@@ -1,0 +1,22 @@
+{
+  "id": "open",
+  "title": "Terrace",
+  "kind": "arch.open",
+  "tags": ["open", "sky"],
+  "openWalls": ["east", "west"],
+  "roundCorners": true,
+  "ceiling": false,
+  "footprint": { "halfX": 10, "zMin": -9, "zMax": 6, "height": 3.4 },
+  "sockets": [
+    { "id": "entry", "role": "entry", "wall": "south", "u": 0 },
+    { "id": "exit-a", "role": "exit", "wall": "north", "u": 0 },
+    { "id": "exit-b", "role": "exit", "wall": "north", "u": -4.4 },
+    { "id": "exit-c", "role": "exit", "wall": "south", "u": -4.4 }
+  ],
+  "regions": {
+    "entry-left": [-6.4, 0, 3.2],
+    "center": [0, 0, -1],
+    "hearth-wall": [6.2, 0, 2.4],
+    "far-corner": [-6.8, 0, -6.4]
+  }
+}
