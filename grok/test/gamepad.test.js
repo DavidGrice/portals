@@ -30,6 +30,14 @@ describe('gamepad', () => {
     assert.equal(held.start, false);
   });
 
+  it('edges Y as flashlight without strobing a hold', () => {
+    const pad = fakePad({ buttons: { 3: true } });
+    const first = readGamepad(pad, emptyPadButtons());
+    assert.equal(first.flashlight, true);
+    const held = readGamepad(pad, first.pressed);
+    assert.equal(held.flashlight, false);
+  });
+
   it('turns left stick up into forward and right stick into look', () => {
     const pad = fakePad({ axes: [0, -1, 0.8, 0] });
     const next = readGamepad(pad, emptyPadButtons(), { gamepadSensitivity: 0.5 });

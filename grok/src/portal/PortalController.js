@@ -296,7 +296,13 @@ export class PortalController {
 
   _shouldDrawPortal(portal, skipReturnId, viewCamera = this.camera) {
     const destination = portal.destinationPortal;
-    if (!portal.enabled || !destination?.scene) {
+    if (!portal.enabled || portal.userData?.sealed || !destination?.scene) {
+      return false;
+    }
+    if (destination.enabled === false || destination.userData?.sealed) {
+      return false;
+    }
+    if (!this._getRoom(destination.scene)) {
       return false;
     }
     if (destination.portalId === skipReturnId) {

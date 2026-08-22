@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "test": "node --test test/*.test.js",
     "bake-audio": "node scripts/bake-audio.js",
+    "bake-models": "node scripts/bake-models.js",
     "validate-data": "node scripts/validate-world.js && node scripts/validate-audio.js"
   },
   "devDependencies": {

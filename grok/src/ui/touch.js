@@ -11,6 +11,7 @@ export function createTouchState() {
     lookDY: 0,
     jump: false,
     interact: false,
+    flashlight: false,
   };
 }
 
@@ -47,6 +48,14 @@ export function consumeTouchJump(state) {
   return true;
 }
 
+export function consumeTouchFlashlight(state) {
+  if (!state.flashlight) {
+    return false;
+  }
+  state.flashlight = false;
+  return true;
+}
+
 export function applyTouchMove(move, state) {
   if (!state.active) {
     return move;
@@ -66,11 +75,12 @@ export function applyTouchMove(move, state) {
 
 const JOYSTICK_RATIO = 52 / 120;
 
-export function bindTouchControls({ hud, state, onJump, onPause, onInteract }) {
+export function bindTouchControls({ hud, state, onJump, onPause, onInteract, onFlashlight }) {
   const look = document.getElementById('touch-look');
   const joy = document.getElementById('touch-joy');
   const knob = document.getElementById('touch-joy-knob');
   const jump = document.getElementById('touch-jump');
+  const light = document.getElementById('touch-light');
   const interact = document.getElementById('touch-interact');
   const pause = document.getElementById('hud-pause');
 
@@ -175,6 +185,11 @@ export function bindTouchControls({ hud, state, onJump, onPause, onInteract }) {
     event.preventDefault();
     state.jump = true;
     onJump?.();
+  }, { passive: false });
+  light?.addEventListener('touchstart', (event) => {
+    event.preventDefault();
+    state.flashlight = true;
+    onFlashlight?.();
   }, { passive: false });
   interact?.addEventListener('touchstart', (event) => {
     event.preventDefault();

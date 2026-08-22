@@ -4,6 +4,7 @@ import { FrontSide, Scene, PerspectiveCamera, Quaternion, Vector3, Vector4 } fro
 import { FRAME } from '../src/content/prefabs.js';
 import { Portal } from '../src/portal/Portal.js';
 import { PortalController } from '../src/portal/PortalController.js';
+import { sealArrival } from '../src/content/drift.js';
 import { FRONT_INSET, PortalGeometry } from '../src/portal/PortalGeometry.js';
 import { Room } from '../src/portal/Room.js';
 
@@ -348,6 +349,25 @@ describe('portal engine', () => {
     camera.position.set(0, 1, 0.4);
     controller.update();
     camera.position.set(0, 1, -0.05);
+    controller.update();
+    assert.equal(controller.currentRoom.id, 'room-b');
+  });
+
+  it('does not dest-draw a sealed arrival when looking back', () => {
+    const { camera, controller, a, b } = makePair();
+    camera.position.set(0, 1, 0.4);
+    camera.lookAt(0, 1, 0);
+    controller.update();
+    camera.position.set(0, 1, -0.05);
+    controller.update();
+    assert.equal(controller.currentRoom.id, 'room-b');
+    assert.equal(sealArrival(a), true);
+    assert.equal(b.enabled, false);
+    camera.lookAt(b.position);
+    camera.updateMatrixWorld();
+    b.updateMatrixWorld(true);
+    assert.equal(controller._shouldDrawPortal(b, null), false);
+    camera.position.set(0, 1, 0.05);
     controller.update();
     assert.equal(controller.currentRoom.id, 'room-b');
   });

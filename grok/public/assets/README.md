@@ -9,7 +9,7 @@ Original files only. Worlds reference these paths from JSON (`materials.json` `m
 | `textures/shared/` | Generic plaster, metal. |
 | `video/` | In-world loops. Never a portal substitute. |
 | `audio/` | Baked original WAV beds and oneshots (`data/audio.json`). Live synth is the missing-file fallback. |
-| `models/` | Future GLTF dressing. Colliders stay in world JSON. |
+| `models/` | Original low-poly GLTF (`chair`, `trunk`, `column`). Missing file keeps the JSON box collider. |
 | `hdr/` | Future environment maps. |
 
 Keep binaries small. Prefer a material `recipe` until a file is actually needed.

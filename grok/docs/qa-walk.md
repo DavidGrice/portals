@@ -25,7 +25,7 @@ Human acceptance for the 75-item plan. Tests are not a substitute.
 
 Screenshot order should read as time: slick court → dirt court + silhouette → L cave + fire → colonnade → tall nave → machine plus → glass office → white loft → dark hull rotunda.
 
-Walk the two-way chain both directions. Primordial water is a plane, not a portal. Present screen is dest-camera / recipe, not a door.
+Walk the two-way chain both directions. Primordial water is a plane, not a portal. Present screen is dest-camera / recipe, not a door. Reach orbital, **E** the pad, then the gallery jumps centuries without walking the chain.
 
 ## Drift
 

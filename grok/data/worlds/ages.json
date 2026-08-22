@@ -26,16 +26,18 @@
             "zMin": -10,
             "zMax": 6,
             "height": 4.8,
-            "holes": [{ "wall": "north", "u": 0 }]
+            "holes": [{ "wall": "north", "u": 0 }, { "wall": "east", "u": 0 }]
           }
         },
         { "id": "water-primordial", "kind": "prop.water", "position": [0, 0.06, -1], "props": { "width": 6.2, "depth": 6.2, "color": "#0a2428" } },
         { "id": "cube-primordial", "kind": "prop.box", "position": [8.2, 0.5, 2.4], "tags": ["landmark"], "props": { "size": [1.2, 1, 1.2], "color": "#508080" } },
         { "id": "plaque-primordial", "kind": "prop.plaque", "position": [-3.2, 1.6, 5.4], "props": { "color": "#508080", "text": "Primordial", "action": "read" } },
-        { "id": "frame-primordial-fwd", "kind": "arch.frame", "position": [0, 1, -10], "props": { "color": "#508080", "coversPortalId": "door-primordial-mesozoic" } }
+        { "id": "frame-primordial-fwd", "kind": "arch.frame", "position": [0, 1, -10], "props": { "color": "#508080", "coversPortalId": "door-primordial-mesozoic" } },
+        { "id": "frame-primordial-gallery", "kind": "arch.frame", "position": [11, 1, 0], "rotation": [0, -1.5707963267948966, 0], "props": { "color": "#88c0d8", "coversPortalId": "door-primordial-gallery" } }
       ],
       "portals": [
-        { "id": "door-primordial-mesozoic", "position": [0, 1, -10], "yaw": 0, "size": [2, 2], "destinationId": "door-mesozoic-primordial" }
+        { "id": "door-primordial-mesozoic", "position": [0, 1, -10], "yaw": 0, "size": [2, 2], "destinationId": "door-mesozoic-primordial" },
+        { "id": "door-primordial-gallery", "position": [11, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-gallery-primordial" }
       ]
     },
     {
@@ -92,18 +94,20 @@
             "material": "haunt.brick",
             "color": "#4a3020",
             "height": 3.6,
-            "holes": [{ "wall": "south", "u": 0 }, { "wall": "east", "u": 1 }]
+            "holes": [{ "wall": "south", "u": 0 }, { "wall": "east", "u": 1 }, { "wall": "west", "u": 0 }]
           }
         },
         { "id": "hearth-stone", "kind": "prop.hearth", "position": [-3.2, 0, -6.4], "props": { "color": "#3a2820", "ember": "#ff6a22", "intensity": 1.6, "action": "stoke", "text": "The smoke lifts." } },
         { "id": "cube-stone", "kind": "prop.box", "position": [3.2, 0.4, 2], "tags": ["landmark"], "props": { "size": [0.8, 0.8, 0.8], "color": "#c47830" } },
         { "id": "plaque-stone", "kind": "prop.plaque", "position": [2.2, 1.6, 3.4], "props": { "color": "#c47830", "text": "Stone", "action": "read" } },
         { "id": "frame-stone-back", "kind": "arch.frame", "position": [0, 1, 4], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#c48840", "coversPortalId": "door-stone-mesozoic" } },
-        { "id": "frame-stone-fwd", "kind": "arch.frame", "position": [12, 1, 1], "rotation": [0, -1.5707963267948966, 0], "props": { "color": "#d8c090", "coversPortalId": "door-stone-ancient" } }
+        { "id": "frame-stone-fwd", "kind": "arch.frame", "position": [12, 1, 1], "rotation": [0, -1.5707963267948966, 0], "props": { "color": "#d8c090", "coversPortalId": "door-stone-ancient" } },
+        { "id": "frame-stone-gallery", "kind": "arch.frame", "position": [-4, 1, 0], "rotation": [0, 1.5707963267948966, 0], "props": { "color": "#88c0d8", "coversPortalId": "door-stone-gallery" } }
       ],
       "portals": [
         { "id": "door-stone-mesozoic", "position": [0, 1, 4], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-mesozoic-stone" },
-        { "id": "door-stone-ancient", "position": [12, 1, 1], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-ancient-stone" }
+        { "id": "door-stone-ancient", "position": [12, 1, 1], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-ancient-stone" },
+        { "id": "door-stone-gallery", "position": [-4, 1, 0], "yaw": 1.5707963267948966, "size": [2, 2], "destinationId": "door-gallery-stone" }
       ]
     },
     {
@@ -130,6 +134,7 @@
           }
         },
         { "id": "col-a", "kind": "prop.column", "position": [-4.4, 0, 1.4], "props": { "color": "#d4c4a0", "height": 4.6 } },
+        { "id": "model-column-ancient", "kind": "prop.model", "position": [0, 0, 3.4], "props": { "src": "/assets/models/column.gltf", "size": [0.5, 3.4, 0.5], "color": "#d4c4a0" } },
         { "id": "col-b", "kind": "prop.column", "position": [4.4, 0, 1.4], "props": { "color": "#d4c4a0", "height": 4.6 } },
         { "id": "col-c", "kind": "prop.column", "position": [-4.4, 0, -3.2], "props": { "color": "#c8b890", "height": 4.6 } },
         { "id": "col-d", "kind": "prop.column", "position": [4.4, 0, -3.2], "props": { "color": "#c8b890", "height": 4.6 } },
@@ -163,7 +168,7 @@
             "zMin": -10,
             "zMax": 6,
             "height": 6.6,
-            "holes": [{ "wall": "south", "u": 0 }, { "wall": "north", "u": 0 }]
+            "holes": [{ "wall": "south", "u": 0 }, { "wall": "north", "u": 0 }, { "wall": "east", "u": -2 }]
           }
         },
         { "id": "beam-a", "kind": "prop.box", "position": [0, 5.4, -2], "props": { "size": [8.4, 0.22, 0.28], "material": "haunt.attic" } },
@@ -172,11 +177,13 @@
         { "id": "plaque-medieval", "kind": "prop.plaque", "position": [-2.2, 1.7, 5.4], "props": { "color": "#c4a060", "text": "Medieval", "action": "read" } },
         { "id": "point-medieval", "kind": "env.point", "position": [0, 4.6, -1], "props": { "color": "#e0b060", "intensity": 0.9, "distance": 10 } },
         { "id": "frame-medieval-back", "kind": "arch.frame", "position": [0, 1, 6], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#d8c090", "coversPortalId": "door-medieval-ancient" } },
-        { "id": "frame-medieval-fwd", "kind": "arch.frame", "position": [0, 1, -10], "props": { "color": "#6a7068", "coversPortalId": "door-medieval-industrial" } }
+        { "id": "frame-medieval-fwd", "kind": "arch.frame", "position": [0, 1, -10], "props": { "color": "#6a7068", "coversPortalId": "door-medieval-industrial" } },
+        { "id": "frame-medieval-gallery", "kind": "arch.frame", "position": [4.4, 1, -2], "rotation": [0, -1.5707963267948966, 0], "props": { "color": "#88c0d8", "coversPortalId": "door-medieval-gallery" } }
       ],
       "portals": [
         { "id": "door-medieval-ancient", "position": [0, 1, 6], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-ancient-medieval" },
-        { "id": "door-medieval-industrial", "position": [0, 1, -10], "yaw": 0, "size": [2, 2], "destinationId": "door-industrial-medieval" }
+        { "id": "door-medieval-industrial", "position": [0, 1, -10], "yaw": 0, "size": [2, 2], "destinationId": "door-industrial-medieval" },
+        { "id": "door-medieval-gallery", "position": [4.4, 1, -2], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-gallery-medieval" }
       ]
     },
     {
@@ -236,7 +243,7 @@
             "zMin": -7,
             "zMax": 5,
             "height": 3.8,
-            "holes": [{ "wall": "south", "u": 0 }, { "wall": "north", "u": 0 }]
+            "holes": [{ "wall": "south", "u": 0 }, { "wall": "north", "u": 0 }, { "wall": "east", "u": -3 }]
           }
         },
         { "id": "glass-present", "kind": "prop.glass", "position": [6.6, 1.2, 0], "rotation": [0, -1.5707963267948966, 0], "props": { "width": 2.4, "height": 2.2, "color": "#c8dcec" } },
@@ -244,11 +251,13 @@
         { "id": "cube-present", "kind": "prop.box", "position": [3.4, 0.4, 2], "tags": ["landmark"], "props": { "size": [0.7, 0.7, 0.7], "color": "#88a0b0" } },
         { "id": "plaque-present", "kind": "prop.plaque", "position": [2.4, 1.6, 4.4], "props": { "color": "#607080", "text": "Present", "action": "read" } },
         { "id": "frame-present-back", "kind": "arch.frame", "position": [0, 1, 5], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#6a7068", "coversPortalId": "door-present-industrial" } },
-        { "id": "frame-present-fwd", "kind": "arch.frame", "position": [0, 1, -7], "props": { "color": "#b0c4d0", "coversPortalId": "door-present-near-future" } }
+        { "id": "frame-present-fwd", "kind": "arch.frame", "position": [0, 1, -7], "props": { "color": "#b0c4d0", "coversPortalId": "door-present-near-future" } },
+        { "id": "frame-present-gallery", "kind": "arch.frame", "position": [8, 1, -3], "rotation": [0, -1.5707963267948966, 0], "props": { "color": "#88c0d8", "coversPortalId": "door-present-gallery" } }
       ],
       "portals": [
         { "id": "door-present-industrial", "position": [0, 1, 5], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-industrial-present" },
-        { "id": "door-present-near-future", "position": [0, 1, -7], "yaw": 0, "size": [2, 2], "destinationId": "door-near-future-present" }
+        { "id": "door-present-near-future", "position": [0, 1, -7], "yaw": 0, "size": [2, 2], "destinationId": "door-near-future-present" },
+        { "id": "door-present-gallery", "position": [8, 1, -3], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-gallery-present" }
       ]
     },
     {
@@ -302,16 +311,64 @@
             "color": "#2a3038",
             "radius": 8,
             "height": 5.2,
-            "holes": [{ "wall": "south", "u": 0 }]
+            "holes": [{ "wall": "south", "u": 0 }, { "wall": "east", "u": 0 }]
           }
         },
         { "id": "ring-orbital", "kind": "prop.box", "position": [0, 3.4, 0], "props": { "size": [10, 0.12, 10], "material": "ages.hull" } },
         { "id": "cube-orbital", "kind": "prop.box", "position": [0, 0.5, 0], "tags": ["landmark"], "props": { "size": [0.9, 1, 0.9], "color": "#88c0d8" } },
         { "id": "plaque-orbital", "kind": "prop.plaque", "position": [3.2, 1.6, 4.4], "props": { "color": "#88c0d8", "text": "Orbital", "action": "read" } },
-        { "id": "frame-orbital-back", "kind": "arch.frame", "position": [0, 1, 7.4], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#6a8090", "coversPortalId": "door-orbital-near-future" } }
+        { "id": "pad-gallery", "kind": "interact.pad", "position": [2.4, 0.04, 2.2], "props": { "color": "#88c0d8", "action": "unlock", "portalId": "door-orbital-gallery", "text": "The gallery of ages unseals." } },
+        { "id": "frame-orbital-back", "kind": "arch.frame", "position": [0, 1, 7.4], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#6a8090", "coversPortalId": "door-orbital-near-future" } },
+        { "id": "frame-orbital-gallery", "kind": "arch.frame", "position": [7.4, 1, 0], "rotation": [0, -1.5707963267948966, 0], "props": { "color": "#88c0d8", "coversPortalId": "door-orbital-gallery" } }
       ],
       "portals": [
-        { "id": "door-orbital-near-future", "position": [0, 1, 7.4], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-near-future-orbital" }
+        { "id": "door-orbital-near-future", "position": [0, 1, 7.4], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-near-future-orbital" },
+        { "id": "door-orbital-gallery", "position": [7.4, 1, 0], "yaw": -1.5707963267948966, "size": [2, 2], "destinationId": "door-gallery-orbital", "enabled": false }
+      ]
+    },
+    {
+      "id": "gallery",
+      "title": "Gallery of ages",
+      "tags": ["interior", "ages", "gallery"],
+      "origin": [2250, 0, 0],
+      "clearColor": "#121418",
+      "entities": [
+        { "id": "sky-gallery", "kind": "env.sky", "props": { "color": "#121418" } },
+        { "id": "light-gallery", "kind": "env.light", "props": { "ambient": "#1a1c22", "sun": "#c8d0d8", "sunIntensity": 0.4 } },
+        { "id": "floor-gallery", "kind": "env.floor", "props": { "material": "shared.stone", "size": 32 } },
+        {
+          "id": "shell-gallery",
+          "kind": "arch.chamber",
+          "props": {
+            "material": "shared.stone",
+            "color": "#2a2c32",
+            "halfX": 12,
+            "zMin": -6,
+            "zMax": 6,
+            "height": 4.6,
+            "holes": [
+              { "wall": "south", "u": 0 },
+              { "wall": "north", "u": -8 },
+              { "wall": "north", "u": -4 },
+              { "wall": "north", "u": 0 },
+              { "wall": "north", "u": 4 }
+            ]
+          }
+        },
+        { "id": "plaque-gallery", "kind": "prop.plaque", "position": [-6.4, 1.7, 5.4], "props": { "color": "#c8d0d8", "text": "Jump any century.", "action": "read" } },
+        { "id": "rug-gallery", "kind": "prop.rug", "position": [0, 0.02, 0], "props": { "material": "haunt.velvet", "width": 3.2, "depth": 8 } },
+        { "id": "frame-gallery-orbital", "kind": "arch.frame", "position": [0, 1, 6], "rotation": [0, 3.141592653589793, 0], "props": { "color": "#88c0d8", "coversPortalId": "door-gallery-orbital" } },
+        { "id": "frame-gallery-primordial", "kind": "arch.frame", "position": [-8, 1, -6], "props": { "color": "#508080", "coversPortalId": "door-gallery-primordial" } },
+        { "id": "frame-gallery-stone", "kind": "arch.frame", "position": [-4, 1, -6], "props": { "color": "#c47830", "coversPortalId": "door-gallery-stone" } },
+        { "id": "frame-gallery-medieval", "kind": "arch.frame", "position": [0, 1, -6], "props": { "color": "#c4a060", "coversPortalId": "door-gallery-medieval" } },
+        { "id": "frame-gallery-present", "kind": "arch.frame", "position": [4, 1, -6], "props": { "color": "#88a0b0", "coversPortalId": "door-gallery-present" } }
+      ],
+      "portals": [
+        { "id": "door-gallery-orbital", "position": [0, 1, 6], "yaw": 3.141592653589793, "size": [2, 2], "destinationId": "door-orbital-gallery" },
+        { "id": "door-gallery-primordial", "position": [-8, 1, -6], "yaw": 0, "size": [2, 2], "destinationId": "door-primordial-gallery" },
+        { "id": "door-gallery-stone", "position": [-4, 1, -6], "yaw": 0, "size": [2, 2], "destinationId": "door-stone-gallery" },
+        { "id": "door-gallery-medieval", "position": [0, 1, -6], "yaw": 0, "size": [2, 2], "destinationId": "door-medieval-gallery" },
+        { "id": "door-gallery-present", "position": [4, 1, -6], "yaw": 0, "size": [2, 2], "destinationId": "door-present-gallery" }
       ]
     }
   ]

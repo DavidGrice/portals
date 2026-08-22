@@ -10,7 +10,20 @@ Topologies live in `data/topologies/` (`I`, `L`, `T`, `plus`, `U`, `court`, `lof
 
 Volume kinds: `arch.corridor` (Four halls only), `arch.chamber`, `arch.wing`, `arch.court`, `arch.loft`, `arch.shaft`, `arch.rotunda`, `arch.plus`. Sockets punch holes in those volumes. Portals sit in the holes.
 
-Authored Circuit Grid is a plus hub with a wide cyan runway, a tight red throat, a blue loft, a shaft well, a race-ribbon court, and a locked gold vault (core pad arms key A, cyan pad unseals). The Ages is a two-way chain of nine distinct volumes: primordial court + water, mesozoic court + fauna, stone L + hearth, ancient colonnade, medieval nave, industrial plus + pipes, present glass office, near-future loft, orbital rotunda.
+Authored Circuit Grid is a plus hub with a wide cyan runway, a tight red throat, a blue loft, a shaft well, a race-ribbon court, and a locked gold vault (core pad arms key A, cyan pad unseals). The Ages is a two-way chain of nine distinct volumes: primordial court + water, mesozoic court + fauna, stone L + hearth, ancient colonnade, medieval nave, industrial plus + pipes, present glass office, near-future loft, orbital rotunda. After the nine, an orbital pad unseals a **gallery of ages** with framed jump doors.
+
+### Performance budget
+
+| Cap | Value |
+| --- | --- |
+| Drift `maxLiveRooms` | 6 (`data/generators/drift.json`) |
+| Motes | 128 budget; Performance draws 0 |
+| Local `env.point` / `env.spot` | hidden on Performance |
+| Dest-camera strip | debug only, off on Performance |
+| Flashlight | still toggles; Performance shortens range |
+| Audio | file loop + quiet synth; mute stops both |
+
+Texture maps live under `public/assets/textures/` with recipe fallback. GLTF dressing under `public/assets/models/`; missing file keeps the JSON collider box.
 
 ## Principles
 

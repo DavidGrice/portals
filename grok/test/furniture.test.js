@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PerspectiveCamera } from 'three';
-import { spawnEntity } from '../src/content/prefabs.js';
+import { Group, Mesh, PerspectiveCamera } from 'three';
+import { hydrateModel, spawnEntity } from '../src/content/prefabs.js';
 import { buildMaterial, hydrateMaterialMaps, resolveMaterial } from '../src/content/materials.js';
 import { loadWorld } from '../src/content/loadWorld.js';
 
@@ -123,5 +123,26 @@ describe('haunt furniture and textures', () => {
     assert.ok(kinds.has('prop.rug'));
     assert.equal(controller.getPortal('door-pa').enabled, false);
     assert.ok(!kinds.has('arch.corridor') || shells.foyer !== 'corridor');
+    assert.ok(kinds.has('prop.model'));
+  });
+
+  it('keeps a GLTF box fallback and collider when the file is missing', async () => {
+    const catalog = readJson('data/catalog.json');
+    const object = spawnEntity({
+      id: 'model-missing',
+      kind: 'prop.model',
+      props: { src: '/assets/models/nope.gltf', size: [1, 1, 1] },
+    }, catalog);
+    const proxy = object.children.find((child) => child.userData?.modelProxy);
+    assert.ok(proxy.userData.collider);
+    const failed = await hydrateModel(object, { load: async () => { throw new Error('missing'); } });
+    assert.equal(failed, false);
+    assert.equal(proxy.visible, true);
+    const fake = new Group();
+    fake.add(new Mesh());
+    const ok = await hydrateModel(object, { load: async () => fake });
+    assert.equal(ok, true);
+    assert.equal(proxy.visible, false);
+    assert.ok(proxy.userData.collider);
   });
 });

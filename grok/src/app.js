@@ -22,7 +22,7 @@ import { createSession } from './game/session.js';
 import { loadSave, poseFromSession, writeSave } from './content/save.js';
 import { bindOptions, refreshHud } from './ui/options.js';
 import { bindWorldSelect, getWorldData } from './ui/worlds.js';
-import { applyTouchMove, bindTouchControls, consumeTouchInteract, consumeTouchJump, consumeTouchLook, createTouchState, detectTouch } from './ui/touch.js';
+import { applyTouchMove, bindTouchControls, consumeTouchFlashlight, consumeTouchInteract, consumeTouchJump, consumeTouchLook, createTouchState, detectTouch } from './ui/touch.js';
 
 export const APP_STATES = {
   menu: 'menu',
@@ -97,6 +97,11 @@ export function createApp({
     },
     onPause: pause,
     onInteract: tryInteract,
+    onFlashlight: () => {
+      if (state === APP_STATES.playing) {
+        toggleFlashlight();
+      }
+    },
   });
 
   refreshHud(settings);
@@ -604,6 +609,9 @@ export function createApp({
       if (consumeTouchInteract(touch) || pad.interact) {
         tryInteract();
       }
+      if (consumeTouchFlashlight(touch) || pad.flashlight) {
+        toggleFlashlight();
+      }
       if (pad.start) {
         pause();
       }
@@ -646,7 +654,7 @@ export function createApp({
       controller: session.controller,
       renderer: session.renderer,
       root: destStrip,
-      enabled: debugEnabled() && state !== APP_STATES.menu,
+      enabled: debugEnabled() && settings.profile !== 'performance' && state !== APP_STATES.menu,
       dt,
     });
 

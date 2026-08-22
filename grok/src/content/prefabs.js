@@ -938,15 +938,11 @@ export const prefabs = {
     );
     proxy.castShadow = true;
     proxy.userData.collider = { type: 'aabb' };
+    proxy.userData.modelProxy = true;
     group.add(proxy);
-    group.userData.model = { src: entity.props?.src ?? null };
+    group.userData.model = { src: entity.props?.src ?? null, size };
     if (entity.props?.src && typeof document !== 'undefined') {
-      import('three/addons/loaders/GLTFLoader.js').then(({ GLTFLoader }) => {
-        new GLTFLoader().load(entity.props.src, (gltf) => {
-          proxy.visible = false;
-          group.add(gltf.scene);
-        });
-      }).catch(() => {});
+      hydrateModel(group).catch(() => {});
     }
     return group;
   },
@@ -1009,6 +1005,34 @@ function addOpeningWall(group, material, { z, halfX, height, thickness, holeWidt
   addBox(group, material, halfX - sideWidth * 0.5, height * 0.5, z, sideWidth, height, thickness);
   const lintel = Math.max(height - holeHeight, 0.08);
   addBox(group, material, 0, holeHeight + lintel * 0.5, z, holeWidth, lintel, thickness);
+}
+
+export async function hydrateModel(group, { load } = {}) {
+  const src = group?.userData?.model?.src;
+  if (!src) {
+    return false;
+  }
+  const proxy = group.children.find((child) => child.userData?.modelProxy);
+  try {
+    const scene = load
+      ? await load(src)
+      : await import('three/addons/loaders/GLTFLoader.js').then(({ GLTFLoader }) => new Promise((resolve, reject) => {
+        new GLTFLoader().load(src, (gltf) => resolve(gltf.scene), undefined, reject);
+      }));
+    if (!scene) {
+      return false;
+    }
+    if (proxy) {
+      proxy.visible = false;
+    }
+    group.add(scene);
+    return true;
+  } catch {
+    if (proxy) {
+      proxy.visible = true;
+    }
+    return false;
+  }
 }
 
 export function spawnEntity(entity, catalog) {

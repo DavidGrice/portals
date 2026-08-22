@@ -209,7 +209,7 @@ describe('world data', () => {
     const catalog = readJson('data/catalog.json');
     const camera = new PerspectiveCamera(60, 1, 0.05, 100);
     const controller = loadWorld(world, catalog, camera, mockRenderer());
-    assert.equal(world.rooms.length, 9);
+    assert.equal(world.rooms.length, 10);
     const kinds = {};
     for (const room of controller.rooms) {
       room.scene.traverse((object) => {
@@ -238,6 +238,40 @@ describe('world data', () => {
     assert.ok(npcs >= 1);
     assert.equal(bedForRoom(controller.rooms.find((room) => room.id === 'primordial')), 'agesPrimordial');
     assert.equal(bedForRoom(controller.rooms.find((room) => room.id === 'industrial')), 'agesIndustrial');
+    assert.equal(kinds.gallery, 'chamber');
+    assert.equal(controller.getPortal('door-orbital-gallery').enabled, false);
+    assert.equal(controller.getPortal('door-gallery-primordial').destinationId, 'door-primordial-gallery');
+    const pad = [];
+    controller.rooms.find((room) => room.id === 'orbital').scene.traverse((object) => {
+      if (object.userData?.interact?.portalId === 'door-orbital-gallery') {
+        pad.push(object);
+      }
+    });
+    assert.equal(pad.length, 1);
+  });
+
+  it('hides local lights on the performance profile', () => {
+    const world = readJson('data/worlds/circuit-grid.json');
+    const catalog = readJson('data/catalog.json');
+    const camera = new PerspectiveCamera(60, 1, 0.05, 100);
+    const controller = loadWorld(world, catalog, camera, mockRenderer());
+    const performance = GraphicsSettings.fromProfile('performance');
+    performance.apply({ controller });
+    let local = 0;
+    let hidden = 0;
+    for (const room of controller.rooms) {
+      room.scene.traverse((object) => {
+        if (!object.userData.localLight) {
+          return;
+        }
+        local += 1;
+        if (!object.visible) {
+          hidden += 1;
+        }
+      });
+    }
+    assert.ok(local >= 1);
+    assert.equal(hidden, local);
   });
 });
 
