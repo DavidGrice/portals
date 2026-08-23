@@ -149,6 +149,15 @@ describe('Littrow', () => {
     assert.ok(world.rooms.every((room) => !(room.portals ?? []).some((portal) => portal.enabled === false)));
     const origins = world.rooms.map((room) => room.origin.join(','));
     assert.equal(new Set(origins).size, world.rooms.length);
+    const labs = controller.rooms.find((room) => room.id === 'rotunda');
+    controller.setCurrentScene('rotunda');
+    assert.ok(labs.portals.length >= 5);
+    assert.equal(controller.recursionBudget(), 1);
+    assert.ok(!labs.gratings.length);
+    const diodes = controller.rooms.find((room) => room.id === 'diodes');
+    assert.ok(diodes.lasers.some((laser) => laser.userData.laser.enabled && laser.userData.laser.lambdaNm === 532));
+    const hydrogen = controller.rooms.find((room) => room.id === 'hydrogen');
+    assert.ok(hydrogen.lasers[0].userData.laser.enabled);
   });
 
   it('locks the collimator card and keeps 532 nm first order at 18.6 deg', () => {

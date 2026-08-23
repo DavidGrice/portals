@@ -115,8 +115,7 @@ export function createApp({
     document.documentElement.dataset.webgpu = capabilities.webgpu ? 'yes' : 'no';
     const gpuLine = document.getElementById('opt-gpu');
     if (gpuLine) {
-      const adapter = capabilities.adapterLabel ? ` · ${capabilities.adapterLabel}` : '';
-      gpuLine.textContent = `${capabilities.reason}${adapter}`;
+      gpuLine.textContent = capabilities.summary ?? capabilities.reason;
     }
     console.info('portals-grok capabilities', capabilities);
   });
@@ -656,10 +655,10 @@ export function createApp({
       return [];
     }
     const rooms = [current];
-    for (const portal of current.portals ?? []) {
-      const destScene = portal.destinationPortal?.scene;
-      const dest = destScene && session.controller.rooms.find((entry) => entry.scene === destScene);
-      if (dest && !rooms.includes(dest)) {
+    const dests = session.controller.visibleDestRooms?.(session.camera)
+      ?? [];
+    for (const dest of dests) {
+      if (!rooms.includes(dest)) {
         rooms.push(dest);
       }
     }

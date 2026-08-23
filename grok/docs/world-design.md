@@ -190,5 +190,5 @@ Hub option (later): a “gallery of doors” room whose portals are the eras, so
 | 5 | Optional PNG/HDR/video files behind the same material ids | done (recipe fallback) |
 | 6 | GLTF dressing + collider JSON | parked with NPCs |
 | 7 | Littrow experimental hall + grating card | done (not a puzzle) |
-| 8 | WebGPU as a door substitute | parked (stencil stays WebGL) |
+| 8 | WebGPU as a door substitute | parked (probe in Options; stencil stays WebGL) |
 | 9 | Multiplayer | last / parked |

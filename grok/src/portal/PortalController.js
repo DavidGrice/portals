@@ -393,8 +393,39 @@ export class PortalController {
     this.lastDrawInfo.destCam = null;
     this.lastDrawInfo.clip = 'none';
     this.renderer.clear(true, true, true);
-    this._renderLevel(this._currentScene, this._currentScenePortals, 0, this.maxRecursion, null, null, this.camera, null);
+    this._renderLevel(
+      this._currentScene,
+      this._currentScenePortals,
+      0,
+      this.recursionBudget(),
+      null,
+      null,
+      this.camera,
+      null,
+    );
     this._bindStencil([]);
+  }
+
+  recursionBudget() {
+    const count = this._currentScenePortals?.length ?? 0;
+    if (count >= 5) {
+      return Math.min(this.maxRecursion, 1);
+    }
+    return this.maxRecursion;
+  }
+
+  visibleDestRooms(viewCamera = this.camera) {
+    const rooms = [];
+    for (const portal of this._currentScenePortals ?? []) {
+      if (!this._shouldDrawPortal(portal, this._ignorePortalId, viewCamera)) {
+        continue;
+      }
+      const dest = this._getRoom(portal.destinationPortal?.scene);
+      if (dest && !rooms.includes(dest)) {
+        rooms.push(dest);
+      }
+    }
+    return rooms;
   }
 
   _renderLevel(scene, portals, level, maxDepth, hideFrameForPortalId, skipReturnId, viewCamera, destClipPlane) {

@@ -36,7 +36,7 @@ export async function probeCapabilities() {
     }
   }
 
-  return {
+  const caps = {
     webgpuApi,
     webgpu: Boolean(adapter),
     features,
@@ -48,4 +48,16 @@ export async function probeCapabilities() {
         ? 'WebGPU API present but no adapter. Portal stencil runs on WebGL.'
         : 'WebGPU not available. Portal stencil runs on WebGL.',
   };
+  caps.summary = formatCapabilities(caps);
+  return caps;
+}
+
+export function formatCapabilities(caps = {}) {
+  const gpu = caps.webgpu
+    ? 'WebGPU adapter ready'
+    : caps.webgpuApi
+      ? 'WebGPU API, no adapter'
+      : 'No WebGPU';
+  const adapter = caps.adapterLabel ? ` (${caps.adapterLabel})` : '';
+  return `${gpu}${adapter}. Doors stay WebGL stencil — WebGPU cannot replace them. Multiplayer is last.`;
 }

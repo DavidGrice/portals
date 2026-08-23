@@ -33,7 +33,7 @@ export { findInteract, runInteract } from './interact.js';
 export { attachGadgets, collectScreens, listDestViews, tickDestStrip, tickScreens } from './gadgets.js';
 export { Player } from './Player.js';
 export { FLASHLIGHT, Flashlight } from './flashlight.js';
-export { createPortalRenderer, probeCapabilities } from './capabilities.js';
+export { createPortalRenderer, formatCapabilities, probeCapabilities } from './capabilities.js';
 export { emergeDistance, isFloorPortal, isOverFloorPortal } from '../portal/portalPose.js';
 export { Portal } from '../portal/Portal.js';
 export { PortalController } from '../portal/PortalController.js';
