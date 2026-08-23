@@ -16,6 +16,26 @@ export const FLASHLIGHT = {
   performanceFill: 1.6,
 };
 
+function makeSpot({ intensity = 0, distance = FLASHLIGHT.distance, angle = FLASHLIGHT.angle } = {}) {
+  const light = new SpotLight(FLASHLIGHT.color, intensity, distance, angle, FLASHLIGHT.penumbra, FLASHLIGHT.decay);
+  light.name = 'flashlight';
+  light.castShadow = false;
+  light.visible = true;
+  light.userData.noCollider = true;
+  light.userData.flashlight = true;
+  light.target.userData.noCollider = true;
+  return light;
+}
+
+function makeFill() {
+  const fill = new PointLight(FLASHLIGHT.color, 0, FLASHLIGHT.fillDistance, 2);
+  fill.name = 'flashlight-fill';
+  fill.visible = true;
+  fill.userData.noCollider = true;
+  fill.userData.flashlight = true;
+  return fill;
+}
+
 export class Flashlight {
   constructor(camera, {
     intensity = FLASHLIGHT.intensity,
@@ -26,40 +46,70 @@ export class Flashlight {
     this.enabled = false;
     this.baseIntensity = intensity;
     this.fillIntensity = FLASHLIGHT.fillIntensity;
-    this.light = new SpotLight(FLASHLIGHT.color, 0, distance, angle, FLASHLIGHT.penumbra, FLASHLIGHT.decay);
-    this.light.name = 'flashlight';
-    this.light.castShadow = false;
-    this.light.userData.noCollider = true;
-    this.light.userData.flashlight = true;
-    this.light.target.userData.noCollider = true;
-    this.fill = new PointLight(FLASHLIGHT.color, 0, FLASHLIGHT.fillDistance, 2);
-    this.fill.name = 'flashlight-fill';
-    this.fill.userData.noCollider = true;
-    this.fill.userData.flashlight = true;
+    this.fixtures = new Map();
+    this.scene = null;
+    this.light = makeSpot({ intensity: 0, distance, angle });
+    this.fill = makeFill();
+  }
+
+  fixture(scene) {
+    if (!scene) {
+      return null;
+    }
+    let entry = this.fixtures.get(scene);
+    if (!entry) {
+      const owned = !this.light.parent;
+      const light = owned ? this.light : makeSpot({
+        distance: this.light.distance,
+        angle: this.light.angle,
+      });
+      const fill = owned ? this.fill : makeFill();
+      fill.distance = this.fill.distance;
+      scene.add(light);
+      scene.add(light.target);
+      scene.add(fill);
+      entry = { light, fill };
+      this.fixtures.set(scene, entry);
+    }
+    return entry;
+  }
+
+  install(scenes = []) {
+    for (const scene of scenes) {
+      this.fixture(scene);
+    }
+    return this;
   }
 
   attach(scene) {
     if (!scene) {
       return this;
     }
-    if (this.light.parent && this.light.parent !== scene) {
-      this.light.parent.remove(this.light);
-      this.light.target.parent?.remove(this.light.target);
-      this.fill.parent?.remove(this.fill);
+    if (this.scene && this.scene !== scene) {
+      const previous = this.fixtures.get(this.scene);
+      if (previous) {
+        previous.light.intensity = 0;
+        previous.fill.intensity = 0;
+      }
     }
-    if (this.light.parent !== scene) {
-      scene.add(this.light);
-      scene.add(this.light.target);
-      scene.add(this.fill);
-    }
+    const entry = this.fixture(scene);
+    this.scene = scene;
+    this.light = entry.light;
+    this.fill = entry.fill;
     this.apply();
     return this;
   }
 
   detach() {
-    this.light.parent?.remove(this.light);
-    this.light.target.parent?.remove(this.light.target);
-    this.fill.parent?.remove(this.fill);
+    for (const [scene, entry] of this.fixtures) {
+      entry.light.intensity = 0;
+      entry.fill.intensity = 0;
+      scene.remove(entry.light);
+      scene.remove(entry.light.target);
+      scene.remove(entry.fill);
+    }
+    this.fixtures.clear();
+    this.scene = null;
     return this;
   }
 
@@ -84,9 +134,16 @@ export class Flashlight {
 
   applyProfile(profileId) {
     const performance = profileId === 'performance';
-    this.light.distance = performance ? FLASHLIGHT.performanceDistance : FLASHLIGHT.distance;
+    const distance = performance ? FLASHLIGHT.performanceDistance : FLASHLIGHT.distance;
+    this.light.distance = distance;
     this.baseIntensity = performance ? FLASHLIGHT.performanceIntensity : FLASHLIGHT.intensity;
     this.fillIntensity = performance ? FLASHLIGHT.performanceFill : FLASHLIGHT.fillIntensity;
+    this.fill.distance = performance ? Math.min(FLASHLIGHT.fillDistance, 3.4) : FLASHLIGHT.fillDistance;
+    for (const entry of this.fixtures.values()) {
+      entry.light.distance = this.light.distance;
+      entry.light.castShadow = false;
+      entry.fill.distance = this.fill.distance;
+    }
     this.light.castShadow = false;
     this.apply();
     return this;

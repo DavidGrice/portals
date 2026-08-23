@@ -114,16 +114,16 @@ const fragmentShader = /* glsl */ `
     float cosI = clamp(dot(toward, n), -1.0, 1.0);
     float thetaI = sign(dot(toward, tangent)) * acos(cosI);
     float d = 0.001 / max(uLinesPerMm, 1.0);
-    int samples = uLightLambdaNm > 0.0 ? 1 : 11;
-    for (int s = 0; s < 11; s += 1) {
+    int samples = uLightLambdaNm > 0.0 ? 1 : 6;
+    for (int s = 0; s < 6; s += 1) {
       if (s >= samples) {
         break;
       }
-      float nm = uLightLambdaNm > 0.0 ? uLightLambdaNm : mix(400.0, 700.0, float(s) / 10.0);
+      float nm = uLightLambdaNm > 0.0 ? uLightLambdaNm : mix(400.0, 700.0, float(s) / 5.0);
       float lambda = nm * 1e-9;
       vec3 rgb = wavelengthRgb(nm);
       float weight = max(uLightOn, 0.35) * (uLightLambdaNm > 0.0 ? 1.35 : 0.55);
-      for (int m = -3; m <= 3; m += 1) {
+      for (int m = -2; m <= 2; m += 1) {
         float thetaM;
         if (m == 0) {
           thetaM = uMode > 0.5 ? thetaI : -thetaI;

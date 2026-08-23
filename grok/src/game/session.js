@@ -75,8 +75,9 @@ export function createSession({
     });
     const gadgets = attachGadgets(controller);
     const flashlight = new Flashlight(nextCamera);
-    flashlight.applyProfile(nextSettings.profile);
+    flashlight.install(controller.rooms.map((room) => room.scene));
     flashlight.attach(controller.currentRoom?.scene);
+    flashlight.applyProfile(nextSettings.profile);
 
     nextSettings.apply({
       camera: nextCamera,

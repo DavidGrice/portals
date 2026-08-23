@@ -171,6 +171,18 @@ export function indexRoomOptics(room) {
   room.slits = slits;
   room.shutters = shutters;
   room.orderBeams = room.orderBeams ?? [];
+  if (lasers.length) {
+    let need = 2;
+    for (const laser of lasers) {
+      const lines = laser.userData.laser.lines;
+      need += lines?.length ? 2 + lines.length * 2 : 8;
+    }
+    need = Math.min(24, need);
+    for (let i = 0; i < need; i += 1) {
+      const mesh = ensureBeam(room, i);
+      mesh.visible = false;
+    }
+  }
   return room;
 }
 
@@ -602,7 +614,7 @@ function emitOrders(room, grating, laser, incident, beamIndex, hits, controller,
     bins = bins.filter((nm) => nm >= spec.filterBand[0] && nm <= spec.filterBand[1]);
   }
   const converters = (room.detectors ?? []).map((entry) => entry.userData.detector?.convert).filter(Boolean);
-  const mMax = spec.mMax ?? 2;
+  const mMax = spec.mMax ?? (lineList?.length > 1 ? 1 : 2);
   const mMin = spec.mMin != null ? spec.mMin : -mMax;
   const thetaB = fromDeg(spec.blazeDeg ?? 0);
   let index = beamIndex;

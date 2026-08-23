@@ -147,6 +147,8 @@ describe('Littrow', () => {
     assert.equal(controller.getPortal('door-rowland-disc').enabled, true);
     assert.equal(controller.getPortal('door-slit-vault').enabled, true);
     assert.ok(world.rooms.every((room) => !(room.portals ?? []).some((portal) => portal.enabled === false)));
+    const origins = world.rooms.map((room) => room.origin.join(','));
+    assert.equal(new Set(origins).size, world.rooms.length);
   });
 
   it('locks the collimator card and keeps 532 nm first order at 18.6 deg', () => {

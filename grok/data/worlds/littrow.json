@@ -525,7 +525,7 @@
       "id": "hydrogen",
       "title": "Balmer",
       "tags": ["interior", "cyber", "optics", "grating"],
-      "origin": [0, 0, 500],
+      "origin": [0, 0, 1000],
       "clearColor": "#100408",
       "atmosphere": { "density": 0.2 },
       "entities": [

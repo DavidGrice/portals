@@ -23,17 +23,24 @@ describe('flashlight', () => {
     assert.equal(light.fill.visible, true);
   });
 
-  it('reparents onto the current room scene', () => {
+  it('keeps a fixture in each room so travel does not add or remove lights', () => {
     const camera = new PerspectiveCamera();
     const first = new Scene();
     const second = new Scene();
     const light = new Flashlight(camera);
+    light.setEnabled(true);
     light.attach(first);
-    assert.equal(light.light.parent, first);
+    const firstSpot = light.light;
+    const firstFill = light.fill;
+    assert.equal(firstSpot.parent, first);
     light.attach(second);
+    assert.equal(firstSpot.parent, first);
+    assert.equal(firstFill.parent, first);
+    assert.equal(firstSpot.intensity, 0);
     assert.equal(light.light.parent, second);
-    assert.equal(light.light.target.parent, second);
     assert.equal(light.fill.parent, second);
+    assert.ok(light.light.intensity > 0);
+    assert.equal(first.children.includes(firstSpot), true);
   });
 
   it('shortens the beam on the performance profile', () => {
