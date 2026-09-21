@@ -5,20 +5,13 @@ import { GraphicsSettings, probeCapabilities } from './engine/index.js';
 import { applyLook } from './engine/look.js';
 import { emptyPadButtons, firstGamepad, readGamepad } from './engine/gamepad.js';
 import { findInteract, runInteract } from './engine/interact.js';
-import { nearestFireDistance, spawnCrossBurst, tickAtmosphere, tickNpcs } from './engine/atmosphere.js';
+import { nearestFireDistance, spawnCrossBurst } from './engine/atmosphere.js';
 import { doorTheme, gameAudio, surfaceForRoom } from './engine/audio.js';
 import { tickDestStrip, tickScreens } from './engine/index.js';
-import {
-  disposeRejectedSiblings,
-  evictBehind,
-  ensureForwardDoors,
-  kitsForDepth,
-  liveDestExits,
-  logDriftEndRoom,
-  sealArrival,
-} from './content/drift.js';
-import { tickMaterials } from './content/materials.js';
-import { tickOptics } from './optics/tickOptics.js';
+import { onDriftCross, onDriftEnter } from './content/driftSession.js';
+import { tickFeatures } from './features/registry.js';
+import { interactHint } from './ui/hints.js';
+import { compileNearRooms } from './game/compileRooms.js';
 import { createSession } from './game/session.js';
 import { loadSave, poseFromSession, writeSave } from './content/save.js';
 import { bindOptions, refreshHud } from './ui/options.js';
@@ -471,49 +464,6 @@ export function createApp({
     }, 1500);
   }
 
-  function interactHint(spec) {
-    if (spec?.action === 'unlock') {
-      return 'E  Unseal door';
-    }
-    if (spec?.action === 'launch') {
-      return 'E  Jump';
-    }
-    if (spec?.action === 'read') {
-      return 'E  Read';
-    }
-    if (spec?.action === 'stoke') {
-      return 'E  Stoke';
-    }
-    if (spec?.action === 'toggle') {
-      return 'E  Toggle';
-    }
-    if (spec?.action === 'arm-laser') {
-      return spec.text ? `E  ${spec.text}` : 'E  Arm laser';
-    }
-    if (spec?.action === 'cycle-options') {
-      return spec.text ? `E  ${spec.text}` : 'E  Change options';
-    }
-    if (spec?.action === 'set-mode') {
-      return 'E  Reflect / transmit';
-    }
-    if (spec?.action === 'kill-laser') {
-      return 'E  Beam off';
-    }
-    if (spec?.action === 'set-slit') {
-      return 'E  Cycle slit';
-    }
-    if (spec?.action === 'flip-blaze') {
-      return 'E  Flip blaze';
-    }
-    if (spec?.action === 'tilt-cross') {
-      return 'E  Tilt cross-dispersion';
-    }
-    if (spec?.action === 'confirm-blaze' || spec?.action === 'confirm-evanescent' || spec?.action === 'identify-lamp') {
-      return spec.text ? `E  ${spec.text}` : 'E  Confirm';
-    }
-    return spec?.text ? `E  ${spec.text}` : 'E  Look';
-  }
-
   function updateInteractHud() {
     const hintNode = document.getElementById('interact-hint');
     const visible = Boolean(nearbyInteract);
@@ -544,51 +494,15 @@ export function createApp({
     const offEnter = next.controller.on('room:enter', ({ room, roomId }) => {
       gameAudio.startBed(room ?? roomId);
       showRoomTitle(room?.title || roomId);
-      if (next.controller.drift) {
-        const depth = room.depth ?? next.controller.drift.depth ?? 0;
-        next.controller.drift.depth = depth;
-        const lookArgs = {
-          catalog: catalogData,
-          kits: kitsForDepth(depth + 1),
-          seed: next.controller.drift.seed,
-          depth,
-          room,
-        };
-        const firstSpawn = ensureForwardDoors(next.controller, lookArgs);
-        const evicted = evictBehind(next.controller);
-        const refill = ensureForwardDoors(next.controller, lookArgs);
-        const live = liveDestExits(room, next.controller);
-        console.log('[drift] enter', {
-          seed: next.controller.drift.seed,
-          depth,
-          room: roomId,
-          kit: room.kitId ?? null,
-          topology: room.topologyId ?? null,
-          liveDests: live.length,
-          spawned: firstSpawn.length + refill.length,
-          evicted,
-          doors: live.map((portal) => ({
-            id: portal.portalId,
-            dest: portal.destinationPortal?.portalId ?? null,
-            x: Number(portal.position.x.toFixed(2)),
-            z: Number(portal.position.z.toFixed(2)),
-          })),
-        });
-        if (live.length < 1) {
-          logDriftEndRoom(next.controller, {
-            room,
-            spawned: firstSpawn.map((entry) => entry.id),
-            refilled: refill.map((entry) => entry.id),
-            evicted,
-            kits: (lookArgs.kits ?? []).map((kit) => kit.id),
-          });
-        }
+      const driftEnter = onDriftEnter(next, { room, roomId, catalog: catalogData, settings });
+      if (driftEnter) {
         const banner = document.getElementById('room-banner');
         if (banner) {
-          banner.textContent = `${room?.title || roomId} · ${depth} · ${next.controller.drift.seed}`;
+          banner.textContent = `${room?.title || roomId} · ${driftEnter.depth} · ${next.controller.drift.seed}`;
         }
       }
       next.flashlight?.attach(room?.scene);
+      compileNearRooms(next);
       if (next.gadgets && next.renderer && settings.profile !== 'performance') {
         tickScreens(next.gadgets, { controller: next.controller, renderer: next.renderer, force: true });
       }
@@ -598,14 +512,7 @@ export function createApp({
     });
     const offCross = next.controller.on('portal:cross', ({ portal, portalId, from, to, floorDrop }) => {
       lastCross = `${from} → ${to} via ${portalId ?? '?'}`;
-      if (next.controller.currentRoom?.tags?.includes('generated') || next.controller.drift) {
-        const destRoom = next.controller.rooms.find((entry) => entry.id === to);
-        const fromRoom = next.controller.rooms.find((entry) => entry.id === from);
-        if (sealArrival(portal ?? next.controller.getPortal(portalId), { tags: destRoom?.tags ?? [] })) {
-          gameAudio.slam(doorTheme(destRoom));
-        }
-        disposeRejectedSiblings(next.controller, fromRoom, to);
-      }
+      onDriftCross(next, { portal, portalId, from, to });
       if (floorDrop && next.player) {
         next.player.onGround = false;
         if (next.player.velocity.y > -7) {
@@ -718,29 +625,23 @@ export function createApp({
       session.controller.update();
     }
     const fxRooms = liveFxRooms();
-    tickAtmosphere(fxRooms, { elapsed: clock.elapsedTime, dt });
-    tickMaterials(fxRooms, dt);
-    const optics = tickOptics(fxRooms, {
+    const features = tickFeatures(fxRooms, {
       camera: session.camera,
       dt,
       controller: session.controller,
       elapsed: clock.elapsedTime,
+      gadgets: session.gadgets,
+      renderer: session.renderer,
     });
+    const optics = features.optics ?? {};
     if (optics.events?.includes('detector-hit') && typeof gameAudio.detectorHit === 'function') {
       gameAudio.detectorHit();
     }
     updateOpticsHud(optics.status ?? session.controller.currentRoom?.opticsStatus);
-    tickNpcs(fxRooms, session.camera);
 
     session.postAA.begin();
     session.controller.render();
     session.postAA.end();
-
-    tickScreens(session.gadgets, {
-      controller: session.controller,
-      renderer: session.renderer,
-      dt,
-    });
     tickDestStrip(session.gadgets, {
       controller: session.controller,
       renderer: session.renderer,

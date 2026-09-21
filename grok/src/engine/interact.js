@@ -1,28 +1,8 @@
 import { Vector3 } from 'three';
-import { applyOpticsInteract } from '../optics/tickOptics.js';
+import { installBuiltinFeatures } from '../features/builtins.js';
+import { interactFeatures } from '../features/registry.js';
 
 const scratch = new Vector3();
-const OPTICS_ACTIONS = new Set([
-  'arm-laser',
-  'kill-laser',
-  'cycle-options',
-  'lock-spin',
-  'free-spin',
-  'set-grooves',
-  'flip-blaze',
-  'set-mode',
-  'set-slit',
-  'yaw-left',
-  'yaw-right',
-  'read-angle',
-  'arm-lamp',
-  'tilt-cross',
-  'confirm-blaze',
-  'confirm-evanescent',
-  'confirm-polar',
-  'resolve-sodium',
-  'identify-lamp',
-]);
 
 export function findInteract(room, position, { maxDistance = 2 } = {}) {
   let best = null;
@@ -73,12 +53,14 @@ export function runInteract(target, { controller } = {}) {
     }
     return { type: 'stoke', text: target.spec.text ?? 'The fire lifts.' };
   }
-  if (OPTICS_ACTIONS.has(target.spec.action)) {
-    return applyOpticsInteract(target.spec.action, {
-      room: controller?.currentRoom,
-      spec: target.spec,
-      controller,
-    });
+  installBuiltinFeatures();
+  const featured = interactFeatures(target.spec.action, {
+    room: controller?.currentRoom,
+    spec: target.spec,
+    controller,
+  });
+  if (featured !== undefined) {
+    return featured;
   }
   return { type: target.spec.action ?? 'look', text: target.spec.text ?? '' };
 }

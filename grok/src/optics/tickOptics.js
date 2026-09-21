@@ -138,6 +138,9 @@ export function indexRoomOptics(room) {
   if (!room?.scene) {
     return room;
   }
+  if (room.indexes?.has('optics')) {
+    return room;
+  }
   const gratings = [];
   const lasers = [];
   const detectors = [];
@@ -183,6 +186,16 @@ export function indexRoomOptics(room) {
       mesh.visible = false;
     }
   }
+  room.ensureIndex?.('optics', () => ({
+    gratings,
+    lasers,
+    detectors,
+    readouts,
+  }));
+  if (!room.indexes) {
+    room.indexes = new Map();
+  }
+  room.indexes.set('optics', true);
   return room;
 }
 
@@ -234,6 +247,9 @@ export function cycleGrooves(grating) {
 
 export function syncOpticsDoors(controller) {
   if (!controller) {
+    return;
+  }
+  if (controller.theme && controller.theme !== 'optics') {
     return;
   }
   const flags = controller.flags ?? {};
@@ -302,18 +318,6 @@ export function applyOpticsInteract(action, { room, spec, controller } = {}) {
     maybeSawEvanescent(room, controller);
     syncOpticsDoors(controller);
     return { type: action, option, linesPerMm: option?.linesPerMm ?? null, label: option?.label ?? '' };
-  }
-  if (action === 'lock-spin') {
-    for (const grating of room.gratings) {
-      lockGratingSpin(grating, true);
-    }
-    return { type: action };
-  }
-  if (action === 'free-spin') {
-    for (const grating of room.gratings) {
-      lockGratingSpin(grating, false);
-    }
-    return { type: action };
   }
   if (action === 'set-grooves') {
     let option = null;

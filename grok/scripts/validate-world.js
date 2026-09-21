@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { prefabs } from '../src/content/prefabs.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -18,6 +19,7 @@ export function validateWorld(world, catalog, materials = null) {
   }
   const rooms = world?.rooms ?? [];
   const roomIds = new Set();
+  const origins = new Map();
   const portalIds = new Map();
 
   for (const room of rooms) {
@@ -29,6 +31,13 @@ export function validateWorld(world, catalog, materials = null) {
       errors.push(`duplicate room id: ${room.id}`);
     }
     roomIds.add(room.id);
+    if (!world.generated) {
+      const originKey = (room.origin ?? [0, 0, 0]).join(',');
+      if (origins.has(originKey)) {
+        errors.push(`duplicate origin ${originKey}: ${origins.get(originKey)} and ${room.id}`);
+      }
+      origins.set(originKey, room.id);
+    }
     for (const entity of room.entities ?? []) {
       if (!entity.id || !entity.kind) {
         errors.push(`room ${room.id} has an entity without id/kind`);
@@ -79,6 +88,14 @@ export function validateWorld(world, catalog, materials = null) {
     }
   }
 
+  if (catalog?.kinds && !world?.generated) {
+    for (const [kind, entry] of Object.entries(catalog.kinds)) {
+      if (!prefabs[entry.prefab]) {
+        errors.push(`kind ${kind} prefab ${entry.prefab} has no builder`);
+      }
+    }
+  }
+
   return errors;
 }
 
@@ -88,6 +105,13 @@ if (isMain) {
   const materials = readJson('data/materials.json');
   const index = readJson('data/worlds/index.json');
   let failed = false;
+  const usedPrefabs = new Set(Object.values(catalog.kinds ?? {}).map((entry) => entry.prefab));
+  for (const name of Object.keys(prefabs)) {
+    if (!usedPrefabs.has(name)) {
+      console.error(`builder ${name} has no catalog kind`);
+      failed = true;
+    }
+  }
   for (const entry of index.worlds ?? []) {
     const world = readJson(`data/worlds/${entry.file}`);
     if (world.generated) {

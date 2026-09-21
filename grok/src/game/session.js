@@ -6,6 +6,7 @@ import { hydrateRoomMaterials } from '../content/materials.js';
 import { openDrift } from '../content/drift.js';
 import { createOriginPool } from '../content/generateRoom.js';
 import { applyPose } from '../content/save.js';
+import { compileNearRooms } from './compileRooms.js';
 import { assertMultiplayerAllowed } from '../net/multiplayer.js';
 
 const TEXTURE_KEYS = ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap'];
@@ -90,15 +91,11 @@ export function createSession({
     });
     controller.setSize(width, height);
     postAA.setSize(width, height, typeof nextRenderer.getPixelRatio === 'function' ? nextRenderer.getPixelRatio() : 1);
-    if (typeof nextRenderer.compile === 'function') {
-      for (const room of controller.rooms) {
-        try {
-          nextRenderer.compile(room.scene, nextCamera);
-        } catch {
-          // headless / mock renderers
-        }
-      }
-    }
+    compileNearRooms({
+      renderer: nextRenderer,
+      camera: nextCamera,
+      controller,
+    });
 
     return {
       settings: nextSettings,

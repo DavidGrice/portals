@@ -6,6 +6,8 @@ Worlds stay **data**. A hall is JSON plus catalog kinds. Generated Drift rooms p
 
 A 40-room default-weight run must: keep ≥1 spawnable door every hop; give ≥35% of rooms 3+ exits; never repeat the same topology+kit twice in a row; include at least one setpiece kit (`set-*` or `mix-*`). Fail the gate, fix kits and weights, do not start Circuit/Ages rebuilds.
 
+A hub with five or more doors draws one destination level. A spoke room may recurse up to the graphics recursion setting. Play compiles the start room and the rooms directly behind its doors. Further rooms compile the first time you enter them.
+
 Topologies live in `data/topologies/` (`I`, `L`, `T`, `plus`, `U`, `court`, `loft`, `shaft`, `rotunda`, `alcove`). Kits list a `topologies` pool. The compiler refuses to reuse the same topology+kit pair in the last four live rooms.
 
 Volume kinds: `arch.corridor` (Four halls only), `arch.chamber`, `arch.wing`, `arch.court`, `arch.loft`, `arch.shaft`, `arch.rotunda`, `arch.plus`, `arch.open` (missing walls, no ceiling), `arch.arcade` (columns instead of side walls). Chambers round their corners. Drift also picks `open`, `arcade`, and `round` so generated rooms are not the same mansion tint. A spinning landmark plus scrolling strips keep dest doors in motion. Floor pits are stencil too (`rotation: [-1.5708, 0, 0]` plus `floorHoles` so the capsule can fall). Drift still compiles wall doors only. Seeded rooms pick loft/shaft/stack for height, get metal beams and rails, and kit lighting (warm haunt points, cool cyber keys) instead of a dark sky-color wash. The flashlight is a real spot plus a near fill.

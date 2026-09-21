@@ -11,5 +11,15 @@ export class Room {
     this.portals = [];
     this.motes = null;
     this.bursts = [];
+    this.indexes = new Map();
+  }
+
+  ensureIndex(key, collect) {
+    if (this.indexes.has(key)) {
+      return this.indexes.get(key);
+    }
+    const value = collect(this);
+    this.indexes.set(key, value);
+    return value;
   }
 }

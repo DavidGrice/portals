@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "imports": {
+    "#json-read": "./src/content/jsonRead.node.js"
+  },
   "description": "First-person WebGL stencil portal engine with JSON worlds",
   "exports": {
     ".": "./src/engine/index.js"

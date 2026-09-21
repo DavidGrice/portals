@@ -1,26 +1,23 @@
 import worldIndex from '../../data/worlds/index.json' with { type: 'json' };
-import fourHalls from '../../data/worlds/two-rooms.json' with { type: 'json' };
-import hauntedHouse from '../../data/worlds/haunted-house.json' with { type: 'json' };
-import circuitGrid from '../../data/worlds/circuit-grid.json' with { type: 'json' };
-import ages from '../../data/worlds/ages.json' with { type: 'json' };
-import drift from '../../data/worlds/drift.json' with { type: 'json' };
-import littrow from '../../data/worlds/littrow.json' with { type: 'json' };
+import { readDataJson } from '#json-read';
 
-const WORLD_DATA = {
-  'two-rooms': fourHalls,
-  'haunted-house': hauntedHouse,
-  'circuit-grid': circuitGrid,
-  ages,
-  littrow,
-  drift,
-};
+const cache = new Map();
 
 export function listWorlds() {
   return (worldIndex.worlds ?? []).filter((world) => world.status !== 'draft');
 }
 
 export function getWorldData(id) {
-  return WORLD_DATA[id] ?? WORLD_DATA['two-rooms'];
+  const entry = (worldIndex.worlds ?? []).find((world) => world.id === id);
+  if (!entry) {
+    throw new Error(`Unknown world: ${id}`);
+  }
+  if (cache.has(entry.file)) {
+    return cache.get(entry.file);
+  }
+  const data = readDataJson('worlds', entry.file);
+  cache.set(entry.file, data);
+  return data;
 }
 
 export function bindWorldSelect({ root, worlds = listWorlds(), onPick, onBack, seed = '', onSeed } = {}) {

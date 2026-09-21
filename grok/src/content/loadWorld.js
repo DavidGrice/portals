@@ -1,8 +1,10 @@
 import { Scene } from 'three';
 import { PortalController } from '../engine/index.js';
 import { parseColor, spawnEntity } from './prefabs.js';
-import { attachMotes, indexRoomFx, setMoteDensity, tintGlow } from '../engine/atmosphere.js';
-import { indexRoomOptics, syncOpticsDoors } from '../optics/tickOptics.js';
+import { attachMotes, setMoteDensity, tintGlow } from '../engine/atmosphere.js';
+import { installBuiltinFeatures } from '../features/builtins.js';
+import { indexFeatures } from '../features/registry.js';
+import { syncOpticsDoors } from '../optics/tickOptics.js';
 import { applyClimateToScene, climateForDepth } from './climate.js';
 
 export function withOrigin(vec, origin) {
@@ -80,15 +82,17 @@ export function loadWorld(world, catalog, camera, renderer) {
 
   dressRooms(controller);
 
+  controller.theme = world.theme ?? null;
   controller.flags = { ...(world.flags ?? {}) };
   if (world.freeRoam) {
     controller.flags['free-roam'] = true;
-    controller.flags['littrow-lock'] = true;
     for (const portal of controller.allPortals) {
       portal.enabled = true;
     }
   }
-  syncOpticsDoors(controller);
+  if (controller.theme === 'optics') {
+    syncOpticsDoors(controller);
+  }
 
   controller.setCurrentScene(world.startRoom);
   if (world.startSpawn) {
@@ -113,10 +117,8 @@ export function dressRooms(controller) {
       setMoteDensity(room, room.atmosphere?.density ?? 1);
       applyClimateToScene(room, room.climate ?? climateForDepth(room.depth ?? 0));
     }
-    if (!room.fires) {
-      indexRoomFx(room);
-    }
-    indexRoomOptics(room);
+    installBuiltinFeatures();
+    indexFeatures(room);
     room.scene.traverse((object) => {
       if (!object.userData.portalFrame || !object.userData.coversPortalId) {
         return;

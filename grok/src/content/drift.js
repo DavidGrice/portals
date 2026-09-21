@@ -1,26 +1,7 @@
 import { BoxGeometry, Mesh, MeshStandardMaterial } from 'three';
-import cyberCyan from '../../data/kits/cyber-cyan.json' with { type: 'json' };
-import cyberHub from '../../data/kits/cyber-hub.json' with { type: 'json' };
-import cyberVault from '../../data/kits/cyber-vault.json' with { type: 'json' };
-import cyberWell from '../../data/kits/cyber-well.json' with { type: 'json' };
-import hauntHall from '../../data/kits/haunt-hall.json' with { type: 'json' };
-import hauntParlor from '../../data/kits/haunt-parlor.json' with { type: 'json' };
-import hauntCrypt from '../../data/kits/haunt-crypt.json' with { type: 'json' };
-import hauntAttic from '../../data/kits/haunt-attic.json' with { type: 'json' };
-import agesMesozoic from '../../data/kits/ages-mesozoic.json' with { type: 'json' };
-import agesStone from '../../data/kits/ages-stone.json' with { type: 'json' };
-import agesPresent from '../../data/kits/ages-present.json' with { type: 'json' };
-import agesIndustrial from '../../data/kits/ages-industrial.json' with { type: 'json' };
-import agesOrbital from '../../data/kits/ages-orbital.json' with { type: 'json' };
-import agesPrimordial from '../../data/kits/ages-primordial.json' with { type: 'json' };
-import agesAncient from '../../data/kits/ages-ancient.json' with { type: 'json' };
-import agesMedieval from '../../data/kits/ages-medieval.json' with { type: 'json' };
-import agesNearFuture from '../../data/kits/ages-near-future.json' with { type: 'json' };
-import mixPlasterStrip from '../../data/kits/mix-plaster-strip.json' with { type: 'json' };
-import mixDirtGold from '../../data/kits/mix-dirt-gold.json' with { type: 'json' };
-import setBanquet from '../../data/kits/set-banquet.json' with { type: 'json' };
-import setObservatory from '../../data/kits/set-observatory.json' with { type: 'json' };
+import kitIndex from '../../data/kits/index.json' with { type: 'json' };
 import generatorConfig from '../../data/generators/drift.json' with { type: 'json' };
+import { readDataJson } from '#json-read';
 import { createRng, pickOne } from './rng.js';
 import {
   createOriginPool,
@@ -32,39 +13,27 @@ import {
 } from './generateRoom.js';
 import { addRoom, dressRooms, relinkPortals } from './loadWorld.js';
 
-const KIT_BY_ID = {
-  'cyber-cyan': cyberCyan,
-  'cyber-hub': cyberHub,
-  'cyber-vault': cyberVault,
-  'cyber-well': cyberWell,
-  'haunt-hall': hauntHall,
-  'haunt-parlor': hauntParlor,
-  'haunt-crypt': hauntCrypt,
-  'haunt-attic': hauntAttic,
-  'ages-mesozoic': agesMesozoic,
-  'ages-stone': agesStone,
-  'ages-present': agesPresent,
-  'ages-industrial': agesIndustrial,
-  'ages-orbital': agesOrbital,
-  'ages-primordial': agesPrimordial,
-  'ages-ancient': agesAncient,
-  'ages-medieval': agesMedieval,
-  'ages-near-future': agesNearFuture,
-  'mix-plaster-strip': mixPlasterStrip,
-  'mix-dirt-gold': mixDirtGold,
-  'set-banquet': setBanquet,
-  'set-observatory': setObservatory,
-};
+let kitById = null;
+
+function kitsById() {
+  if (!kitById) {
+    kitById = {};
+    for (const entry of kitIndex.kits ?? []) {
+      kitById[entry.id] = readDataJson('kits', entry.file);
+    }
+  }
+  return kitById;
+}
 
 export function allKits() {
-  return Object.values(KIT_BY_ID).filter(Boolean);
+  return Object.values(kitsById()).filter(Boolean);
 }
 
 export function kitsForDepth(depth = 0, config = generatorConfig) {
   const row = [...(config.depths ?? [])].find((entry) => depth <= (entry.until ?? 99))
     ?? config.depths?.[config.depths.length - 1];
-  const ids = row?.kits ?? Object.keys(KIT_BY_ID);
-  const kits = ids.map((id) => KIT_BY_ID[id]).filter(Boolean);
+  const ids = row?.kits ?? Object.keys(kitsById());
+  const kits = ids.map((id) => kitsById()[id]).filter(Boolean);
   return kits.length ? kits : allKits();
 }
 
@@ -82,7 +51,7 @@ export function openDrift({
   const minExits = Number(config.minExits ?? 2);
   const maxExits = Number(config.maxExits ?? 4);
   const pool = createOriginPool();
-  const startKit = (kitId && KIT_BY_ID[kitId]) || pickOne(rng, kits);
+  const startKit = (kitId && kitsById()[kitId]) || pickOne(rng, kits);
   const startId = `drift-${depth}`;
   const recent = [];
   const start = generateRoom({
